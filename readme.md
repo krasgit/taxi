@@ -1,6 +1,23 @@
 git clone https://github.com/krasgit/taxi.git
 
 
+add hiips 
+keytool -genkey -alias https-example -storetype JKS -keyalg RSA -keysize 2048 -validity 365 -keystore https-example.jks
+
+cp https-example.jks to /src/main/resources
+
+add  in app.prop
+server.port=8443
+
+server.ssl.key-alias=https-example
+server.ssl.key-store-type=JKS
+server.ssl.key-password=qazqaz
+server.ssl.key-store=classpath:https-example.jks
+
+
+get server ip
+sudo zerotier-cli listnetworks
+
 
 # Spring PetClinic Sample Application [![Build Status](https://github.com/spring-projects/spring-petclinic/actions/workflows/maven-build.yml/badge.svg)](https://github.com/spring-projects/spring-petclinic/actions/workflows/maven-build.yml)
 
