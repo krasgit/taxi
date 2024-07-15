@@ -1,3 +1,4 @@
+//git
 CREATE SCHEMA "todo";
 
 CREATE TABLE "users" (
