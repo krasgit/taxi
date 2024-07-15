@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package org.springframework.samples.petclinic;
+package com.matin.taxi;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.testcontainers.containers.MySQLContainer;
+import org.springframework.context.annotation.ImportRuntimeHints;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import com.matin.taxi.TaxiApplication;
+import java.util.Locale;
 
 /**
  * PetClinic Spring Boot Application.
@@ -31,18 +30,12 @@ import com.matin.taxi.TaxiApplication;
  * @author Dave Syer
  *
  */
-@Configuration
-public class MysqlTestApplication {
-
-	@ServiceConnection
-	@Profile("mysql")
-	@Bean
-	static MySQLContainer<?> container() {
-		return new MySQLContainer<>("mysql:8.4");
-	}
+@SpringBootApplication
+@ImportRuntimeHints(TaxiRuntimeHints.class)
+public class TaxiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TaxiApplication.class, "--spring.profiles.active=mysql");
+		SpringApplication.run(TaxiApplication.class, args);
 	}
 
 }

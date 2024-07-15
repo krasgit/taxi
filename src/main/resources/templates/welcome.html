@@ -3,7 +3,8 @@
 <html xmlns:th="https://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'home')}">
 
   <body>
-
+	session
+   <p th:text="${session.mySessionAttribute}" th:unless="${session == null}">[...]</p>
 	<form /*th:object="${owner}" th:action="@{/owners}"*/ method="get" 	  class="form-horizontal" id="search-owner-form">
 	<!--    
 	<h2 th:text="#{from}">От къде да те вземем?</h2>
@@ -134,28 +135,6 @@
 	    </script>
 	
 	
-	<hr>
-	<script>
-const x = document.getElementById("demo");
-
-function getLocation1() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(showPosition);
-  } else { 
-    x.innerHTML = "Geolocation is not supported by this browser.";
-  }
-}
-
-function showPosition(position) {
-  x.innerHTML = "Latitude: " + position.coords.latitude + 
-  "<br>Longitude: " + position.coords.longitude;
-}
-</script>
-<p id="demo">qaz</p>
-	<button class="geeks" type="button" onclick="getLocation1();">
-	        Current Position
-	    </button>
-
 
 
 

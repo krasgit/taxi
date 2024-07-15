@@ -14,7 +14,7 @@ DROP TABLE pets IF EXISTS;
 DROP TABLE types IF EXISTS;
 DROP TABLE owners IF EXISTS;
 
-
+/*
 DROP TABLE users IF EXISTS;
 
 CREATE TABLE "users" (
@@ -28,6 +28,27 @@ CREATE TABLE "users" (
   "rating" int,
   "created_at" timestamp
 );
+*/
+DROP TABLE users IF EXISTS;
+DROP TABLE authorities IF EXISTS;
+CREATE TABLE users (
+        username VARCHAR(50) NOT NULL PRIMARY KEY,
+        password VARCHAR(100) NOT NULL,
+        enabled BOOLEAN NOT NULL
+    );
+
+    CREATE TABLE authorities (
+        username VARCHAR(50) NOT NULL,
+        authority VARCHAR(50) NOT NULL,
+        CONSTRAINT fk_authorities_users FOREIGN KEY(username) REFERENCES users(username)
+    );
+
+    INSERT INTO users (username, password, enabled) VALUES ('user', '{bcrypt}$2a$10$0gIvZlNrRpbpzR8UH/2Yh.1Z/8Wlk5.W3kmiMw4vU1UKCvKOfXbi.', true);
+
+    INSERT INTO authorities (username, authority) VALUES ('user', 'ROLE_USER');
+
+
+
 
 
 CREATE TABLE vets (

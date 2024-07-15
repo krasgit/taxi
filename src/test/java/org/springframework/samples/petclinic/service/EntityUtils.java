@@ -17,7 +17,7 @@
 package org.springframework.samples.petclinic.service;
 
 import org.springframework.orm.ObjectRetrievalFailureException;
-import org.springframework.samples.petclinic.model.BaseEntity;
+import com.matin.taxi.model.BaseEntity;
 
 import java.util.Collection;
 
