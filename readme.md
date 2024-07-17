@@ -14,6 +14,9 @@ server.ssl.key-store-type=JKS
 server.ssl.key-password=qazqaz
 server.ssl.key-store=classpath:https-example.jks
 
+----------------
+security
+https://javatechonline.com/how-to-implement-security-in-spring-boot-project/
 
 get server ip
 sudo zerotier-cli listnetworks
