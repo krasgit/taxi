@@ -7,6 +7,13 @@ acd42120918f   mediagis/nominatim:4.2            "/app/start.sh"          5 days
 
 bulgaria-latest.osm.pbf
 
+docker stop $(docker ps -a -q)
+docker rm $(docker ps -a -q)
+
+
+docker volume rm $(docker volume ls  -q)
+
+docker system prune -a
 mkdir dokers
 cd dokers
 
@@ -22,8 +29,8 @@ cd dokers
 
 3) Run overv/openstreetmap-tile-server
 	1)	docker volume create osm-data
-	2)  docker run  -v "${PWD}/bulgaria-latest.osm.pbf:/data/region.osm.pbf"  -v osm-data1:/data/database/  overv/openstreetmap-tile-server  import
-	3) 	docker run -p 8080:80   -p 5432:5432 -v osm-data1:/data/database/ -e ALLOW_CORS=enabled -d overv/openstreetmap-tile-server run
+	2)  docker run  -v "${PWD}/bulgaria-latest.osm.pbf:/data/region.osm.pbf"  -v osm-data:/data/database/  overv/openstreetmap-tile-server  import
+	3) 	docker run -p 8080:80   -p 5432:5432 -v osm-data:/data/database/ -e ALLOW_CORS=enabled -d overv/openstreetmap-tile-server run
 	      
 	      -e PGPASSWORD=secret
 	      
