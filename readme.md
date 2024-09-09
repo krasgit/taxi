@@ -1,3 +1,64 @@
+CONTAINER ID   IMAGE                             COMMAND                  CREATED        STATUS        PORTS                                                 NAMES
+7d23bb530297   osrm/osrm-backend                 "osrm-routed --algor…"   21 hours ago   Up 21 hours   0.0.0.0:5000->5000/tcp, :::5000->5000/tcp             practical_thompson
+ba3e688888da   overv/openstreetmap-tile-server   "/run.sh run"            46 hours ago   Up 46 hours   5432/tcp, 0.0.0.0:8080->80/tcp, :::8080->80/tcp       adoring_shockley
+acd42120918f   mediagis/nominatim:4.2            "/app/start.sh"          5 days ago     Up 45 hours   5432/tcp, 0.0.0.0:8180->8080/tcp, :::8180->8080/tcp   nominatim
+
+
+
+bulgaria-latest.osm.pbf
+
+docker stop $(docker ps -a -q)
+docker rm $(docker ps -a -q)
+
+
+docker volume rm $(docker volume ls  -q)
+
+docker system prune -a
+mkdir dokers
+cd dokers
+
+1) copy file  bulgaria-latest.osm.pbf
+2) Run osrm/osrm-backend
+	1)	docker run -t -v "${PWD}:/data" osrm/osrm-backend osrm-extract -p /opt/car.lua /data/bulgaria-latest.osm.pbf
+	2)  docker run -t -v "${PWD}:/data" osrm/osrm-backend osrm-partition /data/bulgaria-latest.osm.pbf
+	3)  docker run -t -v "${PWD}:/data" osrm/osrm-backend osrm-customize /data/bulgaria-latest.osm.pbf
+	4)  docker run -t -i -p 5000:5000 -v "${PWD}:/data" osrm/osrm-backend osrm-routed --algorithm mld /data/bulgaria-latest.osm.pbf
+    	
+		Test Make requests against the HTTP server
+			curl "http://127.0.0.1:5000/route/v1/driving/13.388860,52.517037;13.385983,52.496891?steps=true"
+
+3) Run overv/openstreetmap-tile-server
+	1)	docker volume create osm-data
+	2)  docker run  -v "${PWD}/bulgaria-latest.osm.pbf:/data/region.osm.pbf"  -v osm-data:/data/database/  overv/openstreetmap-tile-server  import
+	3) 	docker run -p 8080:80   -p 5432:5432 -v osm-data:/data/database/ -e ALLOW_CORS=enabled -d overv/openstreetmap-tile-server run
+	      
+	      -e PGPASSWORD=secret
+	      
+		Test tile server
+	4)	curl -k -L --output tile-3005.png "http://localhost:8080/tile/13/4731/3005.png"
+	 
+	 psql localhost:5432  DBname:gis DBuser:renderer DBpassword:renderer
+	
+	
+		
+	 
+	
+	
+
+4)  Run	mediagis/nominatim:4.2
+	1)docker run -it -e PBF_PATH=/nominatim/data/bulgaria-latest.osm.pbf -p 5433:5432 -p 8181:8080 -v "${PWD}:/nominatim/data"  -e NOMINATIM_PASSWORD=very_secure_password --name nominatim mediagis/nominatim:4.2
+	
+	Note!!! where the /osm-maps/data/ directory contains monaco-latest.osm.pbf file that is mounted and available in container: /nominatim/data/monaco-latest.osm.pbf
+	
+	 
+	Test
+	curl 'http://localhost:8181/http://127.0.0.1:8181/search?q=varna&limit=5&format=json&addressdetails=1'
+	
+	 psql localhost:5433  DBname:nominatim DBuser:nominatim DBpassword:very_secure_password
+	
+	
+
+
 git clone https://github.com/krasgit/taxi.git
 
 
