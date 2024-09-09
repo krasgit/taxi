@@ -18,11 +18,14 @@ package com.matin.taxi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import java.util.Locale;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * PetClinic Spring Boot Application.
@@ -35,7 +38,30 @@ import java.util.Locale;
 public class TaxiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TaxiApplication.class, args);
+
+		SpringApplication sa = new SpringApplication(TaxiApplication.class);
+		sa.setLogStartupInfo(false);
+		// sa.setBannerMode(Banner.Mode.OFF);
+		sa.run(args);
+		// SpringApplication.run(TaxiApplication.class, args);
+	}
+
+	@Bean
+	public FilterRegistrationBean<ReverceProxyFilter> filterRegistrationBean() {
+
+		// Filter Registration Bean
+		FilterRegistrationBean<ReverceProxyFilter> registrationBean = new FilterRegistrationBean();
+
+		// Configure Authorization Filter
+		registrationBean.setFilter(new ReverceProxyFilter());
+
+		// Specify URL Pattern
+		registrationBean.addUrlPatterns("/tile/*");
+
+		// Set the Execution Order of Filter
+		registrationBean.setOrder(2);
+
+		return registrationBean;
 	}
 
 }
