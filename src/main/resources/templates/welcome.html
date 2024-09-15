@@ -2,39 +2,61 @@
 
 <html xmlns:th="https://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'home')}">
 
+
+
+
   <body>
-	session
-   <p th:text="${session.mySessionAttribute}" th:unless="${session == null}">[...]</p>
-	<form /*th:object="${owner}" th:action="@{/owners}"*/ method="get" 	  class="form-horizontal" id="search-owner-form">
-	<!--    
-	<h2 th:text="#{from}">От къде да те вземем?</h2>
-	<h2 th:text="#{to}">За къде?</h2>
-	-->
+	<div>
+	
+		<button onclick="getLocation()">Try It</button>
+
+		<p id="demo"></p>
+
+		<script>
+		const x = document.getElementById("demo");
+
+		function getLocation() {
+		  if (navigator.geolocation) {
+		    navigator.geolocation.getCurrentPosition(showPosition);
+		  } else { 
+		    x.innerHTML = "Geolocation is not supported by this browser.";
+		  }
+		}
+
+		function showPosition(position) {
+		  x.innerHTML = "Latitude: " + position.coords.latitude + 
+		  "<br>Longitude: " + position.coords.longitude;
+		}
+		</script>
+		</div>
+	
+<!--	session   <p th:text="${session.mySessionAttribute}" th:unless="${session == null}">[...]</p>-->
+	
+   <!--
+   <form /*th:object="${owner}" th:action="@{/owners}"*/ method="get" 	  class="form-horizontal" id="search-owner-form">
 	  <div class="form-group">
 	    <div class="control-group" id="lastNameGroup">
 	      <label th:text="#{from}" class="col-sm-5 control-label">От къде да те вземем?</label>
 		  <div class="col-sm-10">
 		  	        <input class="form-control" /*th:field="*{lastName}"*/ size="30"  maxlength="80" /> 
 					<span class="help-inline">
-						<!--
+						
 		  				<div  th:if="${#fields.hasAnyErrors()}">
 		  	         	   <p th:each="err : ${#fields.allErrors()}" th:text="${err}">Error</p>
 		  	          </div>
-					  -->
+					 
 				     </span>
 		  	      </div>
 		  
-		 <!--
+
 	      <div class="col-sm-10">
 	        <input class="form-control" /*th:field="*{lastName}" */size="30"  maxlength="80" /> <span class="help-inline">
 				<div  th:if="${#fields.hasAnyErrors()}">
 	            <p th:each="err : ${#fields.allErrors()}" th:text="${err}">Error</p>
 	          </div></span>
 	      </div>
-		  -->
+
 	    </div>
-		
-		
 		
 		<div class="form-group">
 		  <div class="control-group" id="lastNameGroup">
@@ -42,22 +64,27 @@
 			<div class="col-sm-10">
 				  	        <input class="form-control" /*th:field="*{to}"*/ size="30"  maxlength="80" /> 
 							<span class="help-inline">
-								<!--
+					/*
 				  				<div  th:if="${#fields.hasAnyErrors()}">
 				  	         	   <p th:each="err : ${#fields.allErrors()}" th:text="${err}">Error</p>
 				  	          </div>
-							  -->
+						*/
 						     </span>
 				  	      </div>
+						  <p id="demo"></p>
 
-		 <!--
-		    <div class="col-sm-10">
-		      <input class="form-control" /*th:field="*{lastName}" */size="30"  maxlength="80" /> <span class="help-inline">
-				<div  th:if="${#fields.hasAnyErrors()}">
-		          <p th:each="err : ${#fields.allErrors()}" th:text="${err}">Error</p>
-		        </div></span>
-		    </div>
-		  -->
+						  <script>
+
+							const url = new URL(location.origin);
+							/*
+							url.hostname;  //  'example.com'
+							url.port;      //  12345
+							url.search;    //  '?startIndex=1&pageSize=10'
+							url.pathname;  //  '/blog/foo/bar'
+							url.protocol;  //  'http:'
+							*/
+						  document.getElementById("demo").innerHTML = url.hostname;
+						  </script>
 		  </div>
 		
 		
@@ -71,78 +98,38 @@
 	  <a class="btn btn-primary" th:href="@{/owners/new}">Add Owner</a>
 
 	</form>
+-->
 
-	
-	
-	
-	<button class="geeks" type="button" onclick="getlocation();">
-	        Current Position
-	    </button>
-	    <div id="demo2" style="width: 500px; height: 500px"></div>
-	    <script src="https://maps.google.com/maps/api/js?sensor=false">
-	    </script>
-	    <script type="text/javascript">
-	        function getlocation() {
-	            if (navigator.geolocation) {
-	                navigator.geolocation.getCurrentPosition(showLoc, errHand);
-	            }
-	        }
-	        function showLoc(pos) {
-	            latt = pos.coords.latitude;
-	            long = pos.coords.longitude;
-	            var lattlong = new google.maps.LatLng(latt, long);
-	            var OPTions = {
-	                center: lattlong,
-	                zoom: 10,
-	                mapTypeControl: true,
-	                navigationControlOptions: {
-	                    style: google.maps.NavigationControlStyle.SMALL,
-	                },
-	            };
-	            var mapg = new google.maps.Map(
-	                document.getElementById("demo2"),
-	                OPTions
-	            );
-	            var markerg = new google.maps.Marker({
-	                position: lattlong,
-	                map: mapg,
-	                title: "You are here!",
-	            });
-	        }
-	 
-	        function errHand(err) {
-	            switch (err.code) {
-	                case err.PERMISSION_DENIED:
-	                    result.innerHTML =
-	                        "The application doesn't have the permission" +
-	                        "to make use of location services";
-	                    break;
-	                case err.POSITION_UNAVAILABLE:
-	                    result.innerHTML = 
-	                          "The location of the device is uncertain";
-	                    break;
-	                case err.TIMEOUT:
-	                    result.innerHTML = 
-	                          "The request to get user location timed out";
-	                    break;
-	                case err.UNKNOWN_ERROR:
-	                    result.innerHTML =
-	                        "Time to fetch location information exceeded" +
-	                        "the maximum timeout interval";
-	                    break;
-	            }
-	        }
-	    </script>
-	
-	
+<div id="map" class="map"></div>
 
-
-
-	
-	
-	
-	
-	
+	     	 
+	         <hr>
+	        
+	       
+	         
+	         <div id="osrm-error">
+	            <a href="#" id="osrm-error-close">×</a>
+	            
+	            <p>.</p>
+	         </div>
+	     <!--
+		  <script type="text/javascript" th:src="@{/resources/Leaflet%20Routing%20Machine_files/config.js}"></script>
+		  -->
+		  		 <script type="text/javascript" th:src="@{/resources/Leaflet%20Routing%20Machine_files/index.js}"></script>
+		  <script type="text/javascript" th:src="@{/resources/Leaflet%20Routing%20Machine_files/prism.js}"></script>
+	  
+	      <script type="text/javascript">
+	         function handleError(e) {
+	           if (e.error.status === -1) {
+	             // HTTP error, show our error banner
+	             document.querySelector('#osrm-error').style.display = 'block';
+	             L.DomEvent.on(document.querySelector('#osrm-error-close'), 'click', function(e) {
+	               document.querySelector('#osrm-error').style.display = 'none';
+	               L.DomEvent.preventDefault(e);
+	             });
+	           }
+	         }
+	      </script>
   </body>
 
 </html>

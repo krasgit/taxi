@@ -38,6 +38,19 @@
   </properties>
 
   <dependencies>
+  
+  <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+  </dependency>
+  
+  
+  <dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+  </dependency>
+  
+  
     <!-- Spring and Spring Boot dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -155,11 +168,13 @@
       <artifactId>spring-boot-testcontainers</artifactId>
       <scope>test</scope>
     </dependency>
+   <!--
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-docker-compose</artifactId>
       <scope>test</scope>
     </dependency>
+   -->
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
@@ -201,6 +216,8 @@
           </execution>
         </executions>
       </plugin>
+     
+     <!--
       <plugin>
         <groupId>io.spring.javaformat</groupId>
         <artifactId>spring-javaformat-maven-plugin</artifactId>
@@ -214,6 +231,8 @@
           </execution>
         </executions>
       </plugin>
+      
+      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>

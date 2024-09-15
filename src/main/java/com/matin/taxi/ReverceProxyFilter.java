@@ -14,6 +14,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class ReverceProxyFilter implements Filter {
@@ -23,16 +24,22 @@ public class ReverceProxyFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		System.out.println("This is a Servlet doFilter() Method !");
+	//	System.out.println("This is a Servlet doFilter() Method !");
 
 		// Get remote data
-		System.out.println("Remote Host : " + request.getRemoteHost());
-		System.out.println("Remote Address : " + request.getRemoteAddr());
+		
+		HttpServletRequest dd = (HttpServletRequest) request;
+   String url="http://localhost:8080"+dd.getRequestURI();
+		
+//	System.out.println("getRequestURI : " + dd.getRequestURI());
+		
+	//	System.out.println("Remote Host : " + request.getRemoteHost());
+	//	System.out.println("Remote Address : " + request.getRemoteAddr());
 
 		// Invoke filterChain to execute the next filter inorder.
 		// chain.doFilter(request, response);
 
-		String url = "http://localhost:8080/tile/0/0/0.png";
+		//String url = "http://localhost:8080/tile/0/0/0.png";
 
 		connectRelayqaz(url, (HttpServletResponse) response);
 
@@ -67,10 +74,10 @@ public class ReverceProxyFilter implements Filter {
 				fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1, fileURL.length());
 			}
 
-			System.out.println("Content-Type = " + contentType);
-			System.out.println("Content-Disposition = " + disposition);
-			System.out.println("Content-Length = " + contentLength);
-			System.out.println("fileName = " + fileName);
+			//System.out.println("Content-Type = " + contentType);
+		//	System.out.println("Content-Disposition = " + disposition);
+		//	System.out.println("Content-Length = " + contentLength);
+		//	System.out.println("fileName = " + fileName);
 
 			// opens input stream from the HTTP connection
 			InputStream inputStream = httpConn.getInputStream();
@@ -87,7 +94,7 @@ public class ReverceProxyFilter implements Filter {
 			outputStream.close();
 			inputStream.close();
 
-			System.out.println("File downloaded");
+	//		System.out.println("File downloaded");
 		}
 		else {
 			System.out.println("No file to download. Server replied HTTP code: " + responseCode);
@@ -173,10 +180,10 @@ public class ReverceProxyFilter implements Filter {
 			response.setContentType(contentType);
 			response.setContentLength(contentLength);
 
-			System.out.println("Content-Type = " + contentType);
-			System.out.println("Content-Disposition = " + disposition);
-			System.out.println("Content-Length = " + contentLength);
-			System.out.println("fileName = " + fileName);
+	//		System.out.println("Content-Type = " + contentType);
+	//		System.out.println("Content-Disposition = " + disposition);
+	//		System.out.println("Content-Length = " + contentLength);
+	//		System.out.println("fileName = " + fileName);
 
 			// opens input stream from the HTTP connection
 			InputStream inputStream = httpConn.getInputStream();
@@ -197,7 +204,7 @@ public class ReverceProxyFilter implements Filter {
 			outputStream.close();
 			inputStream.close();
 
-			System.out.println("File downloaded");
+		//	System.out.println("File downloaded");
 		}
 		else {
 			System.out.println("No file to download. Server replied HTTP code: " + responseCode);

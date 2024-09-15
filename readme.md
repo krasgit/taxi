@@ -1,3 +1,5 @@
+-Dmaven.test.skip=true skips
+
 CONTAINER ID   IMAGE                             COMMAND                  CREATED        STATUS        PORTS                                                 NAMES
 7d23bb530297   osrm/osrm-backend                 "osrm-routed --algor…"   21 hours ago   Up 21 hours   0.0.0.0:5000->5000/tcp, :::5000->5000/tcp             practical_thompson
 ba3e688888da   overv/openstreetmap-tile-server   "/run.sh run"            46 hours ago   Up 46 hours   5432/tcp, 0.0.0.0:8080->80/tcp, :::8080->80/tcp       adoring_shockley
@@ -77,12 +79,17 @@ server.ssl.key-store=classpath:https-example.jks
 
 ----------------
 security
+
+docker run --name myzerotier --rm --cap-add NET_ADMIN --device /dev/net/tun zerotier/zerotier:latest abcdefdeadbeef00
+
+
+
 https://javatechonline.com/how-to-implement-security-in-spring-boot-project/
 
 get server ip
 sudo zerotier-cli listnetworks
 
-
+   serviceUrl: 'http://localhost:8282/http://127.0.0.1:8181/',
 # Spring PetClinic Sample Application [![Build Status](https://github.com/spring-projects/spring-petclinic/actions/workflows/maven-build.yml/badge.svg)](https://github.com/spring-projects/spring-petclinic/actions/workflows/maven-build.yml)
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/spring-projects/spring-petclinic) [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=7517918)
