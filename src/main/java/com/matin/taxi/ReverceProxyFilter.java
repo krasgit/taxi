@@ -31,7 +31,7 @@ public class ReverceProxyFilter implements Filter {
 		HttpServletRequest dd = (HttpServletRequest) request;
 		String url = "http://localhost:8080" + dd.getRequestURI();
 
-//	System.out.println("getRequestURI : " + dd.getRequestURI());
+		//	System.out.println("getRequestURI : " + dd.getRequestURI());
 
 		// System.out.println("Remote Host : " + request.getRemoteHost());
 		// System.out.println("Remote Address : " + request.getRemoteAddr());
@@ -42,13 +42,6 @@ public class ReverceProxyFilter implements Filter {
 		// String url = "http://localhost:8080/tile/0/0/0.png";
 
 		connectRelayqaz(url, (HttpServletResponse) response);
-
-		// PrintWriter out = response.getWriter();
-		// response.setContentType("application/json");
-		// response.setCharacterEncoding("UTF-8");
-		// out.print("rterte");
-		// out.flush();
-
 	}
 	// Code for 1st Filter
 
@@ -92,10 +85,8 @@ public class ReverceProxyFilter implements Filter {
 
 			outputStream.close();
 			inputStream.close();
-
-			// System.out.println("File downloaded");
 		} else {
-			System.out.println("No file to download. Server replied HTTP code: " + responseCode);
+			System.out.println("Server replied HTTP code: " + responseCode);
 		}
 		httpConn.disconnect();
 	}
@@ -202,7 +193,7 @@ public class ReverceProxyFilter implements Filter {
 
 			// System.out.println("File downloaded");
 		} else {
-			System.out.println("No file to download. Server replied HTTP code: " + responseCode);
+			System.out.println("Server replied HTTP code: " + responseCode);
 		}
 		httpConn.disconnect();
 

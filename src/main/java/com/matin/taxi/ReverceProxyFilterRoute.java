@@ -122,9 +122,8 @@ public class ReverceProxyFilterRoute implements Filter {
 			outputStream.close();
 			inputStream.close();
 
-			// System.out.println("File downloaded");
 		} else {
-			System.out.println("No file to download. Server replied HTTP code: " + responseCode);
+			System.out.println("Server replied HTTP code: " + responseCode);
 		}
 		httpConn.disconnect();
 	}
@@ -236,9 +235,8 @@ public class ReverceProxyFilterRoute implements Filter {
 			outputStream.close();
 			inputStream.close();
 
-			// System.out.println("File downloaded");
 		} else {
-			System.out.println("No file to download. Server replied HTTP code: " + responseCode);
+			System.out.println("Server replied HTTP code: " + responseCode);
 		}
 		httpConn.disconnect();
 

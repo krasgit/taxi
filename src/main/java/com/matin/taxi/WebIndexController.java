@@ -25,10 +25,7 @@ import com.matin.taxi.owner.Owner;
 import com.matin.taxi.owner.OwnerRepository;
 
 /**
- * @author Juergen Hoeller
- * @author Ken Krebs
- * @author Arjen Poutsma
- * @author Michael Isvy
+ 
  */
 @Controller
 class WebIndexController {
