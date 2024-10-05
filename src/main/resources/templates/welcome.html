@@ -7,7 +7,19 @@
 
   <body>
 	<div>
-	
+		<script>
+		function log( log) {
+		 var div = document.getElementById('divID');
+
+		div.innerHTML = log+"\n"+div.innerHTML;
+		}
+		</script>
+		
+		<div id='divID'  style="white-space:pre;width: 200px; height: 100px; overflow-y: scroll;">
+		</div>
+		Enter some text: <input type="text" name="txt" value="Hello" onchange="log(this.value)">
+		<button type="button" onclick="log('534')">log </button>
+		
 		<button onclick="getLocation()">Try It</button>
 
 		<p id="demo"></p>

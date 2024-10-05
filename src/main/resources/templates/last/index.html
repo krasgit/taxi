@@ -1,0 +1,212 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Leaflet.Control.FullScreen Demo</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		
+		
+		<link rel="stylesheet" th:href="@{/resources/last/leaflet.css}" />
+		<link rel="stylesheet" th:href="@{/resources/last/Control.FullScreen.css}" />
+		<link rel="stylesheet" th:href="@{/resources/last/css.css}" />
+		
+		<link rel="stylesheet" th:href="@{/resources/last/leaflet-routing-machine.css}" />
+		
+		<link rel="stylesheet" th:href="@{/resources/last/Control.Locate.css}" />
+		
+		
+		<style type="text/css">
+			#map {
+				width:  100%;
+				max-width: 100%;
+				height:  640px;
+			}
+			
+			
+			.results {
+			    background-color: white;
+			    opacity: 0.8;
+			    position: absolute;
+			    top: 12px;
+			    right: 12px;
+			    width: 320px;
+			    height: 480px;
+			    overflow-y: scroll;
+			}
+			
+		</style>
+<!--
+	<script src="https://unpkg.com/leaflet@latest/dist/leaflet.js"></script>
+-->	
+
+
+	<script>
+		var br=0;
+		function log( log) {
+			br++;
+		 var div = document.getElementById('divID');
+
+		div.innerHTML =br+' '+ log+"\n"+div.innerHTML;
+		}
+		</script>
+
+
+		
+		
+
+		<script type="text/javascript" th:src="@{/resources/last/leaflet.js}"></script>
+		<script type="text/javascript" th:src="@{/resources/last/Control.FullScreen.js}"></script>
+		<script type="text/javascript" th:src="@{/resources/last/leaflet-routing-machine.js}"></script>
+	    <script type="text/javascript" th:src="@{/resources/last/Control.Geocoder.js}"></script>
+		<script type="text/javascript" th:src="@{/resources/last/Leaflet.Icon.Glyph.js}"></script>
+		<script type="text/javascript" th:src="@{/resources/last/Control.Locate.js}"></script>
+		
+		
+
+
+ 
+	</head>
+	<body>
+	<div id='divID'  style="white-space:pre;width: 600px; height: 100px; overflow-y: scroll;">
+		</div>
+		<div id="map"></div>
+<!--
+	<div style="margin: 1em 0 0">
+			<span style="padding: 0 0.25em 0 0">Demonstration of 'toggleFullscreen' method</span>
+			<button type="button" onclick="toggleFullscreen();">Show map in fullscreen mode</button>
+		</div>
+-->	
+		<script>
+
+//const kurl ='localhost';// new URL(location.origin);
+const url = new URL(location.origin);
+const kurl = url.hostname;
+
+		//	const base = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
+	const base = L.tileLayer('https://'+kurl+':8443/tile/{z}/{x}/{y}.png'
+, {
+				maxZoom: 32,
+				subdomains: 'abcd',
+				attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
+			});
+
+			let map = L.map('map', {
+				waypoints: [
+						L.latLng(43.234, 27.987),
+						L.latLng(57.679, 11.949)
+					],
+				layers: [base],
+				tap: false, // ref https://github.com/Leaflet/Leaflet/issues/7255
+				center: new L.LatLng(43.193163, 27.850342),
+				zoom: 12,
+				fullscreenControl: true,
+				fullscreenControlOptions: {
+					// optional
+					title: 'Show me the fullscreen !',
+					titleCancel: 'Exit fullscreen mode'
+				}
+			});
+
+
+
+			// detect fullscreen toggling
+			map.on('enterFullscreen', function () {
+				if (window.console) window.console.log('enterFullscreen');
+			});
+			map.on('exitFullscreen', function () {
+				if (window.console) window.console.log('exitFullscreen');
+			});
+
+			// toggler into fullscreen mode
+			const toggleFullscreen = function () {
+				map.toggleFullscreen();
+			};
+
+
+
+
+
+
+
+
+			var lc = L.control
+			  .locate({
+			    position: "topleft",
+			    strings: {
+			      title: "Show me where I am, yo!"
+			    }
+			  })
+			  .addTo(map);
+
+
+
+
+
+
+var control = L.Routing.control({
+	//	router: L.routing.osrmv1(	{serviceUrl: 'http://127.0.0.1:5000/route/v1'	}),
+	router: L.routing.osrmv1(	{serviceUrl: 'https://'+kurl+':8443/route/v1'	}),
+		plan: L.Routing.plan(waypoints =	[
+							L.latLng(43.234, 27.987),
+								L.latLng(43.233, 27.980),
+						]
+		, {
+			createMarker: function(i, wp) {
+				return L.marker(wp.latLng, {
+					draggable: true,
+					icon: L.icon.glyph({ glyph: String.fromCharCode(65 + i) })
+				});
+			},
+			geocoder: L.Control.Geocoder.nominatim(),
+			routeWhileDragging: true
+		}),
+		
+		routeWhileDragging: true,
+		  fitSelectedRoutes: false,
+		routeDragTimeout: 250,
+		showAlternatives: true,
+		altLineOptions: {
+			styles: [
+				{color: 'black', opacity: 0.15, weight: 9},
+				{color: 'white', opacity: 0.8, weight: 6},
+				{color: 'blue', opacity: 0.5, weight: 2}
+			]
+		}
+	})
+
+
+
+
+	control.addTo(map)
+	.on('routingerror', function(e) {
+		try {
+			map.getCenter();
+		} catch (e) {
+			map.fitBounds(L.latLngBounds(waypoints));
+		}
+
+		handleError(e);
+	});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		</script>
+	</body>
+</html>

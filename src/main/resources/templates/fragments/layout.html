@@ -83,10 +83,25 @@
             <span>Home</span>
           </li>
 
+		  <li th:replace="~{::menuItem ('/last/index','rtc1','rtc2','rtc3','client')}">
+		            <span class="fa fa-search" aria-hidden="true"></span>
+		            <span>rtc</span>
+		          </li>
+		  
+				  <li th:replace="~{::menuItem ('/last/index','rtc1','rtc2','rtc3','taxi')}">
+				  	            <span class="fa fa-search" aria-hidden="true"></span>
+				  	            <span>rtc</span>
+				  	          </li>	  
+				  
+				  
           <li th:replace="~{::menuItem ('/rtc/rtc','rtc1','rtc2','rtc3','rtc4')}">
             <span class="fa fa-search" aria-hidden="true"></span>
             <span>rtc</span>
           </li>
+		  
+		  
+		  
+		  
 		  
 		  <li th:replace="~{::menuItem ('/owners/find','owners','find owners','search','Find owners')}">
 		             <span class="fa fa-search" aria-hidden="true"></span>

@@ -24,22 +24,22 @@ public class ReverceProxyFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-	//	System.out.println("This is a Servlet doFilter() Method !");
+		// System.out.println("This is a Servlet doFilter() Method !");
 
 		// Get remote data
-		
+
 		HttpServletRequest dd = (HttpServletRequest) request;
-   String url="http://localhost:8080"+dd.getRequestURI();
-		
+		String url = "http://localhost:8080" + dd.getRequestURI();
+
 //	System.out.println("getRequestURI : " + dd.getRequestURI());
-		
-	//	System.out.println("Remote Host : " + request.getRemoteHost());
-	//	System.out.println("Remote Address : " + request.getRemoteAddr());
+
+		// System.out.println("Remote Host : " + request.getRemoteHost());
+		// System.out.println("Remote Address : " + request.getRemoteAddr());
 
 		// Invoke filterChain to execute the next filter inorder.
 		// chain.doFilter(request, response);
 
-		//String url = "http://localhost:8080/tile/0/0/0.png";
+		// String url = "http://localhost:8080/tile/0/0/0.png";
 
 		connectRelayqaz(url, (HttpServletResponse) response);
 
@@ -68,16 +68,15 @@ public class ReverceProxyFilter implements Filter {
 				if (index > 0) {
 					fileName = disposition.substring(index + 10, disposition.length() - 1);
 				}
-			}
-			else {
+			} else {
 				// extracts file name from URL
 				fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1, fileURL.length());
 			}
 
-			//System.out.println("Content-Type = " + contentType);
-		//	System.out.println("Content-Disposition = " + disposition);
-		//	System.out.println("Content-Length = " + contentLength);
-		//	System.out.println("fileName = " + fileName);
+			// System.out.println("Content-Type = " + contentType);
+			// System.out.println("Content-Disposition = " + disposition);
+			// System.out.println("Content-Length = " + contentLength);
+			// System.out.println("fileName = " + fileName);
 
 			// opens input stream from the HTTP connection
 			InputStream inputStream = httpConn.getInputStream();
@@ -94,9 +93,8 @@ public class ReverceProxyFilter implements Filter {
 			outputStream.close();
 			inputStream.close();
 
-	//		System.out.println("File downloaded");
-		}
-		else {
+			// System.out.println("File downloaded");
+		} else {
 			System.out.println("No file to download. Server replied HTTP code: " + responseCode);
 		}
 		httpConn.disconnect();
@@ -147,8 +145,7 @@ public class ReverceProxyFilter implements Filter {
 	public static void main(String[] args) {
 		try {
 			downloadFile("http://localhost:8080/tile/0/0/0.png", "/home/kivanov/Desktop/diff");
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -171,8 +168,7 @@ public class ReverceProxyFilter implements Filter {
 				if (index > 0) {
 					fileName = disposition.substring(index + 10, disposition.length() - 1);
 				}
-			}
-			else {
+			} else {
 				// extracts file name from URL
 				fileName = remoteAddress.substring(remoteAddress.lastIndexOf("/") + 1, remoteAddress.length());
 			}
@@ -180,10 +176,10 @@ public class ReverceProxyFilter implements Filter {
 			response.setContentType(contentType);
 			response.setContentLength(contentLength);
 
-	//		System.out.println("Content-Type = " + contentType);
-	//		System.out.println("Content-Disposition = " + disposition);
-	//		System.out.println("Content-Length = " + contentLength);
-	//		System.out.println("fileName = " + fileName);
+			// System.out.println("Content-Type = " + contentType);
+			// System.out.println("Content-Disposition = " + disposition);
+			// System.out.println("Content-Length = " + contentLength);
+			// System.out.println("fileName = " + fileName);
 
 			// opens input stream from the HTTP connection
 			InputStream inputStream = httpConn.getInputStream();
@@ -204,9 +200,8 @@ public class ReverceProxyFilter implements Filter {
 			outputStream.close();
 			inputStream.close();
 
-		//	System.out.println("File downloaded");
-		}
-		else {
+			// System.out.println("File downloaded");
+		} else {
 			System.out.println("No file to download. Server replied HTTP code: " + responseCode);
 		}
 		httpConn.disconnect();

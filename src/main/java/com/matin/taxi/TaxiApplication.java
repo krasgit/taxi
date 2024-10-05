@@ -27,6 +27,8 @@ import proxy.HttpProxyServer;
 
 import java.util.Locale;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * PetClinic Spring Boot Application.
  *
@@ -36,91 +38,88 @@ import java.util.Locale;
 @SpringBootApplication
 @ImportRuntimeHints(TaxiRuntimeHints.class)
 public class TaxiApplication {
-	  private static int port=8282;;
+	private static int port = 8282;;
+
 	public static void main(String[] args) {
+
 		try {
-	        HttpProxyServer myProxy = new HttpProxyServer(port);
-	        myProxy.listen();
-	    	}catch (Exception e) {
-	    		System.err.print(e.getMessage());
-	        }
+			HttpProxyServer myProxy = new HttpProxyServer(port);
+			myProxy.listen();
+		} catch (Exception e) {
+			System.err.print(e.getMessage());
+		}
 		SpringApplication.run(TaxiApplication.class, args);
-		
-	}
-		@Bean
-		public FilterRegistrationBean<ReverceProxyFilter> filterRegistrationBean() {
 
-			// Filter Registration Bean
-			FilterRegistrationBean<ReverceProxyFilter> registrationBean = new FilterRegistrationBean();
-
-			// Configure Authorization Filter
-			registrationBean.setFilter(new ReverceProxyFilter());
-
-			// Specify URL Pattern
-			registrationBean.addUrlPatterns("/tile/*");
-
-			// Set the Execution Order of Filter
-			registrationBean.setOrder(2);
-
-			return registrationBean;
-		}
-		
-		@Bean
-		public FilterRegistrationBean<ReverceProxyFilterSearch> filterSearchBean() {
-
-			// Filter Registration Bean
-			FilterRegistrationBean<ReverceProxyFilterSearch> registrationBean = new FilterRegistrationBean<ReverceProxyFilterSearch>();
-
-			// Configure Authorization Filter
-			registrationBean.setFilter(new ReverceProxyFilterSearch());
-
-			// Specify URL Pattern
-			registrationBean.addUrlPatterns("/search/*");
-
-			// Set the Execution Order of Filter
-			registrationBean.setOrder(2);
-
-			return registrationBean;
-		}
-		
-		
-		@Bean
-		public FilterRegistrationBean<ReverceProxyFilterReverse> filterReverseBean() {
-
-			// Filter Registration Bean
-			FilterRegistrationBean<ReverceProxyFilterReverse> registrationBean = new FilterRegistrationBean<ReverceProxyFilterReverse>();
-			// Configure Authorization Filter
-			registrationBean.setFilter(new ReverceProxyFilterReverse());
-
-			// Specify URL Pattern
-			registrationBean.addUrlPatterns("/reverse/*");
-
-			// Set the Execution Order of Filter
-			registrationBean.setOrder(2);
-
-			return registrationBean;
-		}
-		
-		
-		
-		
-		@Bean
-		public FilterRegistrationBean<ReverceProxyFilterRoute> filterRouteBean() {
-
-			// Filter Registration Bean
-			FilterRegistrationBean<ReverceProxyFilterRoute> registrationBean = new FilterRegistrationBean<ReverceProxyFilterRoute>();
-			// Configure Authorization Filter
-			registrationBean.setFilter(new ReverceProxyFilterRoute());
-
-			// Specify URL Pattern
-			registrationBean.addUrlPatterns("/route/*");
-
-			// Set the Execution Order of Filter
-			registrationBean.setOrder(2);
-
-			return registrationBean;
-		}
-	
 	}
 
+	@Bean
+	public FilterRegistrationBean<ReverceProxyFilter> filterRegistrationBean() {
 
+		// Filter Registration Bean
+		FilterRegistrationBean<ReverceProxyFilter> registrationBean = new FilterRegistrationBean();
+
+		// Configure Authorization Filter
+		registrationBean.setFilter(new ReverceProxyFilter());
+
+		// Specify URL Pattern
+		registrationBean.addUrlPatterns("/tile/*");
+
+		// Set the Execution Order of Filter
+		registrationBean.setOrder(2);
+
+		return registrationBean;
+	}
+
+	@Bean
+	public FilterRegistrationBean<ReverceProxyFilterSearch> filterSearchBean() {
+
+		// Filter Registration Bean
+		FilterRegistrationBean<ReverceProxyFilterSearch> registrationBean = new FilterRegistrationBean<ReverceProxyFilterSearch>();
+
+		// Configure Authorization Filter
+		registrationBean.setFilter(new ReverceProxyFilterSearch());
+
+		// Specify URL Pattern
+		registrationBean.addUrlPatterns("/search/*");
+
+		// Set the Execution Order of Filter
+		registrationBean.setOrder(2);
+
+		return registrationBean;
+	}
+
+	@Bean
+	public FilterRegistrationBean<ReverceProxyFilterReverse> filterReverseBean() {
+
+		// Filter Registration Bean
+		FilterRegistrationBean<ReverceProxyFilterReverse> registrationBean = new FilterRegistrationBean<ReverceProxyFilterReverse>();
+		// Configure Authorization Filter
+		registrationBean.setFilter(new ReverceProxyFilterReverse());
+
+		// Specify URL Pattern
+		registrationBean.addUrlPatterns("/reverse/*");
+
+		// Set the Execution Order of Filter
+		registrationBean.setOrder(2);
+
+		return registrationBean;
+	}
+
+	@Bean
+	public FilterRegistrationBean<ReverceProxyFilterRoute> filterRouteBean() {
+
+		// Filter Registration Bean
+		FilterRegistrationBean<ReverceProxyFilterRoute> registrationBean = new FilterRegistrationBean<ReverceProxyFilterRoute>();
+		// Configure Authorization Filter
+		registrationBean.setFilter(new ReverceProxyFilterRoute());
+
+		// Specify URL Pattern
+		registrationBean.addUrlPatterns("/route/*");
+
+		// Set the Execution Order of Filter
+		registrationBean.setOrder(2);
+
+		return registrationBean;
+	}
+
+}
