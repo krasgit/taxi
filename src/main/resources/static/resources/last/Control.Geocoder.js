@@ -956,14 +956,15 @@ var leafletControlGeocoder = (function (exports, L) {
   
   
   function getHostname(){
-  //const kurl = new URL(location.origin);
-   return "192.168.196.191";
+  const kurl = new URL(location.origin);
+   return kurl;
    }
   var Nominatim = /*#__PURE__*/function () {
     function Nominatim(options) {
       this.options = {
     //    serviceUrl: 'http://'+getHostname()+':8282/http://127.0.0.1:8181/',
-	serviceUrl: 'https://'+getHostname()+':8443/',
+	//serviceUrl: 'https://'+getHostname()+':8443/',
+	serviceUrl: ''+getHostname()+'',
         htmlTemplate: function htmlTemplate(r) {
           var address = r.address;
           var className;

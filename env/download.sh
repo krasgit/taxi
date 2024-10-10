@@ -1,0 +1,1 @@
+wget https://download.geofabrik.de/europe/bulgaria-latest.osm.pbf

@@ -122,4 +122,13 @@ public class TaxiApplication {
 		return registrationBean;
 	}
 
+	 @Bean
+	    public FilterRegistrationBean filterSessionBean() {
+	        FilterRegistrationBean registrationBean = new FilterRegistrationBean(new SessionFilter());
+	        registrationBean.addUrlPatterns("/*");
+	        registrationBean.setOrder(1);
+	        return registrationBean;
+	    }
+	
+	
 }
