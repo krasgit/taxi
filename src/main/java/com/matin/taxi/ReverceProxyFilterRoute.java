@@ -68,7 +68,7 @@ public class ReverceProxyFilterRoute implements Filter {
 		String url =null; 
 		
 		url =bb.replace("https://192.168.196.191:8443", "http://127.0.0.1:5000");
-		url = bb.replace("https://localhost:8443", "http://127.0.0.1:5000");
+		url =url.replace("https://localhost:8443", "http://127.0.0.1:5000");
 
 		// url=bb.replace("https://localhost:8443", "http://127.0.0.1:5000");
 		System.out.println("url Address : " + url);

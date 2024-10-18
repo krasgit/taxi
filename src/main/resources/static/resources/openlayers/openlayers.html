@@ -4,16 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Taxi</title>
-	<!--
-		<link rel="stylesheet" th:href="@{/resources/last/leaflet.css}" />
-		<script type="text/javascript" th:src="@{/resources/last/leaflet.js}"></script>
-		https://openlayers.org/en/latest/examples/geolocation-orientation.html
-	-->
-	
-	
-    <link rel="stylesheet" href="ol-debug.css" type="text/css"    th:href="@{/resources/openlayers/ol-debug.css}" />
-    <link rel="stylesheet" href="openlayers-routing-machine.css"  th:href="@{/resources/openlayers/openlayers-routing-machine.css}" />
-    <link rel="stylesheet" href="ol-geocoder.css"                 th:href="@{/resources/openlayers/ol-geocoder.css}" />
+    <link rel="stylesheet" href="ol-debug.css" type="text/css">
+    <link rel="stylesheet" href="openlayers-routing-machine.css" />
+    <link rel="stylesheet" href="ol-geocoder.css" />
     <style>
       html, body {
         height: 100%;
@@ -26,7 +19,7 @@
         height: 100%;
       }
 
-   #infoo {
+   #info {
           position: absolute;
           font-size: 0.7em;
           top: 10px;
@@ -42,40 +35,27 @@
       }
 
     </style>
-    <script src="ol-debug.js"                    th:src="@{/resources/openlayers/ol-debug.js}" ></script>
-    <script src="openlayers-routing-machine.js"  th:src="@{/resources/openlayers/openlayers-routing-machine.js}" ></script>
-    <script src="ol-geocoder-debug.js"           th:src="@{/resources/openlayers/ol-geocoder-debug.js}" ></script>
-	
-	<script src="ol-geocoder-debug.js"           th:src="@{/resources/openlayers/adapter-latest.js}" ></script>
-	<script src="ol-geocoder-debug.js"           th:src="@{/resources/openlayers/webSocketClient.js}" ></script>
-	
-    <!--
-	<script type="module" src="nominatim.js"     th:src="@{/resources/openlayers/nominatim.js}" ></script>  
-	-->
+    <script src="ol-debug.js"></script>
+    <script src="openlayers-routing-machine.js"></script>
+       <script src="ol-geocoder-debug.js"></script>
+       <script type="module" src="nominatim.js"></script>  
+  
 
   </head>
   <body>
     <div id="map" class="map"></div>
-	<div id="info"></div>
-<div id="infoo"></div>
+<div id="info"></div>
 
 
     <div id="popup" style="padding: 10px;background-color: white;"></div>
-<img id="geolocation_marker" src="geolocation_marker.png"  th:src="@{/resources/openlayers/geolocation_marker.png}" alt="geolocation_marker"/>
+<img id="geolocation_marker" src="geolocation_marker.png" />
     <div class="geolocate-buttons">
-	  <button id="ping" class="btn btn-primary">Ping</button>
       <button id="geolocate" class="btn btn-primary">Geolocate Me!</button>
       <button id="simulate" class="btn btn-secondary">Simulate</button>
-	  
-
     </div>
-		
+
     <script>
 
-		
-		const url = new URL(location.origin);
-		const hostname = url.hostname;
-		
 const view =  new ol.View({
           center: ol.proj.fromLonLat([27.953315566702816,43.3520584446037]),
           zoom: 10
@@ -85,8 +65,8 @@ const view =  new ol.View({
 const tileLayer = new  ol.layer.Tile({
            
             source: new ol.source.XYZ({
-                  attributions: [ol.source.OSM.ATTRIBUTION,'<a href="http://openstreetmap.org">' + 'OpenTaxi' +     '</a>' ],
-                  url: 'https://'+hostname+':8443/tile/{z}/{x}/{y}.png'
+                  attributions: [ol.source.OSM.ATTRIBUTION,'Tiles courtesy of ' +'<a href="http://openstreetmap.org">' + 'OpenStreetMap' +     '</a>' ],
+                  url: 'http://localhost:8080/tile/{z}/{x}/{y}.png'
             })
 
 });
@@ -119,18 +99,15 @@ const tileLayer = new  ol.layer.Tile({
   [27.953315566702816,43.3520584446037],
   [26.953315566702816,42.3520584446037]
 ]
-
-
-
 var control = new olrm.Control({
   map,
   waypoints
 });
 
-map.addControl(control)
+
 
  function simpleReverseGeocoding(lon, lat) {
-        fetch('https://'+hostname+':8443/reverse?format=json&lon=' + lon + '&lat=' + lat).then(function(response) {
+        fetch('https://localhost:8443/reverse?format=json&lon=' + lon + '&lat=' + lat).then(function(response) {
           return response.json();
         }).then(function(json) {
 //          alert(json.display_name);
@@ -150,14 +127,12 @@ console.log(json.display_name);
 //-----------------------------------------------------------------
 //const popup = new ol.Overlay.Popup();
 
-
+/* $$$$$$$$$$$$$$1
 var popup = new ol.Overlay({
  
       });
-	  map.addOverlay(popup);
-	  
+
   // Instantiate with some options and add the Control
-  /*
   const geocoder = new Geocoder('nominatim', {
     provider: 'photon',
     targetType: 'glass-button',
@@ -168,7 +143,7 @@ var popup = new ol.Overlay({
   });
 
   map.addControl(geocoder);
- 
+  map.addOverlay(popup);
 
   // Listen when an address is chosen
   geocoder.on('addresschosen', (evt) => {
@@ -176,7 +151,7 @@ var popup = new ol.Overlay({
       popup.show(evt.coordinate, evt.address.formatted);
     }, 3000);
   });
-*/
+$$$$$$$$$$$$$$$$$$$$$$$$1*/
     </script>
  <script /*src="geolocation-orientation.js" */>
 // Geolocation marker
@@ -205,36 +180,6 @@ const geolocation = new ol.Geolocation({
 
 let deltaMean = 500; // the geolocation sampling period mean in ms
 
-
-function logPosition(geolocation, m) {
-	
-	const position = geolocation.getPosition();
-	const accuracy = geolocation.getAccuracy();
-	const heading = geolocation.getHeading() || 0;
-	const speed = geolocation.getSpeed() || 0;
-
-	
-	const coords = {};
-	coords.longitude= position[0];
-	coords.latitude=  position[1];
-	coords.speed= speed;
-	 
-	coords.accuracy= accuracy;
-	 coords.altitudeAccuracy= 8;
-	  coords.altitude= 238;
-	 
-	 coords.heading= heading;
-	 coords.timestamp=m;
-	
-	 const positionJSON = JSON.stringify(position);
-	 console.log("positionJSON "+positionJSON);
-	
-	
-	const coordsJSON = JSON.stringify(coords);
-	console.log("coordsJSON "+coordsJSON);
-
- 
-}
 // Listen to position changes
 geolocation.on('change', function () {
   const position = geolocation.getPosition();
@@ -242,7 +187,7 @@ geolocation.on('change', function () {
   const heading = geolocation.getHeading() || 0;
   const speed = geolocation.getSpeed() || 0;
   const m = Date.now();
-  logPosition(geolocation,  m);
+
   addPosition(position, heading, m, speed);
 
   const coords = positions.getCoordinates();
@@ -258,9 +203,7 @@ geolocation.on('change', function () {
     'Speed: ' + (speed * 3.6).toFixed(1) + ' km/h',
     'Delta: ' + Math.round(deltaMean) + 'ms',
   ].join('<br />');
-  document.getElementById('infoo').innerHTML = html;
-  
-  updateView();
+  document.getElementById('info').innerHTML = html;
 });
 
 geolocation.on('error', function () {
@@ -304,9 +247,9 @@ function addPosition(position, heading, m, speed) {
 
   // FIXME use speed instead
   if (heading && speed) {
-    markerEl.src = '/resources/openlayers/geolocation_marker_heading.png';
+    markerEl.src = 'data/geolocation_marker_heading.png';
   } else {
-    markerEl.src = '/resources/openlayers/geolocation_marker.png';
+    markerEl.src = 'data/geolocation_marker.png';
   }
 }
 
@@ -356,7 +299,7 @@ geolocateBtn.addEventListener(
 // simulate device move
 let simulationData;
 const client = new XMLHttpRequest();
-client.open('GET', '/resources/openlayers/geolocation-orientation.json');
+client.open('GET', 'data/geolocation-orientation.json');
 
 /**
  * Handle data loading.
@@ -405,7 +348,7 @@ function simulatePositionChange(position) {
   const coords = position.coords;
   geolocation.set('accuracy', coords.accuracy);
   geolocation.set('heading', degToRad(coords.heading));
-  const projectedPosition = ol.proj.fromLonLat([coords.longitude, coords.latitude]);
+  const projectedPosition = fromLonLat([coords.longitude, coords.latitude]);
   geolocation.set('position', projectedPosition);
   geolocation.set('speed', coords.speed);
   geolocation.changed();
@@ -415,23 +358,10 @@ function disableButtons() {
   geolocateBtn.disabled = 'disabled';
   simulateBtn.disabled = 'disabled';
 }
-//------------------------------------------------------------------------------------
 
-
-
-
-const pingBtnEl = document.getElementById('ping');
-pingBtnEl.addEventListener(
-  'click',
-  function () {
-     wsPing();
-  },
-  false,
-);
 
 </script>
-<!--
     <script src="common.js"></script>
-	-->
+
   </body>
 </html>

@@ -15658,18 +15658,77 @@ module.exports={
 			
 			
 			log('reg event')
+		
+		//	alert(this);
+		this._elem.addEventListener('input', this._keyPressed.bind(this));
+		this._elem.addEventListener('keypress', this._keyPressed.bind(this));
+		this._elem.addEventListener('keyup', this._keyDown.bind(this));		
+		this._elem.addEventListener('keydown', this._keyDown.bind(this));
 			
+			
+		this._elem.addEventListener("blur" , this._kclose.bind(this));
+				
+		/*
 			L.DomEvent.addListener(this._elem, 'input', this._keyPressed, this);
 			L.DomEvent.addListener(this._elem, 'keypress', this._keyPressed, this);
-			L.DomEvent.addListener(this._elem, 'keyup', this._keyUp, this); //kras
+		//	L.DomEvent.addListener(this._elem, 'keyup', this._keyUp, this); //kras
 			L.DomEvent.addListener(this._elem, 'keydown', this._keyDown, this);
 			L.DomEvent.addListener(this._elem, 'blur', function() {
 				if (this._isOpen) {
 					this.close();
 				}
 			}, this);
+			*/
 		},
 
+		_kclose: function(e) {
+			{
+						log("start_blur "+e.keyCode + " which"+e.which);
+				
+						if (this._isOpen) {
+																this.close();
+															}
+								
+															return;
+						
+						var index;
+						log("_kclose keyCode "+e.keyCode + " which"+e.which);
+
+
+						if (this._isOpen && e.which === 0 && this._selection) {
+							log("_kclose keyCode #1");
+							index = parseInt(this._selection.getAttribute('data-result-index'), 10);
+							this._resultSelected(this._results[index])();
+							L.DomEvent.preventDefault(e);
+							return;
+						}
+
+						if (e.which === 0) {
+							log("_kclose keyCode #2");
+							L.DomEvent.preventDefault(e);
+							this._complete(this._resultFn, true);
+							return;
+						}
+
+						if (this._autocomplete && document.activeElement === this._elem) {
+							log("_kclose keyCode #3");
+							if (this._timer) {
+								clearTimeout(this._timer);
+							}
+							this._timer = setTimeout(L.Util.bind(function() { this._complete(this._autocomplete); }, this),
+								this.options.timeout);
+							return;
+						}
+
+						this._unselect();
+					/*	
+					
+										*/
+					}
+				},
+		
+		
+		
 		close: function() {
 			L.DomUtil.removeClass(this._container, 'leaflet-routing-geocoder-result-open');
 			this._isOpen = false;
@@ -15753,7 +15812,9 @@ module.exports={
 		
 		_keyUp: function(e) {
 					var index;
-					log("_keyUp keyCode "+e.keyCode )
+					log("_keyUp keyCode "+e.keyCode + " which"+e.which);
+					
+					
 					if (this._isOpen && e.keyCode === 13 && this._selection) {
 						index = parseInt(this._selection.getAttribute('data-result-index'), 10);
 						this._resultSelected(this._results[index])();
@@ -15781,7 +15842,7 @@ module.exports={
 		
 		_keyPressed: function(e) {
 			var index;
-			log("_keyPressed keyCode "+e.keyCode )
+			log("_keyPressed keyCode "+e.keyCode+  " which"+e.which )
 			if (this._isOpen && e.keyCode === 13 && this._selection) {
 				index = parseInt(this._selection.getAttribute('data-result-index'), 10);
 				this._resultSelected(this._results[index])();
@@ -15831,6 +15892,18 @@ module.exports={
 		},
 
 		_keyDown: function(e) {
+			log("_keyDown keyCode "+e.keyCode+  " which"+e.which )
+			if (e.keyCode === 13) {
+							L.DomEvent.preventDefault(e);
+							this._complete(this._resultFn, true);
+							return;
+						}
+			
+						if (e.keyCode === 229) {
+													L.DomEvent.preventDefault(e);
+													this._complete(this._resultFn, true);
+													return;
+												}
 			if (this._isOpen) {
 				switch (e.keyCode) {
 				// Escape
@@ -15853,7 +15926,15 @@ module.exports={
 		},
 
 		_complete: function(completeFn, trySelect) {
-			var v = this._elem.value;
+			var v ;
+			try {
+				 v = this._elem.value;
+			}
+			catch(err) {
+			  log("_complete " +err.message);
+			}
+			
+		
 			function completeResults(results) {
 				this._lastCompletedText = v;
 				if (trySelect && results.length === 1) {
