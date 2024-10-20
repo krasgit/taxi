@@ -43,8 +43,8 @@ public class TaxiApplication {
 	public static void main(String[] args) {
 
 		try {
-			HttpProxyServer myProxy = new HttpProxyServer(port);
-			myProxy.listen();
+		//	HttpProxyServer myProxy = new HttpProxyServer(port);
+		//	myProxy.listen();
 		} catch (Exception e) {
 			System.err.print(e.getMessage());
 		}
@@ -121,7 +121,7 @@ public class TaxiApplication {
 
 		return registrationBean;
 	}
-
+/*
 	 @Bean
 	    public FilterRegistrationBean filterSessionBean() {
 	        FilterRegistrationBean registrationBean = new FilterRegistrationBean(new SessionFilter());
@@ -130,5 +130,5 @@ public class TaxiApplication {
 	        return registrationBean;
 	    }
 	
-	
+*/	
 }
