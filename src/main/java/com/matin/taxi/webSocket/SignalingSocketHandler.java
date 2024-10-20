@@ -7,24 +7,19 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.matin.taxi.owner.OwnerRepository;
+
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by IntelliJ IDEA.
- * Project : springboot-webrtc
- * User: hendisantika
- * Email: hendisantika@gmail.com
- * Telegram : @hendisantika34
- * Date: 28/12/20
- * Time: 17.42
- */
 
+import com.matin.taxi.db.*;
 public class SignalingSocketHandler extends TextWebSocketHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(SignalingSocketHandler.class);
 
     private static final String TYPE_INIT = "init";
+    
     private static final String TYPE_LOGOUT = "logout";
 
     /**
@@ -38,9 +33,12 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
 
         // send the message to all other peers, that new men its being registered
         final SignalMessage newMenOnBoard = new SignalMessage();
-        newMenOnBoard.setType(TYPE_INIT);
+        newMenOnBoard.setType("session");
         newMenOnBoard.setSender(session.getId());
-
+        
+        session.sendMessage(new TextMessage(Utils.getString(newMenOnBoard)));
+        
+        newMenOnBoard.setType(TYPE_INIT);
         connectedUsers.values().forEach(webSocketSession -> {
             try {
                 webSocketSession.sendMessage(new TextMessage(Utils.getString(newMenOnBoard)));
@@ -65,13 +63,39 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
         removeUserAndSendLogout(session.getId());
     }
 
+    //private final SimulateRepository simulate=new SimulateRepository();
+     void handleLogPosition(SignalMessage signalMessage, String sessionId) {
+    	
+    	 
+    	  SimulateRepository rc = SimulateController.get();
+    	  
+    	  Simulate log =new Simulate();
+    	  log.setDescription((String)signalMessage.getData());
+    	  log.setSessionId(sessionId);
+		rc.save(log );
+    	 
+    	 System.out.print(signalMessage);
+    }
+    
+    
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         LOG.info("handleTextMessage : {}", message.getPayload());
 
         String payload = message.getPayload();
+        
+        
         SignalMessage signalMessage = Utils.getObject(payload);
 
+        if(signalMessage.getType().equals("ping"))
+        	signalMessage.setType("pong");
+        
+        if(signalMessage.getType().equals("logPosition"))
+        {
+        	handleLogPosition(signalMessage,session.getId());
+        	return;
+        }
+        
         // with the destinationUser find the targeted socket, if any
         String destinationUser = signalMessage.getReceiver();
         WebSocketSession destSocket = connectedUsers.get(destinationUser);

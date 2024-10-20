@@ -4,6 +4,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Taxi</title>
+	
+	<!--
+		https://openlayersbook.github.io/ch09-taking-control-of-controls/example-06.html
+		https://yopaseopor.github.io/osmrecyclingmap/#map=7.62/41.40702/2.09389/0
+		https://jsfiddle.net/expedio/kLmg4uey/
+	-->
+	
+	
 	<!--
 		<link rel="stylesheet" th:href="@{/resources/last/leaflet.css}" />
 		<script type="text/javascript" th:src="@{/resources/last/leaflet.js}"></script>
@@ -41,14 +49,28 @@
           left: 10px;
       }
 
+	  
+	  .rotate-north {
+	        top: 65px;
+	        left: .5em;
+	      }
+	      .ol-touch .rotate-north {
+	        top: 80px;
+	      }
+	  
     </style>
     <script src="ol-debug.js"                    th:src="@{/resources/openlayers/ol-debug.js}" ></script>
     <script src="openlayers-routing-machine.js"  th:src="@{/resources/openlayers/openlayers-routing-machine.js}" ></script>
     <script src="ol-geocoder-debug.js"           th:src="@{/resources/openlayers/ol-geocoder-debug.js}" ></script>
 	
-	<script src="ol-geocoder-debug.js"           th:src="@{/resources/openlayers/adapter-latest.js}" ></script>
+	<script src="adapter-latest.js"           th:src="@{/resources/openlayers/adapter-latest.js}" ></script>
 	<script src="ol-geocoder-debug.js"           th:src="@{/resources/openlayers/webSocketClient.js}" ></script>
 	
+	
+	<script src="mylib.js"           th:src="@{/resources/openlayers/rotateControl.js}" ></script>
+	<!--
+	<script src="mylib.js"           th:src="@{/resources/openlayers/mylib.js}" ></script>
+	-->
     <!--
 	<script type="module" src="nominatim.js"     th:src="@{/resources/openlayers/nominatim.js}" ></script>  
 	-->
@@ -64,14 +86,27 @@
 <img id="geolocation_marker" src="geolocation_marker.png"  th:src="@{/resources/openlayers/geolocation_marker.png}" alt="geolocation_marker"/>
     <div class="geolocate-buttons">
 	  <button id="ping" class="btn btn-primary">Ping</button>
-      <button id="geolocate" class="btn btn-primary">Geolocate Me!</button>
+      <button id="geolocate" class="btn btn-primary">Geolocate Me</button>
       <button id="simulate" class="btn btn-secondary">Simulate</button>
-	  
+	  <button id="simulate1" class="btn btn-secondary">Simulate1</button>
 
     </div>
-		
-    <script>
+	
+	<script type="module">
+	import mylib from "../resources/openlayers/mylib.js";
 
+console.log( mylib());
+
+	</script>
+
+	
+	
+
+	
+
+	
+	
+    <script>
 		
 		const url = new URL(location.origin);
 		const hostname = url.hostname;
@@ -97,21 +132,22 @@ const tileLayer = new  ol.layer.Tile({
 
 
 
+	
+
 
 
       var map = new ol.Map({
-          controls: ol.control.defaults().extend([
-    new ol.control.FullScreen()
-  ]),
+      //    controls: ol.control.defaults().extend(	//[new ol.control.FullScreen()],		[rotateNorthControl]	),
+		//	controls: ol.control.defaultControls().extend([new RotateNorthControl()]),
         layers: [tileLayer       ],
         controls: ol.control.defaults({
           // Set to display OSM attributions on the bottom right control
           attributionOptions:  {
             collapsed: false
           }
-        }).extend([
-          new ol.control.ScaleLine() // Add scale line to the defaults controls
-        ]),
+        }).extend(
+			[new ol.control.ScaleLine()]
+			),
         target: 'map',
         view: view,
       });
@@ -121,6 +157,8 @@ const tileLayer = new  ol.layer.Tile({
 ]
 
 
+this.map.addControl(new RotateNorthControl());
+this.map.addControl(new ol.control.FullScreen());
 
 var control = new olrm.Control({
   map,
@@ -231,6 +269,9 @@ function logPosition(geolocation, m) {
 	
 	
 	const coordsJSON = JSON.stringify(coords);
+	
+	wssendmsg("logPosition","","",coordsJSON);
+	
 	console.log("coordsJSON "+coordsJSON);
 
  
@@ -356,7 +397,7 @@ geolocateBtn.addEventListener(
 // simulate device move
 let simulationData;
 const client = new XMLHttpRequest();
-client.open('GET', '/resources/openlayers/geolocation-orientation.json');
+client.open('GET', '/resources/openlayers/sim.json');
 
 /**
  * Handle data loading.
@@ -401,12 +442,31 @@ simulateBtn.addEventListener(
   false,
 );
 
+function myFunction() {
+var lat = 3102392.8181436514; 
+var lon = 5347751.845924492;
+var lonlat = new OpenLayers.LonLat(lon, lat);
+}
+
 function simulatePositionChange(position) {
   const coords = position.coords;
   geolocation.set('accuracy', coords.accuracy);
   geolocation.set('heading', degToRad(coords.heading));
+  
+  
+  
+  //var coordinate = ol.proj.toLonLat(eate);
+  //console.log("ol.proj.toLonLat"+coordinate);
+  
+  /* org
   const projectedPosition = ol.proj.fromLonLat([coords.longitude, coords.latitude]);
   geolocation.set('position', projectedPosition);
+  */
+  
+  const tmp = [coords.longitude, coords.latitude];
+  geolocation.set('position', tmp);
+  
+  
   geolocation.set('speed', coords.speed);
   geolocation.changed();
 }

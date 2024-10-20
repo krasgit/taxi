@@ -40,6 +40,11 @@ function processWsMessage(message) {
     logMessage(signal);
     // you have logged in
     switch (signal.type) {
+		
+		case 'session':
+		            handleSession(signal);
+		            break;
+		
         case 'init':
             handleInit(signal);
             break;
@@ -61,6 +66,12 @@ function processWsMessage(message) {
     }
 
 }
+
+var sesionID=null;
+function handleSession(signal) {
+	sesionID=signal.sender;
+	}
+
 function handlePong(signal) {
 
 console.log("pong "+signal);
@@ -233,10 +244,19 @@ try{
 function wsPing() {
 	
 	type="ping";
-	msg=JSON.stringify({type:type, sender: "sender", receiver: "sender",data:""});
+	msg=JSON.stringify({type:type, sender: "sender", receiver: sesionID,data:"data"});
 	console.log("msg "+msg);
 	ws.send( msg);
 }
+
+
+function wssendmsg(type,sender,receiver,data) {
+	
+	msg=JSON.stringify({type:type, sender: sender, receiver: receiver,data:data});
+	console.log("msg "+msg);
+	ws.send( msg);
+}
+
 
 // start
 window.onload = conect;

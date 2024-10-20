@@ -1,0 +1,14 @@
+{
+  "data": [{
+    "coords": {
+      "speed": 1.7330950498580933,
+      "accuracy": 5,
+      "altitudeAccuracy": 8,
+      "altitude": 238,
+      "longitude":3105985.4143912885,
+      "heading": 67.5,
+      "latitude": 5343064.528124749
+    },
+    "timestamp": 1394788264972
+  }]
+}

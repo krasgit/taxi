@@ -3,8 +3,8 @@ package com.matin.taxi.webSocket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Utils {
-    // Jackson JSON converter
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+	private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private Utils() {
     }
