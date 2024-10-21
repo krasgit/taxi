@@ -74,9 +74,65 @@
     <!--
 	<script type="module" src="nominatim.js"     th:src="@{/resources/openlayers/nominatim.js}" ></script>  
 	-->
-
+	<!--
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	-->
+	<link rel="stylesheet" href="ol-geocoder.css"                 th:href="@{/resources/openlayers/ol3-sidebar.css}" />
+	<script src="ol-debug.js"                    th:src="@{/resources/openlayers/ol3-sidebar.js}" ></script>
   </head>
   <body>
+	
+	
+	
+	
+	
+	
+	<div id="sidebar" class="sidebar collapsed">
+	       <!-- Nav tabs -->
+	       <div class="sidebar-tabs">
+	           <ul role="tablist">
+	               <li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
+	               <li><a href="#profile" role="tab"><i class="fa fa-user"></i></a></li>
+	               <li class="disabled"><a href="#messages" role="tab"><i class="fa fa-envelope"></i></a></li>
+	               <li><a href="https://github.com/Turbo87/sidebar-v2" role="tab" target="_blank"><i class="fa fa-github"></i></a></li>
+	           </ul>
+
+	           <ul role="tablist">
+	               <li><a href="#settings" role="tab"><i class="fa fa-gear"></i></a></li>
+	           </ul>
+	       </div>
+
+	       <!-- Tab panes -->
+	       <div class="sidebar-content">
+	           <div class="sidebar-pane" id="home">
+	               <h1 class="sidebar-header">
+	                   Open Taxi
+	                   <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+	               </h1>
+
+	               <p>A responsive sidebar for mapping libraries like <a href="http://openlayers.org/">OpenLayers</a>.</p>
+	               
+	               <p class="lorem">Lorem iamet.</p>
+	           </div>
+
+	           <div class="sidebar-pane" id="profile">
+	               <h1 class="sidebar-header">Profile<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+	           </div>
+
+	           <div class="sidebar-pane" id="messages">
+	               <h1 class="sidebar-header">Messages<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+	           </div>
+
+	           <div class="sidebar-pane" id="settings">
+	               <h1 class="sidebar-header">Settings<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+	           </div>
+	       </div>
+	   </div>
+	
+	
+	
+	
+	
     <div id="map" class="map"></div>
 	<div id="info"></div>
 <div id="infoo"></div>
@@ -156,6 +212,10 @@ const tileLayer = new  ol.layer.Tile({
   [26.953315566702816,42.3520584446037]
 ]
 
+
+var sidebar = new ol.control.Sidebar({ element: 'sidebar', position: 'left' });
+
+     map.addControl(sidebar);
 
 this.map.addControl(new RotateNorthControl());
 this.map.addControl(new ol.control.FullScreen());
