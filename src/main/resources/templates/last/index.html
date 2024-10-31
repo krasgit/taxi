@@ -23,40 +23,18 @@
     <link rel="stylesheet" href="openlayers-routing-machine.css"  th:href="@{/resources/openlayers/openlayers-routing-machine.css}" />
     <link rel="stylesheet" href="ol-geocoder.css"                 th:href="@{/resources/openlayers/ol-geocoder.css}" />
     <style>
-      html, body {
-        height: 100%;
-        padding: 0;
-        margin: 0;
-      }
-      #map {
+      html, body { height: 100%; padding: 0; margin: 0; }
+	    #map {
         /* configure the size of the map */
         width: 100%;
         height: 100%;
       }
 
-   #infoo {
-          position: absolute;
-          font-size: 0.7em;
-          top: 10px;
-          right: 10px;
-          background-color: lightgrey;
-          padding: 4px;
-      }
+   #infoo { position: absolute; font-size: 0.7em; top: 10px; right: 10px;  background-color: lightgrey;  padding: 4px;      }
 
- .geolocate-buttons {
-          position: absolute;
-          bottom: 40px;
-          left: 10px;
-      }
-
-	  
-	  .rotate-north {
-	        top: 65px;
-	        left: .5em;
-	      }
-	      .ol-touch .rotate-north {
-	        top: 80px;
-	      }
+ 	.geolocate-buttons { position: absolute; bottom: 40px; left: 10px; }
+	  .rotate-north { top: 65px;left: .5em;    }
+	.ol-touch .rotate-north { top: 80px;      }
 	  
     </style>
     <script src="ol-debug.js"                    th:src="@{/resources/openlayers/ol-debug.js}" ></script>
@@ -82,7 +60,11 @@
 <div id="infoo"></div>
 
 
-    <div id="popup" style="padding: 10px;background-color: white;"></div>
+<div id="popup" class="ol-popup">
+    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+    <div id="popup-content"></div>
+</div>  
+
 <img id="geolocation_marker" src="geolocation_marker.png"  th:src="@{/resources/openlayers/geolocation_marker.png}" alt="geolocation_marker"/>
     <div class="geolocate-buttons">
 	  <button id="ping" class="btn btn-primary">Ping</button>
@@ -90,7 +72,11 @@
       <button id="simulate" class="btn btn-secondary">Simulate</button>
 	  <button id="simulate1" class="btn btn-secondary">Simulate1</button>
 
+	  
+	  <button id="route1" class="btn btn-secondary">route1</button>
+	  <button id="route2" class="btn btn-secondary">route2</button>
     </div>
+	
 	
 	<script type="module">
 	import mylib from "../resources/openlayers/mylib.js";
@@ -98,27 +84,12 @@
 console.log( mylib());
 
 	</script>
-
-	
-	
-
-	
-
-	
-	
     <script>
 		
 		const url = new URL(location.origin);
 		const hostname = url.hostname;
-		
-const view =  new ol.View({
-          center: ol.proj.fromLonLat([27.953315566702816,43.3520584446037]),
-          zoom: 10
-        })
-
-
-const tileLayer = new  ol.layer.Tile({
-           
+		const view =  new ol.View({ center: ol.proj.fromLonLat([27.953315566702816,43.3520584446037]),      zoom: 10   })
+		const tileLayer = new  ol.layer.Tile({
             source: new ol.source.XYZ({
                   attributions: [ol.source.OSM.ATTRIBUTION,'<a href="http://openstreetmap.org">' + 'OpenTaxi' +     '</a>' ],
                   url: 'https://'+hostname+':8443/tile/{z}/{x}/{y}.png'
@@ -127,19 +98,43 @@ const tileLayer = new  ol.layer.Tile({
 });
 
 
+var urll = new URL(location.origin);
+		var hostnamel = url.hostname;
+var urll='https://'+hostname+':8443/route/v1/driving/'
 
+var markerImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAApCAYAAADAk4LOAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAUlSURBVFjDrZdLiBxVFIb/e289uqt6kkx6zIiIoKgLRReKuMhCcaOIAUEIiCCE4CIPggZ8kBjooPgM0TiYEUUjqBGchZqAQlyYRTA+kJiJQiJGMjN5zYzT3dP1rrr3HBeTjDGTSfc8Dvyruud89Z9z6kIJdBj31763MivsJXKuZYF6dak5++2mh7NOcsXVHq6sHbhOK/24kOJJMO4AE1vKygwZhxlKSHGKiD+RSu09vOXB43OCrHz96y6T2lsh+OmKXzFdlbLne2UopSAupBhjECcZgjDMgiiSxPhcK/nCr1sfOtcWcm/tq9uEsL4rl0vdK67pKVu2jUwTMk0wBBAzpBCQAnAtiZIlwWQwPlHPglZQAFj1Y23VwVkh92zbd59U+Kanp+p2L12mooKQ5AbcpuclS6LiKoRhxOfHzhXMcs3PtVV7Z0DufXH/LSzpSG9vr1/p6kIz0dDUrvx/IYXAsrJCkWc4e/Z0Zpgf+KX26A/TkNtrXziesY9Xq8tvWNZdVfVYg7hzwKVv3O3ZiKMWj46OTrq5fdOh1x5pSADwjdzo2nbv0u6qqkca2jCIMGcZAuqRhu8vEX7ZK2V2WgMAcXdtvyeKbPS662+osCohzMycHVweniNREoShoZO5KYobpciSh23bFq7rIUgNiLFghRkBlg2v7GlpiccsCHrcryzxUk3zmsNskeYGvt/lxVH4hMWEu9xSWaQFYQ7L1B6iGZ5bBoy+zWKiHiltFHpqeIsVhWaosg1iqlgg4wAAEYEXsV3EmNppJmExMFYUxfVSuIs6E0sI5FkBBhLJzH9laQxLSjBj0WQJgSJPweDTkknvS4JGbCuxKOt7UY4lEQfNnAu9TzLxN2nUdAQTLAEw8YIlAVgAkmDCSBL75eCutSeY+GTUqqNkqUVxUbIl4qgJo4vWzecrhyQAMJldYf1MXLLl1EIsYBZgoGwpRI2zMTPtGBhYbSQAlJF9lieRzNMIriVBzPOWawvoIkYaNC0u9IcAIAHgp75NLQl8ENbPZJ6jgAU48RyFqHEuZyE+Pda/vjENAQBD5s209Y+kPJlyM4+r3lUS0AWSyVEhpHnjYu1pyO+7N4ywwPvhxHDiuwo8j1b5rkQwMZIziYHBXetPzIAAgIV8exZOSMoieI6aU5vKtgR0jqw1JtiYbZfW/R/kSN+mcWbxdtwYjn1XTd9B7cQAfNdCWB/OhBR7jvWv/3tWCAAoO3ktjyZZJ0HHbsq2AooERVQXzPKly2vOgPz29jNNBr+e1IcSz5YAM4hmFzPDtyWS+lDK4N2DfU+dbgsBAFHyd+oszE3agt/GjWcrUBEjj5sQBb96pXpXhAzueDJi4u1p41TsuQpCiFln4bkKeXMoJeadg++tG+sYAgBBXOo3RRrruAnfkWDmGfIdCeQhiiQgQbxjtlqzQk59vCZlNluL5lDiORLyMjcA4DsKeXM4AfDKxa97ThAAqPaMfaR1Nq6jOiqOAhOm5TsKJg1QZGGRedY7V6tzVcjBWk1D0JZ8cigt2RJSimkXnqOgW8MxQLUTb6wN5g0BgGPV0c9BekTH41xx5YXrQ8FkTRgdpxU7ea9djbYQ1GokmJ43wUhWtgRcS04tQjAcw9CWw29tThYOAXD03XVfMps/TTTOy30blDZgiqxFK6p7OsnvCDJ1UD9LyUjORoPDkUQyPfdHbXW+qJCjfRsOwOAoNY4z6Xz01rHq3k5zO4ZMHTabYSIhJD87MLB64f8Ys8WdG/tfBljMJedfwY+s/2P4Pv8AAAAASUVORK5CYII="
 
-
-
-
-	
-
+var points = [],
+  msg_el = document.getElementById("msg"),
+  url_osrm_nearest = "//router.project-osrm.org/nearest/v1/driving/",
+  url_osrm_route = "//router.project-osrm.org/route/v1/driving/",
+  icon_url = "//cdn.rawgit.com/openlayers/ol3/master/examples/data/icon.png",
+  vectorSource = new ol.source.Vector(),
+  vectorLayer = new ol.layer.Vector({
+    source: vectorSource,
+  })
+  
+  
+  var defaultStyle = new ol.style.Style({
+    image: new ol.style.Icon({   anchor: [12, 41],  anchorXUnits: 'pixels',   anchorYUnits: 'pixels',    src: markerImage    })	,
+  	text: new ol.style.Text({    offsetY: -24,offsetX: 0,     text: 'A',   placement: 'point',        textAlign: 'center',     fill: new ol.style.Fill({color: 'rgb(255, 255, 255)'}),
+  	    //        backgroundFill: new ol.style.Fill({color: 'black'}),
+  	            padding: [3, 5, 3, 5]
+  	        })
+  });
+  
+  var styles = { route: new ol.style.Style({ stroke: new ol.style.Stroke({    width: 6,    color: [40, 40, 40, 0.8],   }),   }),
+    icon: new ol.style.Style({   image: new ol.style.Icon({      anchor: [0.5, 1],      src: icon_url,    }),   }),
+  }
+//------------------------
+//---------------
 
 
       var map = new ol.Map({
+		//interactions: defaultInteractions().extend([dragAndDropInteraction]),
       //    controls: ol.control.defaults().extend(	//[new ol.control.FullScreen()],		[rotateNorthControl]	),
 		//	controls: ol.control.defaultControls().extend([new RotateNorthControl()]),
-        layers: [tileLayer       ],
+        layers: [tileLayer    ,vectorLayer   ],
         controls: ol.control.defaults({
           // Set to display OSM attributions on the bottom right control
           attributionOptions:  {
@@ -151,22 +146,160 @@ const tileLayer = new  ol.layer.Tile({
         target: 'map',
         view: view,
       });
-   var waypoints = [
-  [27.953315566702816,43.3520584446037],
-  [26.953315566702816,42.3520584446037]
-]
+   
+	//  var waypoints = [];
+	  
 
 
 this.map.addControl(new RotateNorthControl());
 this.map.addControl(new ol.control.FullScreen());
 
+
+/*
+map.on("pointermove", function(evt){
+	
+	const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+		
+		g=new ol.geom.Point(ol.proj.fromLonLat(evt.coordinate));
+		feature.setGeometry(g);
+	    return feature;
+	  });
+	  
+	 
+	console.log('evt drag'+feature);
+	evt.preventDefault();
+	}); 
+
+
+map.on("dragstart", function(evt){
+	
+	const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+	    return feature;
+	  });
+	  
+	  
+	console.log('evt onDown'+feature);
+	
+	}); 
+
+map.on('pointerdown', function(evt){
+	
+	const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+	    return feature;
+	  });
+	  
+	  
+	console.log('evt onDown'+feature);
+	
+	});
+*/
+
+
+
+	var stop=0;
+
+
+/**
+map.on('click', function(evt){
+  utils.getNearest(evt.coordinate).then(function(coord_street){
+	
+	
+	if(stop==2)
+	return ;
+    var last_point = points[points.length - 1];
+    var points_length = points.push(coord_street);
+
+	
+    utils.createFeature(coord_street);
+
+    if (points_length < 2) {
+console.log('Click to add another point');
+      return;
+    }
+	
+	stop=2;
+
+    //get the route
+    var point1 = last_point.join();
+    var point2 = coord_street.join();
+    
+    fetch(urll + point1 + ';' + point2).then(function(r) { 
+      return r.json();
+    }).then(function(json) {
+      if(json.code !== 'Ok') {
+       console.log('No route found.');
+        return;
+      }
+     console.log('Route added');
+      //points.length = 0;
+      utils.createRoute(json.routes[0].geometry);
+    });
+  });
+});
+*/
+var utils = {
+  getNearest: function(coord){
+    var coord4326 = utils.to4326(coord);    
+    return new Promise(function(resolve, reject) {
+      //make sure the coord is on street
+      fetch(url_osrm_nearest + coord4326.join()).then(function(response) { 
+        // Convert to JSON
+        return response.json();
+      }).then(function(json) {
+        if (json.code === 'Ok') resolve(json.waypoints[0].location);
+        else reject();
+      });
+    });
+  },
+  createFeature: function(coord) {
+	
+	
+	g=new ol.geom.Point(ol.proj.fromLonLat(coord));
+    var feature = new ol.Feature({type: 'place',   geometry:  g });
+    feature.setStyle(styles.icon);
+    vectorSource.addFeature(feature);
+	var translate1 = new app.Drag({
+		features: new ol.Collection([feature])
+	});
+	map.addInteraction(translate1);
+  },
+  createRoute: function(polyline) {
+    // route is ol.geom.LineString
+    var route = new ol.format.Polyline({  factor: 1e5
+    }).readGeometry(polyline, {
+      dataProjection: 'EPSG:4326',
+      featureProjection: 'EPSG:3857'
+    });
+    var feature = new ol.Feature({ type: 'route',   geometry: route  });
+    feature.setStyle(styles.route);
+    vectorSource.addFeature(feature);
+	return feature;
+  },
+  to4326: function(coord) {
+    return ol.proj.transform([
+      parseFloat(coord[0]), parseFloat(coord[1])
+    ], 'EPSG:3857', 'EPSG:4326');
+  }
+};
+var coord1 = [-5707673.76, -3499420.81];
+var marker1 = new ol.geom.Point(coord1);
+var featureMarker1 = new ol.Feature(marker1);
+
+
+
+/*
+	  var waypoints = [
+  [27.953315566702816,43.3520584446037],
+  [26.953315566702816,42.3520584446037],
+]
+
 var control = new olrm.Control({
-  map,
-  waypoints
+  map
+  ,  waypoints
 });
 
 map.addControl(control)
-
+*/
  function simpleReverseGeocoding(lon, lat) {
         fetch('https://'+hostname+':8443/reverse?format=json&lon=' + lon + '&lat=' + lat).then(function(response) {
           return response.json();
@@ -175,7 +308,12 @@ map.addControl(control)
 console.log(json.display_name);
         })
       }
-      map.on('click', function(e) {
+    
+	  
+	  
+	  /*
+	  
+	    map.on('click', function(e) {
         var coordinate = ol.proj.toLonLat(e.coordinate).map(function(val) {
           return val.toFixed(6);
         });
@@ -183,16 +321,56 @@ console.log(json.display_name);
         var lat = coordinate[1];
         simpleReverseGeocoding(lon, lat);
       });
-      
+      */
+	  
+	  const element = document.getElementById('popup');
+
+	  const popup = new ol.Overlay({
+	    element: element,
+	    positioning: 'bottom-center',
+	    stopEvent: false,
+	  });
+	  map.addOverlay(popup);
+
+	  let popover;
+	  function disposePopover() {
+	    if (popover) {
+	      popover.dispose();
+	      popover = undefined;
+	    }
+	  }
+	  // display popup on click
+	  map.on('click', function (evt) {
+	    const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+	      return feature;
+	    });
+	    disposePopover();
+	   
+		//kras if (!feature) 
+	    //kras  return;
+	    
+	    popup.setPosition(evt.coordinate);
+	    
+		var content = document.getElementById('popup-content');
+		content.innerHTML = '<b>Hello world!</b><br />I am a popup.';
+		
+	    popover.show();
+	  });
+
+	  // change mouse cursor when over marker
+	  map.on('pointermove', function (e) {
+	    const pixel = map.getEventPixel(e.originalEvent);
+	    const hit = map.hasFeatureAtPixel(pixel);
+	   //kras map.getTarget().style.cursor = hit ? 'pointer' : '';
+	  });
+	  // Close the popup when the map is moved
+	  map.on('movestart', disposePopover);
 
 //-----------------------------------------------------------------
 //const popup = new ol.Overlay.Popup();
 
 
-var popup = new ol.Overlay({
- 
-      });
-	  map.addOverlay(popup);
+
 	  
   // Instantiate with some options and add the Control
   /*
@@ -489,7 +667,345 @@ pingBtnEl.addEventListener(
   false,
 );
 
+//-----------
+///ADD MARKER
+/*
+    var markers = new ol.Layer.Markers( "Markers" );
+    map.addLayer(markers);
+
+    var size = new ol.Size(21,25);
+    var offset = new ol.Pixel(-(size.w/2), -size.h);
+    var icon = new ol.Icon('marker.png', size, offset);
+    markers.addMarker(new ol.Marker(new ol.LonLat(106.8478695,-6.1568562),icon));
+    markers.addMarker(new ol.Marker(new ol.LonLat(106.8478695,-6.1568562),icon.clone()));
+*/
+
+
 </script>
+
+<script>
+	//-------------------------------------------
+	var app = {};
+	     /**@constructor  @extends {module:ol/interaction/Pointer}  */
+	     app.Drag = function() {
+
+	       ol.interaction.Pointer.call(this, {
+	         handleDownEvent: app.Drag.prototype.handleDownEvent,
+	         handleDragEvent: app.Drag.prototype.handleDragEvent,
+	         handleMoveEvent: app.Drag.prototype.handleMoveEvent,
+	         handleUpEvent: app.Drag.prototype.handleUpEvent
+	       });
+
+	       /** @type {module:ol/pixel~Pixel}* @private */
+	       this.coordinate_ = null;
+
+	       /**
+	        * @type {string|undefined}
+	        * @private
+	        */
+	       this.cursor_ = 'pointer';
+
+	       /**
+	        * @type {module:ol/Feature~Feature}
+	        * @private
+	        */
+	       this.feature_ = null;
+
+	       /** @type {string|undefined} @private*/
+	       this.previousCursor_ = undefined;
+
+	     };
+	    // inherits(app.Drag, PointerInteraction);
+		 ol.inherits(app.Drag, ol.interaction.Pointer);
+
+	     /**
+	      * @param {module:ol/MapBrowserEvent~MapBrowserEvent} evt Map browser event.
+	      * @return {boolean} `true` to start the drag sequence.
+	      */
+	     app.Drag.prototype.handleDownEvent = function(evt) {
+	       var map = evt.map;
+
+	       var feature = map.forEachFeatureAtPixel(evt.pixel,
+	         function(feature) {
+	           return feature;
+	         });
+
+	       if (feature) {
+	         this.coordinate_ = evt.coordinate;
+	         this.feature_ = feature;
+	       }
+
+	       return !!feature;
+	     };
+
+
+	     /**
+	      * @param {module:ol/MapBrowserEvent~MapBrowserEvent} evt Map browser event.
+	      */
+	     app.Drag.prototype.handleDragEvent = function(evt) {
+	       var deltaX = evt.coordinate[0] - this.coordinate_[0];
+	       var deltaY = evt.coordinate[1] - this.coordinate_[1];
+
+	       var geometry = this.feature_.getGeometry();
+	       geometry.translate(deltaX, deltaY);
+
+		  
+		  
+		   
+	       this.coordinate_[0] = evt.coordinate[0];
+	       this.coordinate_[1] = evt.coordinate[1];
+		   
+		   route.updateWaypoint(this.feature_,evt);
+	     };
+
+		 /** @param {module:ol/MapBrowserEvent~MapBrowserEvent} evt Event.  */
+	     app.Drag.prototype.handleMoveEvent = function(evt) {
+	       if (this.cursor_) {
+	         var map = evt.map;
+	         var feature = map.forEachFeatureAtPixel(evt.pixel,
+	           function(feature) {
+	             return feature;
+	           });
+	         var element = evt.map.getTargetElement();
+	         if (feature) {
+	           if (element.style.cursor != this.cursor_) {
+	             this.previousCursor_ = element.style.cursor;
+	             element.style.cursor = this.cursor_;
+	           }
+			   
+			   //feature.getGeometry().setCoordinates(evt.coordinate);
+	         } else if (this.previousCursor_ !== undefined) {
+	           element.style.cursor = this.previousCursor_;
+	           this.previousCursor_ = undefined;
+	         }
+	       }
+	     };
+
+	     /**  @return {boolean} `false` to stop the drag sequence.    */
+	     app.Drag.prototype.handleUpEvent = function() {
+	       this.coordinate_ = null;
+	       this.feature_ = null;
+	       return false;
+	     };
+
+//------------------------
+//-----------------------------------------------------------------------------	
+	
+  class Waypoint {
+    constructor (lngLat, name, options) {
+	  this.lngLat = lngLat;
+	  this.name = name;
+	  this.options = options;
+	}
+	
+	update(lngLat){
+		this.lngLat = lngLat;
+	}
+  }
+	
+  class Route {
+	waypoints = [];
+	url='https://'+(new URL(location.origin).hostname)+':8443/route/v1/driving/';
+		 
+	constructor (waypoint) {
+	  if(waypoint !== undefined)
+		this.waypoints=waypoint;
+	  }
+
+    reset(){
+	    this.waypoints = []; 
+    }  
+
+	updateWaypoint(feature_,evt){
+	
+		//var lngLat = ol.proj.toLonLat(evt.coordinate);
+		
+		var geometry = feature_.getGeometry().clone().transform(map.getView().getProjection(),'EPSG:4326');
+		
+		//console.log(geometry);
+		var fc=geometry.flatCoordinates;
+		var ff=[fc[0],fc[1]];
+		console.log(ff);
+		for (let i = 0; i < this.waypoints.length; i++) {
+				       var val=this.waypoints[i];
+					   
+					   if(val.name===feature_)
+					   	  {
+							//this.feature.getGeometry().setCoordinates(coordinate);
+							
+							
+							val.update(ff);
+							console.log('feature_ founf');
+						  }
+				     }
+				 
+					 
+					 var feature = vectorSource.getFeatureById('ff');
+					   vectorSource.removeFeature(feature);
+					 
+					 
+		this.createRoute();
+		return ;
+		
+		
+		var coordinate=evt.coordinate;
+		
+		
+		
+//		   this.fire('drag', {lngLat: ol.proj.toLonLat(e.coordinate)});
+		
+		for (let i = 0; i < this.waypoints.length; i++) {
+		       var val=this.waypoints[i];
+			   
+			   if(val.name===feature_)
+			   	  {
+					//this.feature.getGeometry().setCoordinates(coordinate);
+					
+					
+					//val.update(lngLat);
+					console.log('feature_ founf');
+				  }
+		     }
+			// vectorSource.clear();
+			 
+			var f=layer.getFeatureById(featureID);
+			 vectorSource.removeFeatures(f);
+			 
+		
+		
+	}
+	
+	
+	
+    add(waypoint) {
+      this.waypoints.push(waypoint);
+    }
+		 
+	getPath(){
+      let txt = "";
+      let length=this.waypoints.length;
+      
+	  for (let i = 0; i < length; i++) {
+        var val=this.waypoints[i].lngLat;
+		  txt+=val;
+			if(i<(length-1))
+			  txt+=";";
+      }
+     return txt
+	}
+
+	createRoute(){
+      const url=urll +this.getPath();
+		fetch(url).then(function(r) {return r.json();
+				 }).then(function(json) {
+						      if(json.code !== 'Ok') {
+						       console.log('No route found.');
+						        return;
+						      }
+						     console.log('Route added');
+						      //points.length = 0;
+						 var r=     utils.createRoute(json.routes[0].geometry);
+						 r.setId("ff");
+						 		
+						 		let feature = vectorSource.getFeatureById('ff');
+								console.log('Route added'+feature);
+						    });
+    }	
+	
+	
+	resetAllFeature()
+	{
+		vectorSource.clear();
+	}
+	
+	createFeature(coord) {
+	  var g=new ol.geom.Point(ol.proj.fromLonLat(coord));
+      var feature = new ol.Feature({type: 'place',   geometry:  g });
+          feature.setStyle(styles.icon);
+		  vectorSource.addFeature(feature);
+	  var translate1 = new app.Drag({features: new ol.Collection([feature])});
+      map.addInteraction(translate1);
+	  //var f=feature.getId();
+	 return feature;
+    }
+    
+	createFeatures(){
+		vectorSource.clear();
+      for (let i = 0; i < this.waypoints.length; i++) {
+        var val=this.waypoints[i];
+        var fId=this.createFeature(val.lngLat); 
+		val.name=fId
+      }
+    }
+	
+	dumpWaypoint(){
+	      for (let i = 0; i < this.waypoints.length; i++) {
+	        var val=this.waypoints[i];
+	          console.log("dumpWaypoint index "+i+"  "+val);
+	      }
+	    }
+	
+  }	 		  
+
+  const route =new Route();
+  
+  
+        route.add(new Waypoint([27.981982,43.238152]));
+		route.add(new Waypoint([27.897369,43.221216]));
+		
+		
+		//route.add(new Waypoint([27.750315566702816,43.8520584446037]));
+		//route.add(new Waypoint([27.763315566702816,43.7520584446037]));
+	
+	const route1BtnEl = document.getElementById('route1');
+	route1BtnEl.addEventListener(
+	  'click',
+	  function () {
+			route.createFeatures();
+			var cc=route.getPath();
+			
+			route.createRoute();
+		
+			return ;
+		
+		var point1=[27.953315566702816,43.3520584446037];
+		var point2=[27.753315566702816,43.8520584446037];
+		
+		const url=urll + point1 + ';' + point2;
+		    fetch(url).then(function(r) { 
+		      return r.json();
+		    }).then(function(json) {
+		      if(json.code !== 'Ok') {
+		       console.log('No route found.');
+		        return;
+		      }
+		     console.log('Route added');
+		      //points.length = 0;
+		    var route=  utils.createRoute(json.routes[0].geometry);
+			
+		
+			
+		    });
+
+
+	  },
+	  false,
+	);
+	
+	const route2BtnEl = document.getElementById('route2');
+	route2BtnEl.addEventListener(
+	  'click',
+	  function () {
+		
+		route.dumpWaypoint();
+		
+		route.add(new Waypoint([27.863315566702816,43.8520584446037]));
+		route.createRoute();
+		}
+	);
+
+	</script>
+
 <!--
     <script src="common.js"></script>
 	-->
