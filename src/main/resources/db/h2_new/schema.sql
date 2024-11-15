@@ -1,4 +1,4 @@
-//git
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE SCHEMA "todo";
 
 CREATE TABLE "users" (

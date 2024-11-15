@@ -1,5 +1,9 @@
 package com.matin.taxi.webSocket;
 
+import java.util.HashMap;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +12,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SignalMessage {
+	
+	public final static String logned = "logned"; 
+	public final static String notlogned = "notlogned";
+	
+	
+
+	
     @Override
 	public String toString() {
 		return "SignalMessage [type=" + type + ", sender=" + sender + ", receiver=" + receiver + ", data=" + data + "]";
@@ -18,7 +29,17 @@ public class SignalMessage {
     private Object data;
     
     
+    @JsonProperty("map")
+    public HashMap<?, ?>  map;
     
+    public HashMap<?, ?> getMap() {
+		return this.map;
+	}
+    /*
+	public void setMap(String map) {
+		this.map = map;
+	}
+    */
     public String getType() {
 		return type;
 	}

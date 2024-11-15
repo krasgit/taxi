@@ -78,6 +78,38 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
     }
     
     
+     
+    void handleLogin(WebSocketSession session, SignalMessage signalMessage) throws Exception
+    {
+       WebSocketSession destSocket = connectedUsers.get(signalMessage.getSender());
+       
+       SignalMessage responceMessage=new SignalMessage();
+       responceMessage.setType("login");
+       /*
+       HashMap<?, ?> map = signalMessage.getMap();
+       Object u = map.get("username");
+       String username = (String) u;
+       */
+       if(signalMessage.getMap().get("username").equals(""))
+         responceMessage.setData(SignalMessage.logned);
+       else 
+    	 responceMessage.setData(SignalMessage.notlogned);
+       //
+       
+       //
+       SendMessage(destSocket,responceMessage);
+    }
+     
+    void SendMessage(WebSocketSession destSocket,SignalMessage message ) throws Exception{
+    if (destSocket != null && destSocket.isOpen()) {
+        // set the sender as current sessionId.
+    	message.setSender(destSocket.getId());
+        final String resendingMessage = Utils.getString(message);
+        LOG.info("send message {} to {}", resendingMessage, message);
+        destSocket.sendMessage(new TextMessage(resendingMessage));
+    }
+    }
+     
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         LOG.info("handleTextMessage : {}", message.getPayload());
@@ -87,6 +119,12 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
         
         SignalMessage signalMessage = Utils.getObject(payload);
 
+        if(signalMessage.getType().equals("login"))
+        {
+        	handleLogin(session,signalMessage);
+        	return ;
+        }
+        
         if(signalMessage.getType().equals("ping"))
         	signalMessage.setType("pong");
         

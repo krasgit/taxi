@@ -9,6 +9,7 @@
 		https://openlayersbook.github.io/ch09-taking-control-of-controls/example-06.html
 		https://yopaseopor.github.io/osmrecyclingmap/#map=7.62/41.40702/2.09389/0
 		https://jsfiddle.net/expedio/kLmg4uey/
+		https://vue3openlayers.netlify.app/componentsguide/mapcontrols/contextmenu/#demo
 	-->
 	
 	
@@ -22,6 +23,9 @@
     <link rel="stylesheet" href="ol-debug.css" type="text/css"    th:href="@{/resources/openlayers/ol-debug.css}" />
     <link rel="stylesheet" href="openlayers-routing-machine.css"  th:href="@{/resources/openlayers/openlayers-routing-machine.css}" />
     <link rel="stylesheet" href="ol-geocoder.css"                 th:href="@{/resources/openlayers/ol-geocoder.css}" />
+	<link rel="stylesheet" href="ol-geocoder.css"                 th:href="@{/resources/openlayers/w3.css}" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" th:href="@{/resources/openlayers/w3.css}" href="fhttps://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
       html, body { height: 100%; padding: 0; margin: 0; }
 	    #map {
@@ -34,9 +38,56 @@
 
  	.geolocate-buttons { position: absolute; bottom: 40px; left: 10px; }
 	  .rotate-north { top: 65px;left: .5em;    }
+	
 	.ol-touch .rotate-north { top: 80px;      }
-	  
-    </style>
+	</style>
+    <style>
+	.ol-popup {
+	     position: absolute; background-color: white;
+	     box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+	     padding: 15px;
+	     border-radius: 10px;
+	     border: 1px solid #cccccc;
+	     bottom: 12px;
+	     left: -50px;
+	     min-width: 280px;
+	   }
+	   .ol-popup:after, .ol-popup:before {
+	     top: 100%;
+	     border: solid transparent;
+	     content: " ";
+	     height: 0;
+	     width: 0;
+	     position: absolute;
+	     pointer-events: none;
+	   }
+	   .ol-popup:after {
+	     border-top-color: white;
+	     border-width: 10px;
+	     left: 48px;
+	     margin-left: -10px;
+	   }
+	   .ol-popup:before {
+	     border-top-color: #cccccc;
+	     border-width: 11px;
+	     left: 48px;
+	     margin-left: -11px;
+	   }
+	   .ol-popup-closer {
+	     text-decoration: none;
+	     position: absolute;
+	     top: 2px;
+	     right: 8px;
+	   }
+	   .ol-popup-closer:after {
+	     content: "✖";
+	   }
+		
+	</style>
+	
+	
+	
+	<script src="SignalMessage.js"                   th:src="@{/resources/openlayers/SignalMessage.js}" ></script>	
     <script src="ol-debug.js"                    th:src="@{/resources/openlayers/ol-debug.js}" ></script>
     <script src="openlayers-routing-machine.js"  th:src="@{/resources/openlayers/openlayers-routing-machine.js}" ></script>
     <script src="ol-geocoder-debug.js"           th:src="@{/resources/openlayers/ol-geocoder-debug.js}" ></script>
@@ -63,10 +114,10 @@
 	
 	
 	
-	
+	<!--
 	
 	<div id="sidebar" class="sidebar collapsed">
-	       <!-- Nav tabs -->
+	       
 	       <div class="sidebar-tabs">
 	           <ul role="tablist">
 	               <li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
@@ -80,7 +131,7 @@
 	           </ul>
 	       </div>
 
-	       <!-- Tab panes -->
+	      
 	       <div class="sidebar-content">
 	           <div class="sidebar-pane" id="home">
 	               <h1 class="sidebar-header">
@@ -102,12 +153,12 @@
 	           </div>
 
 	           <div class="sidebar-pane" id="settings">
-	               <h1 class="sidebar-header">Settings<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+	               <h1 class="sidebar-header">sSettings<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
 	           </div>
 	       </div>
 	   </div>
 	
-	
+	   -->
 	
 	
 	
@@ -121,8 +172,12 @@
     <div id="popup-content"></div>
 </div>  
 
+
+
+
 <img id="geolocation_marker" src="geolocation_marker.png"  th:src="@{/resources/openlayers/geolocation_marker.png}" alt="geolocation_marker"/>
     <div class="geolocate-buttons">
+		<button id="login" class="btn btn-primary">login</button>
 	  <button id="ping" class="btn btn-primary">Ping</button>
       <button id="geolocate" class="btn btn-primary">Geolocate Me</button>
       <button id="simulate" class="btn btn-secondary">Simulate</button>
@@ -141,7 +196,7 @@ console.log( mylib());
 
 	</script>
     <script>
-		
+		const log = console.log;
 		const url = new URL(location.origin);
 		const hostname = url.hostname;
 		const view =  new ol.View({ center: ol.proj.fromLonLat([27.953315566702816,43.3520584446037]),      zoom: 10   })
@@ -206,11 +261,11 @@ var points = [],
 	//  var waypoints = [];
 	  
 
-
+/*
 var sidebar = new ol.control.Sidebar({ element: 'sidebar', position: 'left' });
 
      map.addControl(sidebar);
-
+*/
 this.map.addControl(new RotateNorthControl());
 this.map.addControl(new ol.control.FullScreen());
 
@@ -370,9 +425,6 @@ console.log(json.display_name);
       }
     
 	  
-	  
-	  /*
-	  
 	    map.on('click', function(e) {
         var coordinate = ol.proj.toLonLat(e.coordinate).map(function(val) {
           return val.toFixed(6);
@@ -381,50 +433,39 @@ console.log(json.display_name);
         var lat = coordinate[1];
         simpleReverseGeocoding(lon, lat);
       });
-      */
-	  
-	  const element = document.getElementById('popup');
 
+	  
+	  const popupContainer = document.getElementById('popup');
+	  const content = document.getElementById('popup-content');
+	  const closer = document.getElementById('popup-closer');
+	  
+	  
 	  const popup = new ol.Overlay({
-	    element: element,
+	    element: popupContainer,
 	    positioning: 'bottom-center',
-	    stopEvent: false,
+	    stopEvent: true,
 	  });
 	  map.addOverlay(popup);
 
-	  let popover;
-	  function disposePopover() {
-	    if (popover) {
-	      popover.dispose();
-	      popover = undefined;
-	    }
-	  }
-	  // display popup on click
-	  map.on('click', function (evt) {
-	    const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
-	      return feature;
-	    });
-	    disposePopover();
-	   
-		//kras if (!feature) 
-	    //kras  return;
-	    
-	    popup.setPosition(evt.coordinate);
-	    
-		var content = document.getElementById('popup-content');
-		content.innerHTML = '<b>Hello world!</b><br />I am a popup.';
+	  
+	  closer.onclick = function () {
+	    popup.setPosition(undefined);
+	    closer.blur();
+	    return false;
+	  };
+	  
+	  map.on('singleclick', function (evt) {
+	    const coordinate = evt.coordinate;
 		
-	    popover.show();
+		const ccoordinate = ['2544099.4746324923', '5449440.344940728'];
+	    const hdms = ol.coordinate.toStringHDMS(ol.proj.toLonLat(coordinate));
+	  
+	    content.innerHTML = '<p>You clicked here:</p><code>' + hdms + '</code>';
+	    popup.setPosition(coordinate);
 	  });
-
-	  // change mouse cursor when over marker
-	  map.on('pointermove', function (e) {
-	    const pixel = map.getEventPixel(e.originalEvent);
-	    const hit = map.hasFeatureAtPixel(pixel);
-	   //kras map.getTarget().style.cursor = hit ? 'pointer' : '';
-	  });
-	  // Close the popup when the map is moved
-	  map.on('movestart', disposePopover);
+	  
+	  
+	  
 
 //-----------------------------------------------------------------
 //const popup = new ol.Overlay.Popup();
@@ -718,14 +759,6 @@ function disableButtons() {
 
 
 
-const pingBtnEl = document.getElementById('ping');
-pingBtnEl.addEventListener(
-  'click',
-  function () {
-     wsPing();
-  },
-  false,
-);
 
 //-----------
 ///ADD MARKER
@@ -742,7 +775,22 @@ pingBtnEl.addEventListener(
 
 
 </script>
+ <script>
 
+
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition);
+  } else {
+    		console.log("Geolocation is not supported by this browser.");
+  }
+}
+
+function showPosition(position) {
+  console.log( "Latitude: " + position.coords.latitude +  "<br>Longitude: " + position.coords.longitude);
+}
+getLocation();
+</script> 
 <script>
 	//-------------------------------------------
 	var app = {};
@@ -848,9 +896,27 @@ pingBtnEl.addEventListener(
 	       return false;
 	     };
 
-//------------------------
+
 //-----------------------------------------------------------------------------	
 	
+ 
+function initGeo() {
+    navigator.geolocation.watchPosition(
+        geosuccess,
+        geofailure,
+        {
+            enableHighAccuracy:true,
+            maximumAge:30000,
+            timeout:20000
+        }
+    );
+
+    //moveSpeed(30);
+    //moveCompassNeedle(56);
+}
+
+
+
   class Waypoint {
     constructor (lngLat, name, options) {
 	  this.lngLat = lngLat;
@@ -1007,6 +1073,12 @@ pingBtnEl.addEventListener(
 	
   }	 		  
 
+  
+//  const geo= new Geolocation(0);
+//  var e=geo.event;
+//  var speed=e.coords.speed;
+  
+  
   const route =new Route();
   
   
@@ -1057,6 +1129,9 @@ pingBtnEl.addEventListener(
 	  'click',
 	  function () {
 		
+		//var e=geoEvent;
+		//var speed=e.coords.speed;
+		return ;
 		route.dumpWaypoint();
 		
 		route.add(new Waypoint([27.863315566702816,43.8520584446037]));
@@ -1064,10 +1139,98 @@ pingBtnEl.addEventListener(
 		}
 	);
 
+	
+	
+	
+	
+	document.getElementById('login').addEventListener(
+	  'click',
+	  function () {
+	     alert("login");
+		 const coordinate = [2544099.4746324923, 5449440.344940728];
+		   //  const hdms = toStringHDMS(toLonLat(coordinate));
+		   const hdms ="";
+		     content.innerHTML = '<p>You clicked here:</p><code>' + hdms + '</code>';
+		     popup.setPosition(coordinate);
+		 
+	  },
+	  false,
+	);
+
+	
+	
+	
+	
 	</script>
 
+	<script src="mylib.js"           th:src="@{/resources/openlayers/loginControl.js}" ></script>
+
+
+	
+	<script>
+		const pingBtnEl = document.getElementById('ping');
+		pingBtnEl.addEventListener(
+		  'click',
+		  function () {
+		     //wsPing();
+			 
+			 //type="ping";
+			 //msg=JSON.stringify({type:type, sender: "sender", receiver: sesionID,data:"data"});
+			 //	console.log("msg "+msg);
+			 //	ws.send( msg);
+			 const msg = new SignalMessage("ping", getWSSesionID(), getWSSesionID(),"data");
+			 msg.add("a", 1);
+			 wsSend(msg);
+			 
+			 
+		  },
+		  false,
+		);
+
+			
+		
+	this.map.addControl(new LoginControl());
+	
+	function login(){
+		const msg = new SignalMessage("login", getWSSesionID(), getWSSesionID(),"data");
+			 msg.add("username", document.getElementById('username').value);
+			 msg.add("password", document.getElementById('password').value);
+			 wsSend(msg);
+	}
+	
+	</script>	
 <!--
     <script src="common.js"></script>
 	-->
+	
+	<div id="id01" class="w3-modal">
+	  <span onclick="document.getElementById('id01').style.display='none'" class="w3-closebtn w3-hover-red w3-container w3-padding-16 w3-display-topright w3-xxlarge">×</span>
+	  <div class="w3-modal-content w3-card-8 w3-animate-zoom" style="max-width:600px">
+	  
+	    <div class="w3-center"><br>
+	      <img src="img_avatar4.png" alt="Avatar" style="width:40%" class="w3-circle w3-margin-top">
+	    </div>
+
+	    <div class="w3-container">
+	      <div class="w3-section">
+	        <label><b>Username/Email</b></label>
+	        <input id="username" class="w3-input w3-border w3-hover-border-black w3-margin-bottom" type="text" placeholder="Enter Username/Email">
+
+	        <label><b>Password</b></label>
+	        <input id="password" class="w3-input w3-border w3-hover-border-black" type="text" placeholder="Enter Password">
+	        
+	        <button class="w3-btn w3-btn-block w3-green w3-section" onclick="login()">Login</button>
+	        <input class="w3-check" type="checkbox" checked="checked"> Remember me
+	      </div>
+	    </div>
+
+	    <div class="w3-container w3-border-top w3-padding-16 w3-light-grey">
+	      <button onclick="document.getElementById('id01').style.display='none'" type="button" class="w3-btn w3-red">Cancel</button>
+	      <span class="w3-right w3-padding w3-hide-small">Forgot <a href="#">password?</a></span>
+	    </div>
+
+	  </div>
+	</div>
+
   </body>
 </html>

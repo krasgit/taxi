@@ -63,9 +63,42 @@ function processWsMessage(message) {
 		case 'pong':
 		     handlePong(signal);	
             break;
+			
+			
+			case 'login':
+					     handleLogin(signal);	
+			            break;	
     }
 
 }
+
+function handleLogin(signal) {
+	var res=signal.data;
+	if(res==='logned')
+	{
+		document.getElementById('id01').style.display='none';
+		
+		button = document.getElementById("b1");
+		button.style.backgroundColor ="rgba(0, 60, 136, 0.83);";
+		button.innerHTML ='<i class="fa fa-sign-out"></i>';
+		
+		d1 = document.getElementById("d1");
+		d1.style.backgroundColor ="rgba(0, 60, 136, 0.83);";
+		
+		return ;
+	}
+	
+	if(signal.data==='notlogned')
+	{
+			
+	}
+
+	
+console.log("pong "+signal);
+}
+
+
+
 
 var sesionID=null;
 function handleSession(signal) {
@@ -241,6 +274,11 @@ try{
 
 }
 
+
+function getWSSesionID()
+{
+	return sesionID;
+}
 function wsPing() {
 	
 	type="ping";
@@ -248,6 +286,27 @@ function wsPing() {
 	console.log("msg "+msg);
 	ws.send( msg);
 }
+
+function wsSend(msg) {
+	
+	json=msg.json();
+	
+	ws.send( json);
+}
+
+
+
+
+
+
+function wsLogin() {
+	
+	type="ping";
+	msg=JSON.stringify({type:type, sender: "sender", receiver: sesionID,data:"data"});
+	console.log("msg "+msg);
+	ws.send( msg);
+}
+
 
 
 function wssendmsg(type,sender,receiver,data) {
