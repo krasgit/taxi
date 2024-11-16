@@ -10,10 +10,15 @@
     <title>Open Taxi</title>
 	
 	<!--
+		https://mmomtchev.github.io/rlayers/#/routing
 		https://openlayersbook.github.io/ch09-taking-control-of-controls/example-06.html
 		https://yopaseopor.github.io/osmrecyclingmap/#map=7.62/41.40702/2.09389/0
 		https://jsfiddle.net/expedio/kLmg4uey/
 		https://vue3openlayers.netlify.app/componentsguide/mapcontrols/contextmenu/#demo
+		
+		
+		https://localhost:8443/route/v1/driving/27.860202452255194,43.2052135;27.86836624145508,43.20805362763168?overview=full&alternatives=true&steps=true&hints=;
+		https://localhost:8443/route/v1/driving/27.981982         ,43.238152 ;27.897369        ,43.221216
 	-->
 	
 	
@@ -38,7 +43,7 @@
         height: 100%;
       }
 
-   #infoo { position: absolute; font-size: 0.7em; top: 10px; right: 10px;  background-color: lightgrey;  padding: 4px;      }
+   #infoo { position: absolute; font-size: 0.7em; top: 10px; right: 40px;  background-color: lightgrey;  padding: 4px;      }
 
  	.geolocate-buttons { position: absolute; bottom: 40px; left: 10px; }
 	  .rotate-north { top: 65px;left: .5em;    }
@@ -507,7 +512,7 @@ console.log(json.display_name);
 
 	  
 	  closer.onclick = function () {
-	   // popup.setPosition(undefined);
+	    popup.setPosition(undefined);
 	    closer.blur();
 	    return false;
 	  };
@@ -1080,7 +1085,8 @@ function initGeo() {
 	}
 
 	createRoute(){
-      const url=urll +this.getPath();
+		var extraparams="?overview=full&alternatives=true&steps=true&hints=;"
+      const url=urll +this.getPath()+extraparams;
 		fetch(url).then(function(r) {return r.json();
 				 }).then(function(json) {
 						      if(json.code !== 'Ok') {
@@ -1285,7 +1291,7 @@ function initGeo() {
 					
 					var sp=Math.round(speed*3.6)
 					var ss='<svg width="32" height="32"  viewBox="0 0 32 32"  xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="blue" stroke-width="4" fill="white"></circle><text x="16" y="20" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" font-weight="bold" text-anchor="middle" fill="black">'+sp+'</text></svg>';
-					if (sp>=1){
+					if (sp>=10){
 						ss='<svg width="32" height="32"  viewBox="0 0 32 32"  xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="red" stroke-width="4" fill="white"></circle><text x="16" y="20" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" font-weight="bold" text-anchor="middle" fill="black">'+sp+'</text></svg>';
 						} 
 					 const speedctr = document.getElementById('speedctr');
@@ -1321,6 +1327,15 @@ function initGeo() {
 		
 		
 		initGeo();
+		
+	
+
+		
+		const element = ( '<h1 className="greeting">  Hello, world!	  </h1>'	);
+
+		//alter(element);
+		
+		
 	  	  </script>	
   </body>
 </html>
