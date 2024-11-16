@@ -41,6 +41,17 @@ class LoginControl extends ol.control.Control {
   
   handleRotateNorth(e) {
 	
+	
+	var pos = map.getView().getCenter();  
+	
+	const loginCont = document.getElementById('loginCont');
+	//dialog=document.getElementById('id01')
+	//loginCont.style.display='block'
+	  var pos = map.getView().getCenter(); 
+	  const loginOverlay = new ol.Overlay({position: pos,  element: loginCont,   positioning: 'bottom-center',   stopEvent: true, });
+	  map.addOverlay(loginOverlay);
+	
+	loginOverlay.setPosition(pos);
 	//const button = document.getElementById("b1");
 	//button.innerHTML = 'A';
 	const button=document.getElementById("b1");
@@ -54,7 +65,7 @@ class LoginControl extends ol.control.Control {
 	 return;
 		}
 		
-	document.getElementById('id01').style.display='block'
+	loginCont.style.display='block'
 	
     //this.getMap().getView().setRotation(0);
   }
