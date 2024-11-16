@@ -3419,8 +3419,14 @@ ol.nullFunction = function() {};
  * @return {number} The unique ID for the object.
  */
 ol.getUid = function(obj) {
-  return obj.ol_uid ||
-      (obj.ol_uid = ++ol.uidCounter_);
+	
+	try {
+		return obj.ol_uid ||
+		     (obj.ol_uid = ++ol.uidCounter_);
+	   } catch (e) {
+	     // pass
+	   }
+ 
 };
 
 
