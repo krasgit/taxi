@@ -76,7 +76,7 @@ function handleLogin(signal) {
 	var res=signal.data;
 	if(res==='logned')
 	{
-		document.getElementById('id01').style.display='none';
+		document.getElementById('loginCont').style.display='none';
 		
 		button = document.getElementById("b1");
 		button.style.backgroundColor ="rgba(0, 60, 136, 0.83);";
