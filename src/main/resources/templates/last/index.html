@@ -35,7 +35,9 @@
 	<link rel="stylesheet" href="ol-geocoder.css"                 th:href="@{/resources/openlayers/w3.css}" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" th:href="@{/resources/openlayers/w3.css}" href="fhttps://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <style>
+	<link rel="stylesheet" href="openlayers-routing-machine.css"  th:href="@{/resources/openlayers/routeControl.css}" />
+	
+	<style>
       html, body { height: 100%; padding: 0; margin: 0; }
 	    #map {
         /* configure the size of the map */
@@ -44,11 +46,18 @@
       }
 
    #infoo { position: absolute; font-size: 0.7em; top: 10px; right: 40px;  background-color: lightgrey;  padding: 4px;      }
-
+   #routeControl { position: absolute; font-size: 0.7em; top: 10px; right: 40px;  background-color: lightgrey;  padding: 4px;      }
  	.geolocate-buttons { position: absolute; bottom: 40px; left: 10px; }
 	  .rotate-north { top: 65px;left: .5em;    }
 	
 	.ol-touch .rotate-north { top: 80px;      }
+	
+	
+	
+	.routing-add-waypoint:after {
+	    content: '+';
+	}
+	
 	</style>
     <style>
 	.ol-popup {
@@ -1231,6 +1240,7 @@ function initGeo() {
 
 	<script src="mylib.js"           th:src="@{/resources/openlayers/loginControl.js}" ></script>
 	<script src="mylib.js"           th:src="@{/resources/openlayers/speedControl.js}" ></script>
+	<script src="mylib.js"           th:src="@{/resources/openlayers/routeControl.js}" ></script>
 	
 
 	
@@ -1264,6 +1274,7 @@ function initGeo() {
 
 	this.map.addControl(new LoginControl());
 	this.map.addControl(new SpeedControl());
+	this.map.addControl(new RouteControl());
 
 	function login(){
 		const msg = new SignalMessage("login", getWSSesionID(), getWSSesionID(),"data");
