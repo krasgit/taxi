@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<style>
+.container {display: flex;justify-content: center; }
+
+ul { position: absolute;  top: 100%;  margin-top: -1px;  width: 100%;  z-index: 1;  background: #fff;  margin: 0;  list-style: none;  transition: none;  padding: 0;  border: 1px solid #bfc8c9;}
+ul li { padding: 6px 12px;  transition: 0.2s background;  cursor: pointer;}
+ul li.selected { background: rgba(0, 0, 0, 0.08);}
+ul li:hover {  background: #e6f0f2;}
+ul li + li {  border-top: 1px solid #bfc8c9;}
+.hidden {  display: none;}
+</style>
+
+<script>
+var countries = [];
+var inputElem = null;
+var resultsElem = null;
+var activeIndex = 0;
+var filteredResults = [];
+
+function init() {
+  fetch("https://restcountries.com/v3.1/all")
+    .then((response) => response.json())
+    .then((data) => (countries = data));
+
+  resultsElem = document.querySelector("ul");
+  inputElem = document.querySelector("input");
+
+  resultsElem.addEventListener("click", (event) => {
+    handleResultClick(event);
+  });
+  inputElem.addEventListener("input", (event) => {
+    autocomplete(event);
+  });
+  inputElem.addEventListener("keyup", (event) => {
+    handleResultKeyDown(event);
+  });
+}
+
+function autocomplete(event) {
+  const value = inputElem.value;
+  if (!value) {
+    hideResults();
+    inputElem.value = "";
+    return;
+  }
+  filteredResults = countries.filter((country) => {
+    return country.name.common.toLowerCase().startsWith(value.toLowerCase());
+  });
+
+  resultsElem.innerHTML = filteredResults
+    .map((result, index) => {
+      const isSelected = index === 0;
+      return `
+        <li
+          id='autocomplete-result-${index}'
+          class='autocomplete-result${isSelected ? " selected" : ""}'
+          role='option'
+          ${isSelected ? "aria-selected='true'" : ""}
+        >
+          ${result.name.common}
+        </li>
+      `;
+    })
+    .join("");
+  resultsElem.classList.remove("hidden");
+}
+
+function handleResultClick() {
+  if (event.target && event.target.nodeName === "LI") {
+    selectItem(event.target);
+  }
+}
+function handleResultKeyDown(event) {
+  const { key } = event;
+  const activeItem = this.getItemAt(activeIndex);
+  if (activeItem) {
+   activeItem.classList.remove('selected');
+   activeItem.setAttribute('aria-selected', 'false');
+  }
+  switch (key) {
+    case "Backspace":
+      return;
+    case "Escape":
+      hideResults();
+      inputElem.value = "";
+      return;
+    case "ArrowUp": {
+      if (activeIndex === 0) {
+        activeIndex = filteredResults.length - 1;
+      }
+      activeIndex--;
+      break;
+    }
+    case "ArrowDown": {
+      if (activeIndex === filteredResults.length - 1) {
+        activeIndex = 0;
+      }
+      activeIndex++;
+      break;
+    }
+    default:
+      selectFirstResult();
+  }
+  console.log(activeIndex);
+  selectResult();
+}
+function selectFirstResult() {
+  activeIndex = 0;
+}
+
+function selectResult() {
+  const value = inputElem.value;
+  var autocompleteValue;
+  try{
+   autocompleteValue= filteredResults[activeIndex].name.common;
+  }
+    catch (error) {
+    console.error(error);
+    // Expected output: ReferenceError: nonExistentFunction is not defined
+    // (Note: the exact output may be browser-dependent)
+  }
+
+  
+  const activeItem = this.getItemAt(activeIndex);
+  if (activeItem) {
+   activeItem.classList.add('selected');
+   activeItem.setAttribute('aria-selected', 'true');
+  }
+  if (!value || !autocompleteValue) {
+    return;
+  }
+  if (value !== autocompleteValue) {
+    inputElem.value = autocompleteValue;
+    inputElem.setSelectionRange(value.length, autocompleteValue.length);
+  }
+}
+function selectItem(node) {
+  if (node) {
+    console.log(node);
+    inputElem.value = node.innerText;
+    hideResults();
+  }
+}
+
+function hideResults() {
+  this.resultsElem.innerHTML = "";
+  this.resultsElem.classList.add("hidden");
+}
+
+function getItemAt(index) {
+  return this.resultsElem.querySelector(`#autocomplete-result-${index}`)
+}
+</script>
+
+<body>
+
+<div class="container">
+  <span style=" position: relative;">
+    <input placeholder="Search for a country">
+   
+    <ul class="hidden" role='listbox'></ul>
+  </span>
+
+  
+</div>
+
+</body>
+ <script>
+init();
+ </script>
+ </body>
+ </html>
