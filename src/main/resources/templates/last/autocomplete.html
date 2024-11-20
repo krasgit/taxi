@@ -18,12 +18,46 @@ var inputElem = null;
 var resultsElem = null;
 var activeIndex = 0;
 var filteredResults = [];
+var JSON_Data;
+
+
+
+//search?q=Тодор Хаджистанчев 22&limit=20&format=json&addressdetails=1&city=Варна&accept-language=bg-BG
+async function fetchMAddress(q) {
+	var url='http://127.0.0.1:8181/search?q='+q+'&limit=5&format=json&addressdetails=1&city=varna&accept-language=bg-BG'
+ // const response = await fetch();
+ const response = await fetch(url);
+
+ 	const json = await response.json();
+
+	var df= await JSON.stringify(json);
+ 	//console.log(df);
+	initggg(df);
+}
+
+
+function initggg(df)
+{
+	console.log(df);
+	countries=JSON.parse(df);
+}
+
+
 
 function init() {
-  fetch("https://restcountries.com/v3.1/all")
+	
+	
+	
+	
+	//countries=fetchMAddress("Тодор Хаджистанчев 1");
+	
+	//console.log(countries);
+	
+/*	
+  fetch("http://127.0.0.1:8181/search?q=varna&limit=5&format=json&addressdetails=1&city=varna")
     .then((response) => response.json())
     .then((data) => (countries = data));
-
+*/
   resultsElem = document.querySelector("ul");
   inputElem = document.querySelector("input");
 
@@ -40,15 +74,48 @@ function init() {
 
 function autocomplete(event) {
   const value = inputElem.value;
-  if (!value) {
-    hideResults();
-    inputElem.value = "";
-    return;
-  }
+  	if (!value) {
+    	hideResults();
+    	inputElem.value = "";
+    	return;
+  	}
+	
+	fetchMAddress(value);
+	
+	var inner="";
+	for(let index = 0; index < countries.length; index++) {
+	    let obj = countries[index].address;
+	
+		let disp=obj.road;
+		const isSelected = index === 0;
+		inner+=`
+		        <li
+		          id='autocomplete-result-${index}'
+		          class='autocomplete-result${isSelected ? " selected" : ""}'
+		          role='option'
+		          ${isSelected ? "aria-selected='true'" : ""}
+		        >
+		          ${disp}
+		        </li>
+		      `;
+		
+		
+	}
+	
+	
+	resultsElem.innerHTML =inner;
+	
   filteredResults = countries.filter((country) => {
-    return country.name.common.toLowerCase().startsWith(value.toLowerCase());
+     
+	console.log(country.place_id)
+	
+	return country.display_name;
+	//return country.name.common.toLowerCase().startsWith(value.toLowerCase());
+	//	 return "gg";// country.name.common.toLowerCase().startsWith(value.toLowerCase());
   });
-
+  resultsElem.classList.remove("hidden");
+  return;
+  console.log( filteredResults);
   resultsElem.innerHTML = filteredResults
     .map((result, index) => {
       const isSelected = index === 0;
@@ -59,7 +126,7 @@ function autocomplete(event) {
           role='option'
           ${isSelected ? "aria-selected='true'" : ""}
         >
-          ${result.name.common}
+          ${result.display_name}
         </li>
       `;
     })
@@ -114,7 +181,8 @@ function selectResult() {
   const value = inputElem.value;
   var autocompleteValue;
   try{
-   autocompleteValue= filteredResults[activeIndex].name.common;
+   var dv= countries[activeIndex]//.display_name;
+   var autocompleteValue=dv.display_name;
   }
     catch (error) {
     console.error(error);
@@ -138,7 +206,7 @@ function selectResult() {
 }
 function selectItem(node) {
   if (node) {
-    console.log(node);
+    console.log("selectItem "+node);
     inputElem.value = node.innerText;
     hideResults();
   }
@@ -168,6 +236,15 @@ function getItemAt(index) {
 
 </body>
  <script>
+	
+
+	function createAutoComplete(inputElem)
+	{
+		
+	}
+
+	
+	
 init();
  </script>
  </body>
