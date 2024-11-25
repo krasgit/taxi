@@ -249,7 +249,9 @@ div.inline { float:left; }
       <div class="leaflet-top leaflet-right">
          <div class="leaflet-routing-container leaflet-bar leaflet-control">
             <div class="leaflet-routing-geocoders ">
-               <div class="leaflet-routing-geocoder"><input class="" placeholder="Start"><span class="leaflet-routing-remove-waypoint"></span>
+               <div class="leaflet-routing-geocoder">
+               <input class="" placeholder="Start"><span class="leaflet-routing-remove-waypoint">
+               </span>
                <div class="leaflet-routing-geocoder"><input class="" placeholder="End"><span class="leaflet-routing-remove-waypoint"></span>
             </div>
           

@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+	
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	
+	<meta name="viewport"   content="width=device-width,initial-scale=1">
+	
+    <title>Open Taxi</title>
+	
+	<!--
+		https://mmomtchev.github.io/rlayers/#/routing
+		https://openlayersbook.github.io/ch09-taking-control-of-controls/example-06.html
+		https://yopaseopor.github.io/osmrecyclingmap/#map=7.62/41.40702/2.09389/0
+		https://jsfiddle.net/expedio/kLmg4uey/
+		https://vue3openlayers.netlify.app/componentsguide/mapcontrols/contextmenu/#demo
+		
+		
+		https://localhost:8443/route/v1/driving/27.860202452255194,43.2052135;27.86836624145508,43.20805362763168?overview=full&alternatives=true&steps=true&hints=;
+		https://localhost:8443/route/v1/driving/27.981982         ,43.238152 ;27.897369        ,43.221216
+	-->
+	
+	
+	<!--
+		<link rel="stylesheet" th:href="@{/resources/last/leaflet.css}" />
+		<script type="text/javascript" th:src="@{/resources/last/leaflet.js}"></script>
+		https://openlayers.org/en/latest/examples/geolocation-orientation.html
+	-->
+	
+	
+    <link rel="stylesheet" href="ol-debug.css" type="text/css"    th:href="@{/resources/openlayers/ol-debug.css}" />
+    <link rel="stylesheet" href="openlayers-routing-machine.css"  th:href="@{/resources/openlayers/openlayers-routing-machine.css}" />
+    <link rel="stylesheet" href="ol-geocoder.css"                 th:href="@{/resources/openlayers/ol-geocoder.css}" />
+	<link rel="stylesheet" href="ol-geocoder.css"                 th:href="@{/resources/openlayers/w3.css}" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" th:href="@{/resources/openlayers/w3.css}" href="fhttps://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="openlayers-routing-machine.css"  th:href="@{/resources/openlayers/routeControl.css}" />
+	
+	<style>
+      html, body { height: 100%; padding: 0; margin: 0; }
+	    #map {
+        /* configure the size of the map */
+        width: 100%;
+        height: 100%;
+      }
+
+   #infoo { position: absolute; font-size: 0.7em; top: 10px; right: 40px;  background-color: lightgrey;  padding: 4px;      }
+   #routeControl { position: absolute; font-size: 0.7em; top: 10px; right: 40px;  background-color: lightgrey;  padding: 4px;      }
+ 	.geolocate-buttons { position: absolute; bottom: 40px; left: 50px; }
+	  .rotate-north { top: 65px;left: .5em;    }
+	
+	.ol-touch .rotate-north { top: 80px;      }
+	
+	
+	
+	.routing-add-waypoint:after {
+	    content: '+';
+	}
+	
+	</style>
+    <style>
+	.ol-popup {
+	     position: absolute; background-color: white;
+	     box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+	     padding: 15px;
+	     border-radius: 10px;
+	     border: 1px solid #cccccc;
+	     bottom: 12px;
+	     left: -50px;
+	     min-width: 280px;
+	   }
+	   .ol-popup:after, .ol-popup:before {
+	     top: 100%;
+	     border: solid transparent;
+	     content: " ";
+	     height: 0;
+	     width: 0;
+	     position: absolute;
+	     pointer-events: none;
+	   }
+	   .ol-popup:after {
+	     border-top-color: white;
+	     border-width: 10px;
+	     left: 48px;
+	     margin-left: -10px;
+	   }
+	   .ol-popup:before {
+	     border-top-color: #cccccc;
+	     border-width: 11px;
+	     left: 48px;
+	     margin-left: -11px;
+	   }
+	   .ol-popup-closer {
+	     text-decoration: none;
+	     position: absolute;
+	     top: 2px;
+	     right: 8px;
+	   }
+	   .ol-popup-closer:after {
+	     content: "✖";
+	   }
+		
+	</style>
+	
+	
+	
+	<script src="SignalMessage.js"                   th:src="@{/resources/openlayers/SignalMessage.js}" ></script>	
+    <script src="ol-debug.js"                    th:src="@{/resources/openlayers/ol-debug.js}" ></script>
+    <script src="openlayers-routing-machine.js"  th:src="@{/resources/openlayers/openlayers-routing-machine.js}" ></script>
+    <script src="ol-geocoder-debug.js"           th:src="@{/resources/openlayers/ol-geocoder-debug.js}" ></script>
+	
+	<script src="adapter-latest.js"           th:src="@{/resources/openlayers/adapter-latest.js}" ></script>
+	<script src="ol-geocoder-debug.js"           th:src="@{/resources/openlayers/webSocketClient.js}" ></script>
+	
+	
+	<script src="mylib.js"           th:src="@{/resources/openlayers/rotateControl.js}" ></script>
+
+	<!--
+	<script src="mylib.js"           th:src="@{/resources/openlayers/mylib.js}" ></script>
+	
+	
+	<script th:src="@{/resources/openlayers/mylib.js(version=${#dates.format(#dates.createNow(), 'mm')})}"></script>
+	-->
+	<script th:src="@{/resources/openlayers/mylib.js}"></script>
+    <!--
+	<script type="module" src="nominatim.js"     th:src="@{/resources/openlayers/nominatim.js}" ></script>  
+	-->
+	<!--
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	-->
+	<link rel="stylesheet" href="ol-geocoder.css"                 th:href="@{/resources/openlayers/ol3-sidebar.css}" />
+	<script src="ol-debug.js"                    th:src="@{/resources/openlayers/ol3-sidebar.js}" ></script>
+  </head>
+  <body>
+	<style>
+	* {
+	  box-sizing: border-box;
+	}
+
+
+	/*the container must be positioned relative:*/
+	.autocomplete {
+	  position: relative;
+	  display: inline-block;
+	}
+
+	input {
+	  border: 1px solid transparent;
+	  background-color: #f1f1f1;
+	  --padding: 10px;
+	  font-size: 13px;
+	}
+
+	input[type=text] {
+	  background-color: #f1f1f1;
+	  width: 100%;
+	}
+
+	input[type=submit] {
+	  background-color: DodgerBlue;
+	  color: #fff;
+	  cursor: pointer;
+	}
+
+	.autocomplete-items {
+	  position: absolute;
+	  border: 1px solid #d4d4d4;
+	  border-bottom: none;
+	  border-top: none;
+	  z-index: 99;
+	  /*position the autocomplete items to be the same width as the container:*/
+	  top: 100%;
+	  left: 0;
+	  right: 0;
+	}
+
+	.autocomplete-items div {
+	  padding: 10px;
+	  cursor: pointer;
+	  background-color: #fff; 
+	  border-bottom: 1px solid #d4d4d4; 
+	}
+
+	/*when hovering an item:*/
+	.autocomplete-items div:hover {
+	  background-color: #e9e9e9; 
+	}
+
+	/*when navigating through the items using the arrow keys:*/
+	.autocomplete-active {
+	  background-color: DodgerBlue !important; 
+	  color: #ffffff; 
+	}
+	</style>
+	
+	<script>
+	function autocomplete(inp, arr) {
+	  /*the autocomplete function takes two arguments,
+	  the text field element and an array of possible autocompleted values:*/
+	  var currentFocus;
+	  /*execute a function when someone writes in the text field:*/
+	  inp.addEventListener("input", function(e) {
+	      var a, b, i, val = this.value;
+	      /*close any already open lists of autocompleted values*/
+	      closeAllLists();
+	      if (!val) { return false;}
+	      currentFocus = -1;
+	      /*create a DIV element that will contain the items (values):*/
+	      a = document.createElement("DIV");
+	      a.setAttribute("id", this.id + "autocomplete-list");
+	      a.setAttribute("class", "autocomplete-items");
+	      /*append the DIV element as a child of the autocomplete container:*/
+	      this.parentNode.appendChild(a);
+	      /*for each item in the array...*/
+	      for (i = 0; i < arr.length; i++) {
+	        /*check if the item starts with the same letters as the text field value:*/
+	        if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+	          /*create a DIV element for each matching element:*/
+	          b = document.createElement("DIV");
+	          /*make the matching letters bold:*/
+	          b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+	          b.innerHTML += arr[i].substr(val.length);
+	          /*insert a input field that will hold the current array item's value:*/
+	          b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+	          /*execute a function when someone clicks on the item value (DIV element):*/
+	          b.addEventListener("click", function(e) {
+	              /*insert the value for the autocomplete text field:*/
+	              inp.value = this.getElementsByTagName("input")[0].value;
+	              /*close the list of autocompleted values,
+	              (or any other open lists of autocompleted values:*/
+	              closeAllLists();
+	          });
+	          a.appendChild(b);
+	        }
+	      }
+	  });
+	  /*execute a function presses a key on the keyboard:*/
+	  inp.addEventListener("keydown", function(e) {
+	      var x = document.getElementById(this.id + "autocomplete-list");
+	      if (x) x = x.getElementsByTagName("div");
+	      if (e.keyCode == 40) {
+	        /*If the arrow DOWN key is pressed,
+	        increase the currentFocus variable:*/
+	        currentFocus++;
+	        /*and and make the current item more visible:*/
+	        addActive(x);
+	      } else if (e.keyCode == 38) { //up
+	        /*If the arrow UP key is pressed,
+	        decrease the currentFocus variable:*/
+	        currentFocus--;
+	        /*and and make the current item more visible:*/
+	        addActive(x);
+	      } else if (e.keyCode == 13) {
+	        /*If the ENTER key is pressed, prevent the form from being submitted,*/
+	        e.preventDefault();
+	        if (currentFocus > -1) {
+	          /*and simulate a click on the "active" item:*/
+	          if (x) x[currentFocus].click();
+	        }
+	      }
+	  });
+	  function addActive(x) {
+	    /*a function to classify an item as "active":*/
+	    if (!x) return false;
+	    /*start by removing the "active" class on all items:*/
+	    removeActive(x);
+	    if (currentFocus >= x.length) currentFocus = 0;
+	    if (currentFocus < 0) currentFocus = (x.length - 1);
+	    /*add class "autocomplete-active":*/
+	    x[currentFocus].classList.add("autocomplete-active");
+	  }
+	  function removeActive(x) {
+	    /*a function to remove the "active" class from all autocomplete items:*/
+	    for (var i = 0; i < x.length; i++) {
+	      x[i].classList.remove("autocomplete-active");
+	    }
+	  }
+	  function closeAllLists(elmnt) {
+	    /*close all autocomplete lists in the document,
+	    except the one passed as an argument:*/
+	    var x = document.getElementsByClassName("autocomplete-items");
+	    for (var i = 0; i < x.length; i++) {
+	      if (elmnt != x[i] && elmnt != inp) {
+	        x[i].parentNode.removeChild(x[i]);
+	      }
+	    }
+	  }
+	  /*execute a function when someone clicks in the document:*/
+	  document.addEventListener("click", function (e) {
+	      closeAllLists(e.target);
+	  });
+	}
+
+	/*An array containing all the country names in the world:*/
+	var countries = ["Afghanistan","Albania","Algeria","Andorra","Angola","Anguilla","Antigua & Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia","Bosnia & Herzegovina","Botswana","Brazil","British Virgin Islands","Brunei","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Canada","Cape Verde","Cayman Islands","Central Arfrican Republic","Chad","Chile","China","Colombia","Congo","Cook Islands","Costa Rica","Cote D Ivoire","Croatia","Cuba","Curacao","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia","Falkland Islands","Faroe Islands","Fiji","Finland","France","French Polynesia","French West Indies","Gabon","Gambia","Georgia","Germany","Ghana","Gibraltar","Greece","Greenland","Grenada","Guam","Guatemala","Guernsey","Guinea","Guinea Bissau","Guyana","Haiti","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Isle of Man","Israel","Italy","Jamaica","Japan","Jersey","Jordan","Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macau","Macedonia","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Montserrat","Morocco","Mozambique","Myanmar","Namibia","Nauro","Nepal","Netherlands","Netherlands Antilles","New Caledonia","New Zealand","Nicaragua","Niger","Nigeria","North Korea","Norway","Oman","Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Puerto Rico","Qatar","Reunion","Romania","Russia","Rwanda","Saint Pierre & Miquelon","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","St Kitts & Nevis","St Lucia","St Vincent","Sudan","Suriname","Swaziland","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor L'Este","Togo","Tonga","Trinidad & Tobago","Tunisia","Turkey","Turkmenistan","Turks & Caicos","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States of America","Uruguay","Uzbekistan","Vanuatu","Vatican City","Venezuela","Vietnam","Virgin Islands (US)","Yemen","Zambia","Zimbabwe"];
+
+
+	</script>	
+	
+	<!--
+	
+	<div id="sidebar" class="sidebar collapsed">
+	       
+	       <div class="sidebar-tabs">
+	           <ul role="tablist">
+	               <li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
+	               <li><a href="#profile" role="tab"><i class="fa fa-user"></i></a></li>
+	               <li class="disabled"><a href="#messages" role="tab"><i class="fa fa-envelope"></i></a></li>
+	               <li><a href="https://github.com/Turbo87/sidebar-v2" role="tab" target="_blank"><i class="fa fa-github"></i></a></li>
+	           </ul>
+
+	           <ul role="tablist">
+	               <li><a href="#settings" role="tab"><i class="fa fa-gear"></i></a></li>
+	           </ul>
+	       </div>
+
+	      
+	       <div class="sidebar-content">
+	           <div class="sidebar-pane" id="home">
+	               <h1 class="sidebar-header">
+	                   Open Taxi
+	                   <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+	               </h1>
+
+	               <p>A responsive sidebar for mapping libraries like <a href="http://openlayers.org/">OpenLayers</a>.</p>
+	               
+	               <p class="lorem">Lorem iamet.</p>
+	           </div>
+
+	           <div class="sidebar-pane" id="profile">
+	               <h1 class="sidebar-header">Profile<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+	           </div>
+
+	           <div class="sidebar-pane" id="messages">
+	               <h1 class="sidebar-header">Messages<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+	           </div>
+
+	           <div class="sidebar-pane" id="settings">
+	               <h1 class="sidebar-header">sSettings<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+	           </div>
+	       </div>
+	   </div>
+	
+	   -->
+	<!--
+	   <div id="qaz"  style=" max-width:600px; box-sizing: border-box; border-style: dashed;" >
+		<div class="ol-attribution ol-unselectable ol-control">
+			<ul>
+				<li style=""><a href="https://openlayers.org/">
+				<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAA3NCSVQICAjb4U/gAAAACXBIWXMAAAHGAAABxgEXwfpGAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAhNQTFRF////AP//AICAgP//AFVVQECA////K1VVSbbbYL/fJ05idsTYJFtbbcjbJllmZszWWMTOIFhoHlNiZszTa9DdUcHNHlNlV8XRIVdiasrUHlZjIVZjaMnVH1RlIFRkH1RkH1ZlasvYasvXVsPQH1VkacnVa8vWIVZjIFRjVMPQa8rXIVVkXsXRsNveIFVkIFZlIVVj3eDeh6GmbMvXH1ZkIFRka8rWbMvXIFVkIFVjIFVkbMvWH1VjbMvWIFVlbcvWIFVla8vVIFVkbMvWbMvVH1VkbMvWIFVlbcvWIFVkbcvVbMvWjNPbIFVkU8LPwMzNIFVkbczWIFVkbsvWbMvXIFVkRnB8bcvW2+TkW8XRIFVkIlZlJVloJlpoKlxrLl9tMmJwOWd0Omh1RXF8TneCT3iDUHiDU8LPVMLPVcLPVcPQVsPPVsPQV8PQWMTQWsTQW8TQXMXSXsXRX4SNX8bSYMfTYcfTYsfTY8jUZcfSZsnUaIqTacrVasrVa8jTa8rWbI2VbMvWbcvWdJObdcvUdszUd8vVeJaee87Yfc3WgJyjhqGnitDYjaarldPZnrK2oNbborW5o9bbo9fbpLa6q9ndrL3ArtndscDDutzfu8fJwN7gwt7gxc/QyuHhy+HizeHi0NfX0+Pj19zb1+Tj2uXk29/e3uLg3+Lh3+bl4uXj4ufl4+fl5Ofl5ufl5ujm5+jmySDnBAAAAFp0Uk5TAAECAgMEBAYHCA0NDg4UGRogIiMmKSssLzU7PkJJT1JTVFliY2hrdHZ3foSFhYeJjY2QkpugqbG1tre5w8zQ09XY3uXn6+zx8vT09vf4+Pj5+fr6/P39/f3+gz7SsAAAAVVJREFUOMtjYKA7EBDnwCPLrObS1BRiLoJLnte6CQy8FLHLCzs2QUG4FjZ5GbcmBDDjxJBXDWxCBrb8aM4zbkIDzpLYnAcE9VXlJSWlZRU13koIeW57mGx5XjoMZEUqwxWYQaQbSzLSkYGfKFSe0QMsX5WbjgY0YS4MBplemI4BdGBW+DQ11eZiymfqQuXZIjqwyadPNoSZ4L+0FVM6e+oGI6g8a9iKNT3o8kVzNkzRg5lgl7p4wyRUL9Yt2jAxVh6mQCogae6GmflI8p0r13VFWTHBQ0rWPW7ahgWVcPm+9cuLoyy4kCJDzCm6d8PSFoh0zvQNC5OjDJhQopPPJqph1doJBUD5tnkbZiUEqaCnB3bTqLTFG1bPn71kw4b+GFdpLElKIzRxxgYgWNYc5SCENVHKeUaltHdXx0dZ8uBI1hJ2UUDgq82CM2MwKeibqAvSO7MCABq0wXEPiqWEAAAAAElFTkSuQmCC"></a>
+			</li><li>© 
+					<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.</li>
+				<li><a href="http://openstreetmap.org">OpenTaxi</a>
+				</li></ul>
+				
+				<button type="button" title="Attributions">
+					<span>»
+					
+				</span>
+				</button>
+			</div>
+		</div>
+		-->
+	   
+
+	   <div id="loginCont"  class="w3-modal" >
+	     <div class="w3-modal-content w3-card-8 w3-animate-zoom" style="max-width:600px">
+	     
+	       <div class="w3-center"><br>
+	         <img src="img_avatar4.png" alt="Avatar" style="width:40%" class="w3-circle w3-margin-top">
+	       </div>
+
+	       <div class="w3-container">
+	         <div class="w3-section">
+	           <label><b>Username/Email</b></label>
+	           <input id="username" class="w3-input w3-border w3-hover-border-black w3-margin-bottom" type="text" placeholder="Enter Username/Email">
+
+	           <label><b>Password</b></label>
+	           <input id="password" class="w3-input w3-border w3-hover-border-black" type="text" placeholder="Enter Password">
+	           
+	           <button class="w3-btn w3-btn-block w3-green w3-section" onclick="login()">Login</button>
+	           <input class="w3-check" type="checkbox" checked="checked"> Remember me
+	         </div>
+	       </div>
+
+	       <div class="w3-container w3-border-top w3-padding-16 w3-light-grey">
+	         <button onclick="document.getElementById('loginCont').style.display='none'" type="button" class="w3-btn w3-red">Cancel</button>
+	         <span class="w3-right w3-padding w3-hide-small">Forgot <a href="#">password?</a></span>
+	       </div>
+
+	     </div>
+	   </div>	
+	
+    <div id="map" class="map"></div>
+	<div id="info"></div>
+<div id="infoo"></div>
+
+
+<div id="popup" class="ol-popup">
+    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+    <div id="popup-content"></div>
+</div>  
+
+
+
+
+<img id="geolocation_marker" src="geolocation_marker.png"  th:src="@{/resources/openlayers/geolocation_marker.png}" alt="geolocation_marker"/>
+    <div class="geolocate-buttons">
+		<button id="login" class="btn btn-primary">login</button>
+	  <button id="ping" class="btn btn-primary">Ping</button>
+      <button id="geolocate" class="btn btn-primary">Geolocate Me</button>
+      <button id="simulate" class="btn btn-secondary">Simulate</button>
+	  <button id="simulate1" class="btn btn-secondary">Simulate1</button>
+
+	  
+	  <button id="route1" class="btn btn-secondary">route1</button>
+	  <button id="route2" class="btn btn-secondary">route2</button>
+	  
+	  
+	  <button id="newgeolocate" class="btn btn-secondary">New Geolocate Me</button>
+    </div>
+	
+	
+	<script type="module">
+	import mylib from "../resources/openlayers/mylib.js";
+
+console.log( mylib());
+
+	</script>
+    <script>
+		const log = console.log;
+		const url = new URL(location.origin);
+		const hostname = url.hostname;
+		const view =  new ol.View({ center: ol.proj.fromLonLat([27.953315566702816,43.3520584446037]),      zoom: 10   })
+		const tileLayer = new  ol.layer.Tile({
+            source: new ol.source.XYZ({
+                  attributions: [ol.source.OSM.ATTRIBUTION,'<a href="http://openstreetmap.org">' + 'OpenTaxi' +     '</a>' ],
+                  url: 'https://'+hostname+':8443/tile/{z}/{x}/{y}.png'
+            })
+
+});
+
+
+var urll = new URL(location.origin);
+		var hostnamel = url.hostname;
+var urll='https://'+hostname+':8443/route/v1/driving/'
+
+var markerImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAApCAYAAADAk4LOAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAUlSURBVFjDrZdLiBxVFIb/e289uqt6kkx6zIiIoKgLRReKuMhCcaOIAUEIiCCE4CIPggZ8kBjooPgM0TiYEUUjqBGchZqAQlyYRTA+kJiJQiJGMjN5zYzT3dP1rrr3HBeTjDGTSfc8Dvyruud89Z9z6kIJdBj31763MivsJXKuZYF6dak5++2mh7NOcsXVHq6sHbhOK/24kOJJMO4AE1vKygwZhxlKSHGKiD+RSu09vOXB43OCrHz96y6T2lsh+OmKXzFdlbLne2UopSAupBhjECcZgjDMgiiSxPhcK/nCr1sfOtcWcm/tq9uEsL4rl0vdK67pKVu2jUwTMk0wBBAzpBCQAnAtiZIlwWQwPlHPglZQAFj1Y23VwVkh92zbd59U+Kanp+p2L12mooKQ5AbcpuclS6LiKoRhxOfHzhXMcs3PtVV7Z0DufXH/LSzpSG9vr1/p6kIz0dDUrvx/IYXAsrJCkWc4e/Z0Zpgf+KX26A/TkNtrXziesY9Xq8tvWNZdVfVYg7hzwKVv3O3ZiKMWj46OTrq5fdOh1x5pSADwjdzo2nbv0u6qqkca2jCIMGcZAuqRhu8vEX7ZK2V2WgMAcXdtvyeKbPS662+osCohzMycHVweniNREoShoZO5KYobpciSh23bFq7rIUgNiLFghRkBlg2v7GlpiccsCHrcryzxUk3zmsNskeYGvt/lxVH4hMWEu9xSWaQFYQ7L1B6iGZ5bBoy+zWKiHiltFHpqeIsVhWaosg1iqlgg4wAAEYEXsV3EmNppJmExMFYUxfVSuIs6E0sI5FkBBhLJzH9laQxLSjBj0WQJgSJPweDTkknvS4JGbCuxKOt7UY4lEQfNnAu9TzLxN2nUdAQTLAEw8YIlAVgAkmDCSBL75eCutSeY+GTUqqNkqUVxUbIl4qgJo4vWzecrhyQAMJldYf1MXLLl1EIsYBZgoGwpRI2zMTPtGBhYbSQAlJF9lieRzNMIriVBzPOWawvoIkYaNC0u9IcAIAHgp75NLQl8ENbPZJ6jgAU48RyFqHEuZyE+Pda/vjENAQBD5s209Y+kPJlyM4+r3lUS0AWSyVEhpHnjYu1pyO+7N4ywwPvhxHDiuwo8j1b5rkQwMZIziYHBXetPzIAAgIV8exZOSMoieI6aU5vKtgR0jqw1JtiYbZfW/R/kSN+mcWbxdtwYjn1XTd9B7cQAfNdCWB/OhBR7jvWv/3tWCAAoO3ktjyZZJ0HHbsq2AooERVQXzPKly2vOgPz29jNNBr+e1IcSz5YAM4hmFzPDtyWS+lDK4N2DfU+dbgsBAFHyd+oszE3agt/GjWcrUBEjj5sQBb96pXpXhAzueDJi4u1p41TsuQpCiFln4bkKeXMoJeadg++tG+sYAgBBXOo3RRrruAnfkWDmGfIdCeQhiiQgQbxjtlqzQk59vCZlNluL5lDiORLyMjcA4DsKeXM4AfDKxa97ThAAqPaMfaR1Nq6jOiqOAhOm5TsKJg1QZGGRedY7V6tzVcjBWk1D0JZ8cigt2RJSimkXnqOgW8MxQLUTb6wN5g0BgGPV0c9BekTH41xx5YXrQ8FkTRgdpxU7ea9djbYQ1GokmJ43wUhWtgRcS04tQjAcw9CWw29tThYOAXD03XVfMps/TTTOy30blDZgiqxFK6p7OsnvCDJ1UD9LyUjORoPDkUQyPfdHbXW+qJCjfRsOwOAoNY4z6Xz01rHq3k5zO4ZMHTabYSIhJD87MLB64f8Ys8WdG/tfBljMJedfwY+s/2P4Pv8AAAAASUVORK5CYII="
+
+var points = [],
+  msg_el = document.getElementById("msg"),
+  url_osrm_nearest = "//router.project-osrm.org/nearest/v1/driving/",
+  url_osrm_route = "//router.project-osrm.org/route/v1/driving/",
+  icon_url = "//cdn.rawgit.com/openlayers/ol3/master/examples/data/icon.png",
+  vectorSource = new ol.source.Vector(),
+  vectorLayer = new ol.layer.Vector({
+    source: vectorSource,
+  })
+  
+  
+  var defaultStyle = new ol.style.Style({
+    image: new ol.style.Icon({   anchor: [12, 41],  anchorXUnits: 'pixels',   anchorYUnits: 'pixels',    src: markerImage    })	,
+  	text: new ol.style.Text({    offsetY: -24,offsetX: 0,     text: 'A',   placement: 'point',        textAlign: 'center',     fill: new ol.style.Fill({color: 'rgb(255, 255, 255)'}),
+  	    //        backgroundFill: new ol.style.Fill({color: 'black'}),
+  	            padding: [3, 5, 3, 5]
+  	        })
+  });
+  
+  var styles = { route: new ol.style.Style({ stroke: new ol.style.Stroke({    width: 6,    color: [40, 40, 40, 0.8],   }),   }),
+    icon: new ol.style.Style({   image: new ol.style.Icon({      anchor: [0.5, 1],      src: icon_url,    }),   }),
+  }
+//------------------------
+//---------------
+
+
+      var map = new ol.Map({
+		//interactions: defaultInteractions().extend([dragAndDropInteraction]),
+      //    controls: ol.control.defaults().extend(	//[new ol.control.FullScreen()],		[rotateNorthControl]	),
+		//	controls: ol.control.defaultControls().extend([new RotateNorthControl()]),
+        layers: [tileLayer    ,vectorLayer   ],
+        controls: ol.control.defaults({
+          // Set to display OSM attributions on the bottom right control
+          attributionOptions:  {
+            collapsed: false
+          }
+        }).extend(
+			[new ol.control.ScaleLine()]
+			),
+        target: 'map',
+        view: view,
+      });
+   
+	//  var waypoints = [];
+	  
+
+/*
+var sidebar = new ol.control.Sidebar({ element: 'sidebar', position: 'left' });
+
+     map.addControl(sidebar);
+*/
+this.map.addControl(new RotateNorthControl());
+//this.map.addControl(new ol.control.FullScreen());
+
+
+/*
+map.on("pointermove", function(evt){
+	
+	const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+		
+		g=new ol.geom.Point(ol.proj.fromLonLat(evt.coordinate));
+		feature.setGeometry(g);
+	    return feature;
+	  });
+	  
+	 
+	console.log('evt drag'+feature);
+	evt.preventDefault();
+	}); 
+
+
+map.on("dragstart", function(evt){
+	
+	const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+	    return feature;
+	  });
+	  
+	  
+	console.log('evt onDown'+feature);
+	
+	}); 
+
+map.on('pointerdown', function(evt){
+	
+	const feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+	    return feature;
+	  });
+	  
+	  
+	console.log('evt onDown'+feature);
+	
+	});
+*/
+
+
+
+	var stop=0;
+
+
+/**
+map.on('click', function(evt){
+  utils.getNearest(evt.coordinate).then(function(coord_street){
+	
+	
+	if(stop==2)
+	return ;
+    var last_point = points[points.length - 1];
+    var points_length = points.push(coord_street);
+
+	
+    utils.createFeature(coord_street);
+
+    if (points_length < 2) {
+console.log('Click to add another point');
+      return;
+    }
+	
+	stop=2;
+
+    //get the route
+    var point1 = last_point.join();
+    var point2 = coord_street.join();
+    
+    fetch(urll + point1 + ';' + point2).then(function(r) { 
+      return r.json();
+    }).then(function(json) {
+      if(json.code !== 'Ok') {
+       console.log('No route found.');
+        return;
+      }
+     console.log('Route added');
+      //points.length = 0;
+      utils.createRoute(json.routes[0].geometry);
+    });
+  });
+});
+*/
+var utils = {
+  getNearest: function(coord){
+    var coord4326 = utils.to4326(coord);    
+    return new Promise(function(resolve, reject) {
+      //make sure the coord is on street
+      fetch(url_osrm_nearest + coord4326.join()).then(function(response) { 
+        // Convert to JSON
+        return response.json();
+      }).then(function(json) {
+        if (json.code === 'Ok') resolve(json.waypoints[0].location);
+        else reject();
+      });
+    });
+  },
+  createFeature: function(coord) {
+	
+	
+	g=new ol.geom.Point(ol.proj.fromLonLat(coord));
+    var feature = new ol.Feature({type: 'place',   geometry:  g });
+    feature.setStyle(styles.icon);
+    vectorSource.addFeature(feature);
+	var translate1 = new app.Drag({
+		features: new ol.Collection([feature])
+	});
+	map.addInteraction(translate1);
+  },
+  createRoute: function(polyline) {
+    // route is ol.geom.LineString
+    var route = new ol.format.Polyline({  factor: 1e5
+    }).readGeometry(polyline, {
+      dataProjection: 'EPSG:4326',
+      featureProjection: 'EPSG:3857'
+    });
+	
+	
+	
+	
+	var routeFeature = vectorSource.getFeatureById('routeFeature');
+	if(routeFeature)
+		  vectorSource.removeFeature(routeFeature);
+	
+	
+    var feature = new ol.Feature({ type: 'route',   geometry: route  });
+	feature.setId('routeFeature')
+    feature.setStyle(styles.route);
+    vectorSource.addFeature(feature);
+	return feature;
+  },
+  to4326: function(coord) {
+    return ol.proj.transform([
+      parseFloat(coord[0]), parseFloat(coord[1])
+    ], 'EPSG:3857', 'EPSG:4326');
+  }
+};
+var coord1 = [-5707673.76, -3499420.81];
+var marker1 = new ol.geom.Point(coord1);
+var featureMarker1 = new ol.Feature(marker1);
+
+
+
+/*
+	  var waypoints = [
+  [27.953315566702816,43.3520584446037],
+  [26.953315566702816,42.3520584446037],
+]
+
+var control = new olrm.Control({
+  map
+  ,  waypoints
+});
+
+map.addControl(control)
+*/
+ function simpleReverseGeocoding(lon, lat) {
+        fetch('https://'+hostname+':8443/reverse?format=json&lon=' + lon + '&lat=' + lat).then(function(response) {
+          return response.json();
+        }).then(function(json) {
+//          alert(json.display_name);
+console.log(json.display_name);
+        })
+      }
+    
+	  
+	    map.on('click', function(e) {
+        var coordinate = ol.proj.toLonLat(e.coordinate).map(function(val) {
+          return val.toFixed(6);
+        });
+        var lon = coordinate[0];
+        var lat = coordinate[1];
+        simpleReverseGeocoding(lon, lat);
+      });
+
+	  
+	  //-------
+	  /*
+	  const loginCont = document.getElementById('loginCont');
+	 
+
+	  var pos = map.getView().getCenter(); 
+	  const loginOverlay = new ol.Overlay({
+		position: pos,
+	    element: loginCont,
+	    positioning: 'bottom-center',
+	    stopEvent: true,
+	  });
+	  map.addOverlay(loginOverlay);
+	  */
+	  //---------
+	  
+	  const popupContainer = document.getElementById('popup');
+	  const content = document.getElementById('popup-content');
+	  const closer = document.getElementById('popup-closer');
+	  
+	  
+	  const popup = new ol.Overlay({
+	    element: popupContainer,
+	    positioning: 'bottom-center',
+	    stopEvent: true,
+	  });
+	  map.addOverlay(popup);
+
+	  
+	  closer.onclick = function () {
+	    popup.setPosition(undefined);
+	    closer.blur();
+	    return false;
+	  };
+	  
+	  map.on('singleclick', function (evt) {
+	    const coordinate = evt.coordinate;
+		
+		const ccoordinate = ['2544099.4746324923', '5449440.344940728'];
+	    const hdms = ol.coordinate.toStringHDMS(ol.proj.toLonLat(coordinate));
+	  
+	    content.innerHTML = '<p>You clicked here:</p><code>' + hdms + '</code>';
+	    popup.setPosition(coordinate);
+	//	loginOverlay.setPosition(coordinate);
+	  });
+	  
+	  
+	  
+
+//-----------------------------------------------------------------
+//const popup = new ol.Overlay.Popup();
+
+
+
+	  
+  // Instantiate with some options and add the Control
+  /*
+  const geocoder = new Geocoder('nominatim', {
+    provider: 'photon',
+    targetType: 'glass-button',
+    lang: 'en',
+    placeholder: 'Search for ...',
+    limit: 5,
+    keepOpen: true,
+  });
+
+  map.addControl(geocoder);
+ 
+
+  // Listen when an address is chosen
+  geocoder.on('addresschosen', (evt) => {
+    window.setTimeout(() => {
+      popup.show(evt.coordinate, evt.address.formatted);
+    }, 3000);
+  });
+*/
+    </script>
+ <script /*src="geolocation-orientation.js" */>
+// Geolocation marker
+const markerEl = document.getElementById('geolocation_marker');
+const marker = new ol.Overlay({
+  positioning: 'center-center',
+  element: markerEl,
+  stopEvent: false,
+});
+map.addOverlay(marker);
+
+// LineString to store the different geolocation positions. This LineString
+// is time aware.
+// The Z dimension is actually used to store the rotation (heading).
+const positions = new ol.geom.LineString([], 'XYZM');
+
+// Geolocation Control
+const geolocation = new ol.Geolocation({
+  projection: view.getProjection(),
+  trackingOptions: {
+    maximumAge: 10000,
+    enableHighAccuracy: true,
+    timeout: 600000,
+  },
+});
+
+let deltaMean = 500; // the geolocation sampling period mean in ms
+
+
+function logPosition(geolocation, m) {
+	
+	const position = geolocation.getPosition();
+	const accuracy = geolocation.getAccuracy();
+	const heading = geolocation.getHeading() || 0;
+	const speed = geolocation.getSpeed() || 0;
+
+	
+	const coords = {};
+	coords.longitude= position[0];
+	coords.latitude=  position[1];
+	coords.speed= speed;
+	 
+	coords.accuracy= accuracy;
+	 coords.altitudeAccuracy= 8;
+	  coords.altitude= 238;
+	 
+	 coords.heading= heading;
+	 coords.timestamp=m;
+	
+	 const positionJSON = JSON.stringify(position);
+	 console.log("positionJSON "+positionJSON);
+	
+	
+	const coordsJSON = JSON.stringify(coords);
+	
+	wssendmsg("logPosition","","",coordsJSON);
+	
+	console.log("coordsJSON "+coordsJSON);
+
+ 
+}
+// Listen to position changes
+geolocation.on('change', function () {
+  const position = geolocation.getPosition();
+  const accuracy = geolocation.getAccuracy();
+  const heading = geolocation.getHeading() || 0;
+  const speed = geolocation.getSpeed() || 0;
+  const m = Date.now();
+  logPosition(geolocation,  m);
+  addPosition(position, heading, m, speed);
+
+  const coords = positions.getCoordinates();
+  const len = coords.length;
+  if (len >= 2) {
+    deltaMean = (coords[len - 1][3] - coords[0][3]) / (len - 1);
+  }
+
+  
+  
+  
+  
+  
+  const html = [
+    'Position: ' + position[0].toFixed(2) + ', ' + position[1].toFixed(2),
+    'Accuracy: ' + accuracy,
+    'Heading: ' + Math.round(radToDeg(heading)) + '&deg;',
+    'Speed: ' + (speed * 3.6).toFixed(1) + ' km/h',
+    'Delta: ' + Math.round(deltaMean) + 'ms',
+  ].join('<br />');
+  document.getElementById('infoo').innerHTML = html;
+  
+  updateView();
+});
+
+geolocation.on('error', function () {
+  alert('geolocation error');
+  // FIXME we should remove the coordinates in positions
+});
+
+// convert radians to degrees
+function radToDeg(rad) {
+  return (rad * 360) / (Math.PI * 2);
+}
+// convert degrees to radians
+function degToRad(deg) {
+  return (deg * Math.PI * 2) / 360;
+}
+// modulo for negative values
+function mod(n) {
+  return ((n % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+}
+
+function addPosition(position, heading, m, speed) {
+  const x = position[0];
+  const y = position[1];
+  const fCoords = positions.getCoordinates();
+  const previous = fCoords[fCoords.length - 1];
+  const prevHeading = previous && previous[2];
+  if (prevHeading) {
+    let headingDiff = heading - mod(prevHeading);
+
+    // force the rotation change to be less than 180°
+    if (Math.abs(headingDiff) > Math.PI) {
+      const sign = headingDiff >= 0 ? 1 : -1;
+      headingDiff = -sign * (2 * Math.PI - Math.abs(headingDiff));
+    }
+    heading = prevHeading + headingDiff;
+  }
+  positions.appendCoordinate([x, y, heading, m]);
+
+  // only keep the 20 last coordinates
+  positions.setCoordinates(positions.getCoordinates().slice(-20));
+
+  // FIXME use speed instead
+  if (heading && speed) {
+    markerEl.src = '/resources/openlayers/geolocation_marker_heading.png';
+  } else {
+    markerEl.src = '/resources/openlayers/geolocation_marker.png';
+  }
+}
+
+// recenters the view by putting the given coordinates at 3/4 from the top or
+// the screen
+function getCenterWithHeading(position, rotation, resolution) {
+  const size = map.getSize();
+  const height = size[1];
+
+  return [
+    position[0] - (Math.sin(rotation) * height * resolution * 1) / 4,
+    position[1] + (Math.cos(rotation) * height * resolution * 1) / 4,
+  ];
+}
+
+let previousM = 0;
+function updateView() {
+  // use sampling period to get a smooth transition
+  let m = Date.now() - deltaMean * 1.5;
+  m = Math.max(m, previousM);
+  previousM = m;
+  // interpolate position along positions LineString
+  const c = positions.getCoordinateAtM(m, true);
+  if (c) {
+    view.setCenter(getCenterWithHeading(c, -c[2], view.getResolution()));
+	
+	const rot=-c[2]; //log
+	
+    view.setRotation(-c[2]);
+    marker.setPosition(c);
+    map.render();
+  }
+}
+
+// geolocate device
+const geolocateBtn = document.getElementById('geolocate');
+geolocateBtn.addEventListener(
+  'click',
+  function () {
+    geolocation.setTracking(true); // Start position tracking
+
+    tileLayer.on('postrender', updateView);
+    map.render();
+
+    disableButtons();
+  },
+  false,
+);
+
+
+
+
+
+
+// simulate device move
+let simulationData;
+const client = new XMLHttpRequest();
+client.open('GET', '/resources/openlayers/sim.json');
+
+/**
+ * Handle data loading.
+ */
+client.onload = function () {
+  simulationData = JSON.parse(client.responseText).data;
+};
+client.send();
+
+const simulateBtn = document.getElementById('simulate');
+simulateBtn.addEventListener(
+  'click',
+  function () {
+    const coordinates = simulationData;
+
+    const first = coordinates.shift();
+    simulatePositionChange(first);
+
+    let prevDate = first.timestamp;
+    function geolocate() {
+      const position = coordinates.shift();
+      if (!position) {
+        return;
+      }
+      const newDate = position.timestamp;
+      simulatePositionChange(position);
+      window.setTimeout(
+        function () {
+          prevDate = newDate;
+          geolocate();
+        },
+        (newDate - prevDate) / 0.5,
+      );
+    }
+    geolocate();
+
+    tileLayer.on('postrender', updateView);
+    map.render();
+
+    disableButtons();
+  },
+  false,
+);
+
+function myFunction() {
+var lat = 3102392.8181436514; 
+var lon = 5347751.845924492;
+var lonlat = new OpenLayers.LonLat(lon, lat);
+}
+
+function simulatePositionChange(position) {
+  const coords = position.coords;
+  geolocation.set('accuracy', coords.accuracy);
+  geolocation.set('heading', degToRad(coords.heading));
+  
+  
+  
+  //var coordinate = ol.proj.toLonLat(eate);
+  //console.log("ol.proj.toLonLat"+coordinate);
+  
+  /* org
+  const projectedPosition = ol.proj.fromLonLat([coords.longitude, coords.latitude]);
+  geolocation.set('position', projectedPosition);
+  */
+  
+  const tmp = [coords.longitude, coords.latitude];
+  geolocation.set('position', tmp);
+  
+  
+  geolocation.set('speed', coords.speed);
+  geolocation.changed();
+}
+
+function disableButtons() {
+  geolocateBtn.disabled = 'disabled';
+  simulateBtn.disabled = 'disabled';
+}
+//------------------------------------------------------------------------------------
+
+
+
+
+
+//-----------
+///ADD MARKER
+/*
+    var markers = new ol.Layer.Markers( "Markers" );
+    map.addLayer(markers);
+
+    var size = new ol.Size(21,25);
+    var offset = new ol.Pixel(-(size.w/2), -size.h);
+    var icon = new ol.Icon('marker.png', size, offset);
+    markers.addMarker(new ol.Marker(new ol.LonLat(106.8478695,-6.1568562),icon));
+    markers.addMarker(new ol.Marker(new ol.LonLat(106.8478695,-6.1568562),icon.clone()));
+*/
+
+
+</script>
+ <script>
+
+
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition);
+  } else {
+    		console.log("Geolocation is not supported by this browser.");
+  }
+}
+
+function showPosition(position) {
+  console.log( "Latitude: " + position.coords.latitude +  "<br>Longitude: " + position.coords.longitude);
+}
+getLocation();
+</script> 
+<script>
+	//-------------------------------------------
+	var app = {};
+	     /**@constructor  @extends {module:ol/interaction/Pointer}  */
+	     app.Drag = function() {
+
+	       ol.interaction.Pointer.call(this, {
+	         handleDownEvent: app.Drag.prototype.handleDownEvent,
+	         handleDragEvent: app.Drag.prototype.handleDragEvent,
+	         handleMoveEvent: app.Drag.prototype.handleMoveEvent,
+	         handleUpEvent: app.Drag.prototype.handleUpEvent
+	       });
+
+	       /** @type {module:ol/pixel~Pixel}* @private */
+	       this.coordinate_ = null;
+
+	       /**
+	        * @type {string|undefined}
+	        * @private
+	        */
+	       this.cursor_ = 'pointer';
+
+	       /**
+	        * @type {module:ol/Feature~Feature}
+	        * @private
+	        */
+	       this.feature_ = null;
+
+	       /** @type {string|undefined} @private*/
+	       this.previousCursor_ = undefined;
+
+	     };
+	    // inherits(app.Drag, PointerInteraction);
+		 ol.inherits(app.Drag, ol.interaction.Pointer);
+
+	     /**
+	      * @param {module:ol/MapBrowserEvent~MapBrowserEvent} evt Map browser event.
+	      * @return {boolean} `true` to start the drag sequence.
+	      */
+	     app.Drag.prototype.handleDownEvent = function(evt) {
+	       var map = evt.map;
+
+	       var feature = map.forEachFeatureAtPixel(evt.pixel,
+	         function(feature) {
+	           return feature;
+	         });
+
+	       if (feature) {
+	         this.coordinate_ = evt.coordinate;
+	         this.feature_ = feature;
+	       }
+
+	       return !!feature;
+	     };
+
+
+	     /**
+	      * @param {module:ol/MapBrowserEvent~MapBrowserEvent} evt Map browser event.
+	      */
+	     app.Drag.prototype.handleDragEvent = function(evt) {
+	       var deltaX = evt.coordinate[0] - this.coordinate_[0];
+	       var deltaY = evt.coordinate[1] - this.coordinate_[1];
+
+	       var geometry = this.feature_.getGeometry();
+	       geometry.translate(deltaX, deltaY);
+
+		  
+		  
+		   
+	       this.coordinate_[0] = evt.coordinate[0];
+	       this.coordinate_[1] = evt.coordinate[1];
+		   
+		   route.updateWaypoint(this.feature_,evt);
+	     };
+
+		 /** @param {module:ol/MapBrowserEvent~MapBrowserEvent} evt Event.  */
+	     app.Drag.prototype.handleMoveEvent = function(evt) {
+	       if (this.cursor_) {
+	         var map = evt.map;
+	         var feature = map.forEachFeatureAtPixel(evt.pixel,
+	           function(feature) {
+	             return feature;
+	           });
+	         var element = evt.map.getTargetElement();
+	         if (feature) {
+	           if (element.style.cursor != this.cursor_) {
+	             this.previousCursor_ = element.style.cursor;
+	             element.style.cursor = this.cursor_;
+	           }
+			   
+			   //feature.getGeometry().setCoordinates(evt.coordinate);
+	         } else if (this.previousCursor_ !== undefined) {
+	           element.style.cursor = this.previousCursor_;
+	           this.previousCursor_ = undefined;
+	         }
+	       }
+	     };
+
+	     /**  @return {boolean} `false` to stop the drag sequence.    */
+	     app.Drag.prototype.handleUpEvent = function() {
+	       this.coordinate_ = null;
+	       this.feature_ = null;
+	       return false;
+	     };
+
+
+//-----------------------------------------------------------------------------	
+	
+ 
+function initGeo() {
+    navigator.geolocation.watchPosition(
+        geosuccess,
+        geofailure,
+        {
+            enableHighAccuracy:true,
+            maximumAge:30000,
+            timeout:20000
+        }
+    );
+
+    //moveSpeed(30);
+    //moveCompassNeedle(56);
+}
+
+
+
+  class Waypoint {
+    constructor (lngLat, name, options) {
+	  this.lngLat = lngLat;
+	  this.name = name;
+	  this.options = options;
+	}
+	
+	update(lngLat){
+		this.lngLat = lngLat;
+	}
+  }
+	
+  class Route {
+	waypoints = [];
+	url='https://'+(new URL(location.origin).hostname)+':8443/route/v1/driving/';
+		 
+	constructor (waypoint) {
+	  if(waypoint !== undefined)
+		this.waypoints=waypoint;
+	  }
+
+    reset(){
+	    this.waypoints = []; 
+    }  
+
+	updateWaypoint(feature_,evt){
+	
+		//var lngLat = ol.proj.toLonLat(evt.coordinate);
+		
+		var geometry = feature_.getGeometry().clone().transform(map.getView().getProjection(),'EPSG:4326');
+		
+		//console.log(geometry);
+		var fc=geometry.flatCoordinates;
+		var ff=[fc[0],fc[1]];
+		console.log(ff);
+		for (let i = 0; i < this.waypoints.length; i++) {
+				       var val=this.waypoints[i];
+					   
+					   if(val.name===feature_)
+					   	  {
+							//this.feature.getGeometry().setCoordinates(coordinate);
+							
+							
+							val.update(ff);
+							console.log('feature_ founf');
+						  }
+				     }
+				 
+					 
+				//	 var feature = vectorSource.getFeatureById('ff');
+				//	   vectorSource.removeFeature(feature);
+					 
+					 
+		this.createRoute();
+		return ;
+		
+		
+		var coordinate=evt.coordinate;
+		
+		
+		
+//		   this.fire('drag', {lngLat: ol.proj.toLonLat(e.coordinate)});
+		
+		for (let i = 0; i < this.waypoints.length; i++) {
+		       var val=this.waypoints[i];
+			   
+			   if(val.name===feature_)
+			   	  {
+					//this.feature.getGeometry().setCoordinates(coordinate);
+					
+					
+					//val.update(lngLat);
+					console.log('feature_ founf');
+				  }
+		     }
+			// vectorSource.clear();
+			 
+		//	var f=layer.getFeatureById(featureID);
+		//	 vectorSource.removeFeatures(f);
+			 
+		
+		
+	}
+	
+	
+	
+    add(waypoint) {
+      this.waypoints.push(waypoint);
+    }
+		 
+	getPath(){
+      let txt = "";
+      let length=this.waypoints.length;
+      
+	  for (let i = 0; i < length; i++) {
+        var val=this.waypoints[i].lngLat;
+		  txt+=val;
+			if(i<(length-1))
+			  txt+=";";
+      }
+     return txt
+	}
+
+	createRoute(){
+		var extraparams="?overview=full&alternatives=true&steps=true&hints=;"
+      const url=urll +this.getPath()+extraparams;
+		fetch(url).then(function(r) {return r.json();
+				 }).then(function(json) {
+						      if(json.code !== 'Ok') {
+						       console.log('No route found.');
+						        return;
+						      }
+						     console.log('Route added');
+						      //points.length = 0;
+						 var r=     utils.createRoute(json.routes[0].geometry);
+						// r.setId("ff");
+						 		
+						// 		let feature = vectorSource.getFeatureById('ff');
+						//		console.log('Route added'+feature);
+						    });
+    }	
+	
+	
+	resetAllFeature()
+	{
+		vectorSource.clear();
+	}
+	
+	createFeature(coord) {
+	  var g=new ol.geom.Point(ol.proj.fromLonLat(coord));
+      var feature = new ol.Feature({type: 'place',   geometry:  g });
+          feature.setStyle(styles.icon);
+		  vectorSource.addFeature(feature);
+	  var translate1 = new app.Drag({features: new ol.Collection([feature])});
+      map.addInteraction(translate1);
+	  //var f=feature.getId();
+	 return feature;
+    }
+    
+	createFeatures(){
+		vectorSource.clear();
+      for (let i = 0; i < this.waypoints.length; i++) {
+        var val=this.waypoints[i];
+        var fId=this.createFeature(val.lngLat); 
+		val.name=fId
+      }
+    }
+	
+	dumpWaypoint(){
+	      for (let i = 0; i < this.waypoints.length; i++) {
+	        var val=this.waypoints[i];
+	          console.log("dumpWaypoint index "+i+"  "+val);
+	      }
+	    }
+	
+  }	 		  
+
+  
+//  const geo= new Geolocation(0);
+//  var e=geo.event;
+//  var speed=e.coords.speed;
+  
+  
+  const route =new Route();
+  
+  
+        route.add(new Waypoint([27.981982,43.238152]));
+		route.add(new Waypoint([27.897369,43.221216]));
+		
+		
+		//route.add(new Waypoint([27.750315566702816,43.8520584446037]));
+		//route.add(new Waypoint([27.763315566702816,43.7520584446037]));
+	
+	const route1BtnEl = document.getElementById('route1');
+	route1BtnEl.addEventListener(
+	  'click',
+	  function () {
+			route.createFeatures();
+			var cc=route.getPath();
+			
+			route.createRoute();
+		
+			return ;
+		
+		var point1=[27.953315566702816,43.3520584446037];
+		var point2=[27.753315566702816,43.8520584446037];
+		
+		const url=urll + point1 + ';' + point2;
+		    fetch(url).then(function(r) { 
+		      return r.json();
+		    }).then(function(json) {
+		      if(json.code !== 'Ok') {
+		       console.log('No route found.');
+		        return;
+		      }
+		     console.log('Route added');
+		      //points.length = 0;
+		    var route=  utils.createRoute(json.routes[0].geometry);
+			
+		
+			
+		    });
+
+
+	  },
+	  false,
+	);
+	
+	const route2BtnEl = document.getElementById('route2');
+	route2BtnEl.addEventListener(
+	  'click',
+	  function () {
+		
+		//var e=geoEvent;
+		//var speed=e.coords.speed;
+		return ;
+		route.dumpWaypoint();
+		
+		route.add(new Waypoint([27.863315566702816,43.8520584446037]));
+		route.createRoute();
+		}
+	);
+
+	
+	
+	
+	
+	document.getElementById('login').addEventListener(
+	  'click',
+	  function () {
+	    initGeo();
+		return;
+		 const coordinate = [2544099.4746324923, 5449440.344940728];
+		   //  const hdms = toStringHDMS(toLonLat(coordinate));
+		   const hdms ="";
+		     content.innerHTML = '<p>You clicked here:</p><code>' + hdms + '</code>';
+		     popup.setPosition(coordinate);
+		 
+	  },
+	  false,
+	);
+
+	
+	
+	
+	
+	</script>
+
+	<script src="mylib.js"           th:src="@{/resources/openlayers/loginControl.js}" ></script>
+	<script src="mylib.js"           th:src="@{/resources/openlayers/speedControl.js}" ></script>
+	<script src="mylib.js"           th:src="@{/resources/openlayers/routeControl.js}" ></script>
+	
+
+	
+
+<!--
+    <script src="common.js"></script>
+	-->
+	
+
+	<script>
+		const pingBtnEl = document.getElementById('ping');
+		pingBtnEl.addEventListener(
+		  'click',
+		  function () {
+		     //wsPing();
+			 
+			 //type="ping";
+			 //msg=JSON.stringify({type:type, sender: "sender", receiver: sesionID,data:"data"});
+			 //	console.log("msg "+msg);
+			 //	ws.send( msg);
+			 const msg = new SignalMessage("ping", getWSSesionID(), getWSSesionID(),"data");
+			 msg.add("a", 1);
+			 wsSend(msg);
+			 
+			 
+		  },
+		  false,
+		);
+
+			
+
+	this.map.addControl(new LoginControl());
+	this.map.addControl(new SpeedControl());
+	this.map.addControl(new RouteControl());
+
+	function login(){
+		const msg = new SignalMessage("login", getWSSesionID(), getWSSesionID(),"data");
+			 msg.add("username", document.getElementById('username').value);
+			 msg.add("password", document.getElementById('password').value);
+			 wsSend(msg);
+	}
+
+	</script>
+	
+	
+	
+
+
+	 
+	  <script>
+		
+		
+
+		const newgeolocate = document.getElementById('newgeolocate');
+		newgeolocate.addEventListener(
+		  'click',
+		  function () {
+		    log(lastGeoLocationEvent);
+			
+			
+			var coordss = lastGeoLocationEvent.coords;;
+
+			  
+			  const projectedPosition = ol.proj.fromLonLat([coordss.longitude, coordss.latitude]);
+			  
+			  var  heading=coordss.heading;
+			  
+			/*
+			  if (heading && speed) {
+			      markerEl.src = '/resources/openlayers/geolocation_marker_heading.png';
+			    } else {
+			      markerEl.src = '/resources/openlayers/geolocation_marker.png';
+			    }
+			  */
+			  markerEl.src = '/resources/openlayers/geolocation_marker_heading.png';
+			view.setCenter(getCenterWithHeading(projectedPosition, heading, view.getResolution()));
+			view.setRotation(heading);
+			marker.setPosition(projectedPosition);
+			map.render();
+			
+			
+			
+				  },
+		  false,
+		);
+		
+		
+		var count = 0;
+		var lastGeoLocationEvent;
+				function geosuccess(event) {
+					lastGeoLocationEvent=event;
+				   // log("geo: " + count++ + " : " + event.coords.heading + " speed:" + event.coords.speed);
+					//content.innerHTML="geo: " + count++ + " : " + event.coords.heading + " speed:" + event.coords.speed;
+//
+				    var heading = event.coords.heading;
+				    var speed = event.coords.speed;
+					
+					var sp=Math.round(speed*3.6)
+					var ss='<svg width="32" height="32"  viewBox="0 0 32 32"  xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="blue" stroke-width="4" fill="white"></circle><text x="16" y="20" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" font-weight="bold" text-anchor="middle" fill="black">'+sp+'</text></svg>';
+					if (sp>=10){
+						ss='<svg width="32" height="32"  viewBox="0 0 32 32"  xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="red" stroke-width="4" fill="white"></circle><text x="16" y="20" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" font-weight="bold" text-anchor="middle" fill="black">'+sp+'</text></svg>';
+						} 
+					 const speedctr = document.getElementById('speedctr');
+					speedctr.innerHTML= ss;
+		/*
+				    if (heading != null) {
+				       moveCompassNeedle(heading);
+				    }
+
+				    if (speed != null) {
+				        // update the speed
+				        moveSpeed(speed);
+				    }
+					*/
+				}
+				function geofailure(event) {
+				    // ignore
+				}
+				
+				
+					
+				
+				
+				
+				
+		function initGeo() {
+		    navigator.geolocation.watchPosition(
+		        geosuccess,
+		        geofailure,
+		        {
+		            enableHighAccuracy:true,
+		            maximumAge:30000,
+		            timeout:20000
+		        }
+		    );
+
+		    //moveSpeed(30);
+		    //moveCompassNeedle(56);
+		}
+		
+		
+		initGeo();
+		
+	
+
+		
+		const element = ( '<h1 className="greeting">  Hello, world!	  </h1>'	);
+
+		//alter(element);
+		
+		
+	  	  </script>
+		  
+
+ 
+		  	
+  </body>
+</html>

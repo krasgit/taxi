@@ -1,251 +1,513 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-.container {display: flex;justify-content: center; }
+   .leaflet-routing-container, .leaflet-routing-error {
+   width: 320px;
+   background-color: white;
+   padding-top: 4px;
+   transition: all 0.2s ease;
+   box-sizing: border-box;
+   }
+   .leaflet-control-container .leaflet-routing-container-hide {
+   width: 32px;
+   height: 32px;
+   }
+   .leaflet-routing-container h2 {
+   font-size: 14px;
+   }
+   .leaflet-routing-container h3 {
+   font-size: 12px;
+   font-weight: normal;
+   }
+   .leaflet-routing-collapsible .leaflet-routing-geocoders {
+   margin-top: 20px;
+   }
+   .leaflet-routing-alt, .leaflet-routing-geocoders, .leaflet-routing-error {
+   padding: 6px;
+   margin-top: 2px;
+   margin-bottom: 6px;
+   border-bottom: 1px solid #ccc;
+   max-height: 320px;
+   overflow-y: auto;
+   transition: all 0.2s ease;
+   }
+   .leaflet-control-container .leaflet-routing-container-hide .leaflet-routing-alt, 
+   .leaflet-control-container .leaflet-routing-container-hide .leaflet-routing-geocoders {
+   display: none;
+   }
+   .leaflet-bar .leaflet-routing-alt:last-child {
+   border-bottom: none;
+   }
+   .leaflet-routing-alt-minimized {
+   color: #888;
+   max-height: 64px;
+   overflow: hidden;
+   cursor: pointer;
+   }
+   .leaflet-routing-alt table {
+   border-collapse: collapse;
+   }
+   .leaflet-routing-alt tr:hover {
+   background-color: #eee;
+   cursor: pointer;
+   }
+   .leaflet-routing-alt::-webkit-scrollbar {
+   width: 8px;
+   }
+   .leaflet-routing-alt::-webkit-scrollbar-track {
+   border-radius: 2px;
+   background-color: #eee;
+   }
+   .leaflet-routing-alt::-webkit-scrollbar-thumb {
+   border-radius: 2px;
+   background-color: #888;
+   }
+   .leaflet-routing-icon {
+   background-image: url('leaflet.routing.icons.png');
+   -webkit-background-size: 240px 20px;
+   background-size: 240px 20px;
+   background-repeat: no-repeat;
+   margin: 0;
+   content: '';
+   display: inline-block;
+   vertical-align: top;
+   width: 20px;
+   height: 20px;
+   }
+   .leaflet-routing-icon-continue         { background-position: 0 0; }
+   .leaflet-routing-icon-sharp-right      { background-position: -20px 0; }
+   .leaflet-routing-icon-turn-right       { background-position: -40px 0; }
+   .leaflet-routing-icon-bear-right       { background-position: -60px 0; }
+   .leaflet-routing-icon-u-turn           { background-position: -80px 0; }
+   .leaflet-routing-icon-sharp-left       { background-position: -100px 0; }
+   .leaflet-routing-icon-turn-left        { background-position: -120px 0; }
+   .leaflet-routing-icon-bear-left        { background-position: -140px 0; }
+   .leaflet-routing-icon-depart           { background-position: -160px 0; }
+   .leaflet-routing-icon-enter-roundabout { background-position: -180px 0; }
+   .leaflet-routing-icon-arrive           { background-position: -200px 0; }
+   .leaflet-routing-icon-via              { background-position: -220px 0; }
+   .leaflet-routing-geocoders div {
+   padding: 4px 0px 4px 0px;
+   }
+   .leaflet-routing-geocoders input {
+   width: 303px;
+   width: calc(100% - 4px);
+   line-height: 1.67;
+   border: 1px solid #ccc;
+   }
+   .leaflet-routing-geocoders button {
+   font: bold 18px 'Lucida Console', Monaco, monospace;
+   border: 1px solid #ccc;
+   border-radius: 4px;
+   background-color: white;
+   margin: 0;
+   margin-right: 3px;
+   float: right;
+   cursor: pointer;
+   transition: background-color 0.2s ease;
+   }
+   .leaflet-routing-add-waypoint:after {
+   content: '+';
+   }
+   .leaflet-routing-reverse-waypoints:after {
+   font-weight: normal;
+   content: '\21c5';
+   }
+   .leaflet-routing-geocoders button:hover {
+   background-color: #eee;
+   }
+   .leaflet-routing-geocoders input,.leaflet-routing-remove-waypoint,.leaflet-routing-geocoder {
+   position: relative;
+   }
+   .leaflet-routing-geocoder-result {
+   font: 12px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;
+   position: absolute;
+   max-height: 0;
+   overflow: hidden;
+   transition: all 0.5s ease;
+   z-index: 1000; /* Arbitrary, but try to be above "most" things. */
+   }
+   .leaflet-routing-geocoder-result table {
+   width: 100%;
+   border: 1px solid #ccc;
+   border-radius: 0 0 4px 4px;
+   background-color: white;
+   cursor: pointer;
+   }
+   .leaflet-routing-geocoder-result-open {
+   max-height: 800px;
+   }
+   .leaflet-routing-geocoder-selected, .leaflet-routing-geocoder-result tr:hover {
+   background-color: #eee;
+   }
+   .leaflet-routing-geocoder-no-results {
+   font-style: italic;
+   color: #888;
+   }
+   .leaflet-routing-remove-waypoint {
+   background-color: transparent;
+   display: inline-block;
+   vertical-align: middle;
+   cursor: pointer;
+   }
+   .leaflet-routing-remove-waypoint:after {
+   position: absolute;
+   display: block;
+   width: 15px;
+   height: 1px;
+   z-index: 1;
+   right: 1px;
+   top: 4px;
+   bottom: 0;
+   margin: auto;
+   padding: 2px;
+   font-size: 18px;
+   font-weight: bold;
+   content: "\00d7";
+   text-align: center;
+   cursor: pointer;
+   color: #ccc;
+   background: white;
+   padding-bottom: 16px;
+   margin-top: -16px;
+   padding-right: 4px;
+   line-height: 1;
+   }
+   .leaflet-routing-remove-waypoint:hover {
+   color: black;
+   }
+   .leaflet-routing-instruction-distance {
+   width: 48px;
+   }
+   .leaflet-routing-collapse-btn {
+   position: absolute;
+   top: 0;
+   right: 6px;
+   font-size: 24px;
+   color: #ccc;
+   font-weight: bold;
+   }
+   .leaflet-routing-collapse-btn:after {
+   content: '\00d7';
+   }
+   .leaflet-routing-container-hide .leaflet-routing-collapse-btn {
+   position: relative;
+   left: 4px;
+   top: 4px;
+   display: block;
+   width: 26px;
+   height: 23px;
+   background-image: url('routing-icon.png');
+   }
+   .leaflet-routing-container-hide .leaflet-routing-collapse-btn:after {
+   content: none;
+   }
+   .leaflet-top .leaflet-routing-container.leaflet-routing-container-hide {
+   margin-top: 10px !important;
+   }
+   .leaflet-right .leaflet-routing-container.leaflet-routing-container-hide {
+   margin-right: 10px !important;
+   }
+   .leaflet-bottom .leaflet-routing-container.leaflet-routing-container-hide {
+   margin-bottom: 10px !important;
+   }
+   .leaflet-left .leaflet-routing-container.leaflet-routing-container-hide {
+   margin-left: 10px !important;
+   }
+   @media only screen and (max-width: 640px) {
+   .leaflet-routing-container {
+   margin: 0 !important;
+   padding: 0 !important;
+   width: 100%;
+   height: 100%;
+   }
+   }
 
-ul { position: absolute;  top: 100%;  margin-top: -1px;  width: 100%;  z-index: 1;  background: #fff;  margin: 0;  list-style: none;  transition: none;  padding: 0;  border: 1px solid #bfc8c9;}
-ul li { padding: 6px 12px;  transition: 0.2s background;  cursor: pointer;}
-ul li.selected { background: rgba(0, 0, 0, 0.08);}
-ul li:hover {  background: #e6f0f2;}
-ul li + li {  border-top: 1px solid #bfc8c9;}
-.hidden {  display: none;}
+#rcorners2 {
+  border-radius: 25px;
+  border: 2px solid #73AD21;
+  padding: 20px; 
+// width: 200px;
+//  height: 150px; 
+ 
+}
+div.inline { float:left; }
 </style>
-
-<script>
-var countries = [];
-var inputElem = null;
-var resultsElem = null;
-var activeIndex = 0;
-var filteredResults = [];
-var JSON_Data;
-
-
-
-//search?q=Тодор Хаджистанчев 22&limit=20&format=json&addressdetails=1&city=Варна&accept-language=bg-BG
-async function fetchMAddress(q) {
-	var url='http://127.0.0.1:8181/search?q='+q+'&limit=5&format=json&addressdetails=1&city=varna&accept-language=bg-BG'
- // const response = await fetch();
- const response = await fetch(url);
-
- 	const json = await response.json();
-
-	var df= await JSON.stringify(json);
- 	//console.log(df);
-	initggg(df);
+<style>
+* {
+  box-sizing: border-box;
 }
 
 
-function initggg(df)
-{
-	console.log(df);
-	countries=JSON.parse(df);
+/*the container must be positioned relative:*/
+.autocomplete {
+  position: relative;
+  display: inline-block;
 }
 
-
-
-function init() {
-	
-	
-	
-	
-	//countries=fetchMAddress("Тодор Хаджистанчев 1");
-	
-	//console.log(countries);
-	
-/*	
-  fetch("http://127.0.0.1:8181/search?q=varna&limit=5&format=json&addressdetails=1&city=varna")
-    .then((response) => response.json())
-    .then((data) => (countries = data));
-*/
-  resultsElem = document.querySelector("ul");
-  inputElem = document.querySelector("input");
-
-  resultsElem.addEventListener("click", (event) => {
-    handleResultClick(event);
-  });
-  inputElem.addEventListener("input", (event) => {
-    autocomplete(event);
-  });
-  inputElem.addEventListener("keyup", (event) => {
-    handleResultKeyDown(event);
-  });
+input {
+  border: 1px solid transparent;
+  background-color: #f1f1f1;
+  padding: 10px;
+  font-size: 16px;
 }
 
-function autocomplete(event) {
-  const value = inputElem.value;
-  	if (!value) {
-    	hideResults();
-    	inputElem.value = "";
-    	return;
-  	}
-	
-	fetchMAddress(value);
-	
-	var inner="";
-	for(let index = 0; index < countries.length; index++) {
-	    let obj = countries[index].address;
-	
-		let disp=obj.road;
-		const isSelected = index === 0;
-		inner+=`
-		        <li
-		          id='autocomplete-result-${index}'
-		          class='autocomplete-result${isSelected ? " selected" : ""}'
-		          role='option'
-		          ${isSelected ? "aria-selected='true'" : ""}
-		        >
-		          ${disp}
-		        </li>
-		      `;
-		
-		
-	}
-	
-	
-	resultsElem.innerHTML =inner;
-	
-  filteredResults = countries.filter((country) => {
-     
-	console.log(country.place_id)
-	
-	return country.display_name;
-	//return country.name.common.toLowerCase().startsWith(value.toLowerCase());
-	//	 return "gg";// country.name.common.toLowerCase().startsWith(value.toLowerCase());
-  });
-  resultsElem.classList.remove("hidden");
-  return;
-  console.log( filteredResults);
-  resultsElem.innerHTML = filteredResults
-    .map((result, index) => {
-      const isSelected = index === 0;
-      return `
-        <li
-          id='autocomplete-result-${index}'
-          class='autocomplete-result${isSelected ? " selected" : ""}'
-          role='option'
-          ${isSelected ? "aria-selected='true'" : ""}
-        >
-          ${result.display_name}
-        </li>
-      `;
-    })
-    .join("");
-  resultsElem.classList.remove("hidden");
+input[type=text] {
+  background-color: #f1f1f1;
+  width: 100%;
 }
 
-function handleResultClick() {
-  if (event.target && event.target.nodeName === "LI") {
-    selectItem(event.target);
-  }
-}
-function handleResultKeyDown(event) {
-  const { key } = event;
-  const activeItem = this.getItemAt(activeIndex);
-  if (activeItem) {
-   activeItem.classList.remove('selected');
-   activeItem.setAttribute('aria-selected', 'false');
-  }
-  switch (key) {
-    case "Backspace":
-      return;
-    case "Escape":
-      hideResults();
-      inputElem.value = "";
-      return;
-    case "ArrowUp": {
-      if (activeIndex === 0) {
-        activeIndex = filteredResults.length - 1;
-      }
-      activeIndex--;
-      break;
-    }
-    case "ArrowDown": {
-      if (activeIndex === filteredResults.length - 1) {
-        activeIndex = 0;
-      }
-      activeIndex++;
-      break;
-    }
-    default:
-      selectFirstResult();
-  }
-  console.log(activeIndex);
-  selectResult();
-}
-function selectFirstResult() {
-  activeIndex = 0;
+input[type=submit] {
+  background-color: DodgerBlue;
+  color: #fff;
+  cursor: pointer;
 }
 
-function selectResult() {
-  const value = inputElem.value;
-  var autocompleteValue;
-  try{
-   var dv= countries[activeIndex]//.display_name;
-   var autocompleteValue=dv.display_name;
-  }
-    catch (error) {
-    console.error(error);
-    // Expected output: ReferenceError: nonExistentFunction is not defined
-    // (Note: the exact output may be browser-dependent)
-  }
-
-  
-  const activeItem = this.getItemAt(activeIndex);
-  if (activeItem) {
-   activeItem.classList.add('selected');
-   activeItem.setAttribute('aria-selected', 'true');
-  }
-  if (!value || !autocompleteValue) {
-    return;
-  }
-  if (value !== autocompleteValue) {
-    inputElem.value = autocompleteValue;
-    inputElem.setSelectionRange(value.length, autocompleteValue.length);
-  }
-}
-function selectItem(node) {
-  if (node) {
-    console.log("selectItem "+node);
-    inputElem.value = node.innerText;
-    hideResults();
-  }
+.autocomplete-items {
+  position: absolute;
+  border: 1px solid #d4d4d4;
+  border-bottom: none;
+  border-top: none;
+  z-index: 99;
+  /*position the autocomplete items to be the same width as the container:*/
+  top: 100%;
+  left: 0;
+  right: 0;
 }
 
-function hideResults() {
-  this.resultsElem.innerHTML = "";
-  this.resultsElem.classList.add("hidden");
+.autocomplete-items div {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #fff; 
+  border-bottom: 1px solid #d4d4d4; 
 }
 
-function getItemAt(index) {
-  return this.resultsElem.querySelector(`#autocomplete-result-${index}`)
+/*when hovering an item:*/
+.autocomplete-items div:hover {
+  background-color: #e9e9e9; 
 }
-</script>
 
+/*when navigating through the items using the arrow keys:*/
+.autocomplete-active {
+  background-color: DodgerBlue !important; 
+  color: #ffffff; 
+}
+</style>
+</head>     
 <body>
 
-<div class="container">
-  <span style=" position: relative;">
-    <input placeholder="Search for a country">
-   
-    <ul class="hidden" role='listbox'></ul>
-  </span>
+<script>
+function autocomplete(inp, arr) {
+  /*the autocomplete function takes two arguments,
+  the text field element and an array of possible autocompleted values:*/
+  var currentFocus;
+  /*execute a function when someone writes in the text field:*/
+  inp.addEventListener("input", function(e) {
+      var a, b, i, val = this.value;
+      /*close any already open lists of autocompleted values*/
+      closeAllLists();
+      if (!val) { return false;}
+      currentFocus = -1;
+      /*create a DIV element that will contain the items (values):*/
+      a = document.createElement("DIV");
+      a.setAttribute("id", this.id + "autocomplete-list");
+      a.setAttribute("class", "autocomplete-items");
+      /*append the DIV element as a child of the autocomplete container:*/
+      this.parentNode.appendChild(a);
+      /*for each item in the array...*/
+      for (i = 0; i < arr.length; i++) {
+        /*check if the item starts with the same letters as the text field value:*/
+        if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+          /*create a DIV element for each matching element:*/
+          b = document.createElement("DIV");
+          /*make the matching letters bold:*/
+          b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+          b.innerHTML += arr[i].substr(val.length);
+          /*insert a input field that will hold the current array item's value:*/
+          b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+          /*execute a function when someone clicks on the item value (DIV element):*/
+          b.addEventListener("click", function(e) {
+              /*insert the value for the autocomplete text field:*/
+              inp.value = this.getElementsByTagName("input")[0].value;
+              /*close the list of autocompleted values,
+              (or any other open lists of autocompleted values:*/
+              closeAllLists();
+          });
+          a.appendChild(b);
+        }
+      }
+  });
+  /*execute a function presses a key on the keyboard:*/
+  inp.addEventListener("keydown", function(e) {
+      var x = document.getElementById(this.id + "autocomplete-list");
+      if (x) x = x.getElementsByTagName("div");
+      if (e.keyCode == 40) {
+        /*If the arrow DOWN key is pressed,
+        increase the currentFocus variable:*/
+        currentFocus++;
+        /*and and make the current item more visible:*/
+        addActive(x);
+      } else if (e.keyCode == 38) { //up
+        /*If the arrow UP key is pressed,
+        decrease the currentFocus variable:*/
+        currentFocus--;
+        /*and and make the current item more visible:*/
+        addActive(x);
+      } else if (e.keyCode == 13) {
+        /*If the ENTER key is pressed, prevent the form from being submitted,*/
+        e.preventDefault();
+        if (currentFocus > -1) {
+          /*and simulate a click on the "active" item:*/
+          if (x) x[currentFocus].click();
+        }
+      }
+  });
+  function addActive(x) {
+    /*a function to classify an item as "active":*/
+    if (!x) return false;
+    /*start by removing the "active" class on all items:*/
+    removeActive(x);
+    if (currentFocus >= x.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = (x.length - 1);
+    /*add class "autocomplete-active":*/
+    x[currentFocus].classList.add("autocomplete-active");
+  }
+  function removeActive(x) {
+    /*a function to remove the "active" class from all autocomplete items:*/
+    for (var i = 0; i < x.length; i++) {
+      x[i].classList.remove("autocomplete-active");
+    }
+  }
+  function closeAllLists(elmnt) {
+    /*close all autocomplete lists in the document,
+    except the one passed as an argument:*/
+    var x = document.getElementsByClassName("autocomplete-items");
+    for (var i = 0; i < x.length; i++) {
+      if (elmnt != x[i] && elmnt != inp) {
+        x[i].parentNode.removeChild(x[i]);
+      }
+    }
+  }
+  /*execute a function when someone clicks in the document:*/
+  document.addEventListener("click", function (e) {
+      closeAllLists(e.target);
+  });
+}
 
-  
-</div>
+/*An array containing all the country names in the world:*/
+var countries = ["Afghanistan","Albania","Algeria","Andorra","Angola","Anguilla","Antigua & Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia","Bosnia & Herzegovina","Botswana","Brazil","British Virgin Islands","Brunei","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Canada","Cape Verde","Cayman Islands","Central Arfrican Republic","Chad","Chile","China","Colombia","Congo","Cook Islands","Costa Rica","Cote D Ivoire","Croatia","Cuba","Curacao","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia","Falkland Islands","Faroe Islands","Fiji","Finland","France","French Polynesia","French West Indies","Gabon","Gambia","Georgia","Germany","Ghana","Gibraltar","Greece","Greenland","Grenada","Guam","Guatemala","Guernsey","Guinea","Guinea Bissau","Guyana","Haiti","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Isle of Man","Israel","Italy","Jamaica","Japan","Jersey","Jordan","Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macau","Macedonia","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Montserrat","Morocco","Mozambique","Myanmar","Namibia","Nauro","Nepal","Netherlands","Netherlands Antilles","New Caledonia","New Zealand","Nicaragua","Niger","Nigeria","North Korea","Norway","Oman","Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Puerto Rico","Qatar","Reunion","Romania","Russia","Rwanda","Saint Pierre & Miquelon","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","St Kitts & Nevis","St Lucia","St Vincent","Sudan","Suriname","Swaziland","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor L'Este","Togo","Tonga","Trinidad & Tobago","Tunisia","Turkey","Turkmenistan","Turks & Caicos","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States of America","Uruguay","Uzbekistan","Vanuatu","Vatican City","Venezuela","Vietnam","Virgin Islands (US)","Yemen","Zambia","Zimbabwe"];
 
+/*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
+autocomplete(document.getElementById("myInput"), countries);
+autocomplete(document.getElementById("myInput1"), countries);
+</script>
+
+
+<div  id='rcorners2'class="leaflet-control-container inline" >
+      <div class="leaflet-top leaflet-left">
+         <div class="leaflet-control-zoom leaflet-bar leaflet-control">
+            <a class="leaflet-control-zoom-in" href="#" title="Zoom in" role="button" aria-label="Zoom in" aria-disabled="false">
+                     <span aria-hidden="true">+</span>
+            </a>
+           <a class="leaflet-control-zoom-out" href="#" title="Zoom out" role="button" aria-label="Zoom out">
+                   <span aria-hidden="true">−</span>
+           </a>
+       </div>
+      </div>
+
+      <div class="leaflet-top leaflet-right">
+         <div class="leaflet-routing-container leaflet-bar leaflet-control">
+            <div class="leaflet-routing-geocoders ">
+               <div class="leaflet-routing-geocoder">
+               <!--<input class="" placeholder="Start">-->
+                    <div class="autocomplete" style="width:300px;">
+                     <input id="start" type="text" name="myCountry" placeholder="Start">
+                    </div>
+<span class="leaflet-routing-remove-waypoint"> </span>
+               <div class="leaflet-routing-geocoder">
+
+
+   <div class="autocomplete" style="width:300px;">
+                     <input id="end" type="text" name="myCountry" placeholder="End">
+                    </div>
+
+
+<span class="leaflet-routing-remove-waypoint"></span>
+            </div>
+          
+             <button class="leaflet-routing-add-waypoint " type="button"></button>
+          </div>
+
+
+           <div class="leaflet-routing-alternatives-container">
+               <div class="leaflet-routing-alt">
+                  <h2>Автомагистрала Хемус, 4</h2>
+                  <h3>422.4 km, 6 h 0 min</h3>
+                  <table class=" ">
+                     <colgroup class="">
+                        <col class="leaflet-routing-instruction-icon">
+                        <col class="leaflet-routing-instruction-text">
+                        <col class="leaflet-routing-instruction-distance">
+                     </colgroup>
+                     <tbody class="">
+           
+                        <tr class="">
+                           <td class=""><span class="leaflet-routing-icon leaflet-routing-icon-turn-right"></span></td>
+                           <td class="">Turn right onto Варна</td>
+                           <td class="">100 m</td>
+                        </tr>
+                        <tr class="">
+                           <td class=""><span class="leaflet-routing-icon leaflet-routing-icon-arrive"></span></td>
+                           <td class="">You have arrived at your destination</td>
+                           <td class="">0 m</td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+<span>d</span>
+               <div class="leaflet-routing-alt leaflet-routing-alt-minimizedkras">
+                  <h2>208, Автомагистрала Тракия</h2>
+                  <h3>488.4 km, 6 h 5 min</h3>
+                  <table class=" ">
+                     <colgroup class="">
+                        <col class="leaflet-routing-instruction-icon">
+                        <col class="leaflet-routing-instruction-text">
+                        <col class="leaflet-routing-instruction-distance">
+                     </colgroup>
+                     <tbody class="">
+                        <tr class="">
+                           <td class=""><span class="leaflet-routing-icon leaflet-routing-icon-depart"></span></td>
+                           <td class="">Head northwest</td>
+                           <td class="">1.5 km</td>
+                        </tr>
+                    
+                        <tr class="">
+                           <td class=""><span class="leaflet-routing-icon leaflet-routing-icon-arrive"></span></td>
+                           <td class="">You have arrived at your destination</td>
+                           <td class="">0 m</td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </div>
+
+
+   </div>
+   </div>
+<script>
+
+
+function init()
+{
+}
+
+
+autocomplete(document.getElementById("start"), countries);
+autocomplete(document.getElementById("end"), countries);
+</script>
 </body>
- <script>
-	
-
-	function createAutoComplete(inputElem)
-	{
-		
-	}
-
-	
-	
-init();
- </script>
- </body>
- </html>
+</html>
