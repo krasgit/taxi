@@ -58,7 +58,7 @@ public class TaxiApplication {
 		registrationBean.setFilter(new ReverceProxyFilterSearch());
 
 		// Specify URL Pattern
-		registrationBean.addUrlPatterns("/search/*");
+		registrationBean.addUrlPatterns(ReverceProxyFilterSearch.urlPatterns);
 
 		// Set the Execution Order of Filter
 		registrationBean.setOrder(2);
@@ -108,5 +108,22 @@ public class TaxiApplication {
 	        return registrationBean;
 	    }
 	
-*/	
+*/
+	@Bean
+	public FilterRegistrationBean<ReverceProxyFilterSearchPhoton> filterSearchPhotonBean() {
+
+		// Filter Registration Bean
+		FilterRegistrationBean<ReverceProxyFilterSearchPhoton> registrationBean = new FilterRegistrationBean<ReverceProxyFilterSearchPhoton>();
+
+		// Configure Authorization Filter
+		registrationBean.setFilter(new ReverceProxyFilterSearchPhoton());
+
+		// Specify URL Pattern
+		registrationBean.addUrlPatterns(ReverceProxyFilterSearchPhoton.urlPatterns);
+
+		// Set the Execution Order of Filter
+		registrationBean.setOrder(2);
+
+		return registrationBean;
+	}
 }

@@ -21,6 +21,171 @@
           height: 100%;
         }
  </style>
+ 
+ <style>
+ * {
+   box-sizing: border-box;
+ }
+
+
+ /*the container must be positioned relative:*/
+ .autocomplete {
+   position: relative;
+   display: inline-block;
+ }
+
+ input {
+   border: 1px solid transparent;
+   background-color: #f1f1f1;
+   --padding: 10px;
+   font-size: 13px;
+ }
+
+ input[type=text] {
+   background-color: #f1f1f1;
+   width: 100%;
+ }
+
+ input[type=submit] {
+   background-color: DodgerBlue;
+   color: #fff;
+   cursor: pointer;
+ }
+
+ .autocomplete-items {
+   position: absolute;
+   border: 1px solid #d4d4d4;
+   border-bottom: none;
+   border-top: none;
+   z-index: 99;
+   /*position the autocomplete items to be the same width as the container:*/
+   top: 100%;
+   left: 0;
+   right: 0;
+ }
+
+ .autocomplete-items div {
+   padding: 10px;
+   cursor: pointer;
+   background-color: #fff; 
+   border-bottom: 1px solid #d4d4d4; 
+ }
+
+ /*when hovering an item:*/
+ .autocomplete-items div:hover {
+   background-color: #e9e9e9; 
+ }
+
+ /*when navigating through the items using the arrow keys:*/
+ .autocomplete-active {
+   background-color: DodgerBlue !important; 
+   color: #ffffff; 
+ }
+ </style>
+
+ <script>
+ function autocomplete(inp, arr) {
+   /*the autocomplete function takes two arguments,
+   the text field element and an array of possible autocompleted values:*/
+   var currentFocus;
+   /*execute a function when someone writes in the text field:*/
+   inp.addEventListener("input", function(e) {
+       var a, b, i, val = this.value;
+       /*close any already open lists of autocompleted values*/
+       closeAllLists();
+       if (!val) { return false;}
+       currentFocus = -1;
+       /*create a DIV element that will contain the items (values):*/
+       a = document.createElement("DIV");
+       a.setAttribute("id", this.id + "autocomplete-list");
+       a.setAttribute("class", "autocomplete-items");
+       /*append the DIV element as a child of the autocomplete container:*/
+       this.parentNode.appendChild(a);
+       /*for each item in the array...*/
+       for (i = 0; i < arr.length; i++) {
+         /*check if the item starts with the same letters as the text field value:*/
+         if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+           /*create a DIV element for each matching element:*/
+           b = document.createElement("DIV");
+           /*make the matching letters bold:*/
+           b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+           b.innerHTML += arr[i].substr(val.length);
+           /*insert a input field that will hold the current array item's value:*/
+           b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+           /*execute a function when someone clicks on the item value (DIV element):*/
+           b.addEventListener("click", function(e) {
+               /*insert the value for the autocomplete text field:*/
+               inp.value = this.getElementsByTagName("input")[0].value;
+               /*close the list of autocompleted values,
+               (or any other open lists of autocompleted values:*/
+               closeAllLists();
+           });
+           a.appendChild(b);
+         }
+       }
+   });
+   /*execute a function presses a key on the keyboard:*/
+   inp.addEventListener("keydown", function(e) {
+       var x = document.getElementById(this.id + "autocomplete-list");
+       if (x) x = x.getElementsByTagName("div");
+       if (e.keyCode == 40) {
+         /*If the arrow DOWN key is pressed,
+         increase the currentFocus variable:*/
+         currentFocus++;
+         /*and and make the current item more visible:*/
+         addActive(x);
+       } else if (e.keyCode == 38) { //up
+         /*If the arrow UP key is pressed,
+         decrease the currentFocus variable:*/
+         currentFocus--;
+         /*and and make the current item more visible:*/
+         addActive(x);
+       } else if (e.keyCode == 13) {
+         /*If the ENTER key is pressed, prevent the form from being submitted,*/
+         e.preventDefault();
+         if (currentFocus > -1) {
+           /*and simulate a click on the "active" item:*/
+           if (x) x[currentFocus].click();
+         }
+       }
+   });
+   function addActive(x) {
+     /*a function to classify an item as "active":*/
+     if (!x) return false;
+     /*start by removing the "active" class on all items:*/
+     removeActive(x);
+     if (currentFocus >= x.length) currentFocus = 0;
+     if (currentFocus < 0) currentFocus = (x.length - 1);
+     /*add class "autocomplete-active":*/
+     x[currentFocus].classList.add("autocomplete-active");
+   }
+   function removeActive(x) {
+     /*a function to remove the "active" class from all autocomplete items:*/
+     for (var i = 0; i < x.length; i++) {
+       x[i].classList.remove("autocomplete-active");
+     }
+   }
+   function closeAllLists(elmnt) {
+     /*close all autocomplete lists in the document,
+     except the one passed as an argument:*/
+     var x = document.getElementsByClassName("autocomplete-items");
+     for (var i = 0; i < x.length; i++) {
+       if (elmnt != x[i] && elmnt != inp) {
+         x[i].parentNode.removeChild(x[i]);
+       }
+     }
+   }
+   /*execute a function when someone clicks in the document:*/
+   document.addEventListener("click", function (e) {
+       closeAllLists(e.target);
+   });
+ }
+
+ /*An array containing all the country names in the world:*/
+ var countries = ["Afghanistan","Albania","Algeria","Andorra","Angola","Anguilla","Antigua & Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia","Bosnia & Herzegovina","Botswana","Brazil","British Virgin Islands","Brunei","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Canada","Cape Verde","Cayman Islands","Central Arfrican Republic","Chad","Chile","China","Colombia","Congo","Cook Islands","Costa Rica","Cote D Ivoire","Croatia","Cuba","Curacao","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia","Falkland Islands","Faroe Islands","Fiji","Finland","France","French Polynesia","French West Indies","Gabon","Gambia","Georgia","Germany","Ghana","Gibraltar","Greece","Greenland","Grenada","Guam","Guatemala","Guernsey","Guinea","Guinea Bissau","Guyana","Haiti","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Isle of Man","Israel","Italy","Jamaica","Japan","Jersey","Jordan","Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macau","Macedonia","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Montserrat","Morocco","Mozambique","Myanmar","Namibia","Nauro","Nepal","Netherlands","Netherlands Antilles","New Caledonia","New Zealand","Nicaragua","Niger","Nigeria","North Korea","Norway","Oman","Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Puerto Rico","Qatar","Reunion","Romania","Russia","Rwanda","Saint Pierre & Miquelon","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","St Kitts & Nevis","St Lucia","St Vincent","Sudan","Suriname","Swaziland","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor L'Este","Togo","Tonga","Trinidad & Tobago","Tunisia","Turkey","Turkmenistan","Turks & Caicos","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States of America","Uruguay","Uzbekistan","Vanuatu","Vatican City","Venezuela","Vietnam","Virgin Islands (US)","Yemen","Zambia","Zimbabwe"];
+
+
+ </script>	
 
   <div id="map" class="map"></div>
 	
@@ -163,7 +328,7 @@ var app = {};
 		 	
 		 	g=new ol.geom.Point(ol.proj.fromLonLat(coord));
 		     var feature = new ol.Feature({type: 'place',   geometry:  g });
-		     feature.setStyle(styles.icon);
+		     feature.setStyle(routeStyle);
 		     vectorSource.addFeature(feature);
 		 	var translate1 = new app.Drag({
 		 		features: new ol.Collection([feature])
@@ -188,7 +353,7 @@ var app = {};
 		 	
 		     var feature = new ol.Feature({ type: 'route',   geometry: route  });
 		 	feature.setId('routeFeature')
-		     feature.setStyle(styles.route);
+		     feature.setStyle(routeStyle);
 		     vectorSource.addFeature(feature);
 		 	return feature;
 		   },
@@ -232,7 +397,7 @@ var app = {};
 		 
 //-----------------------------------------------------------------------------
 var markerImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAApCAYAAADAk4LOAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAUlSURBVFjDrZdLiBxVFIb/e289uqt6kkx6zIiIoKgLRReKuMhCcaOIAUEIiCCE4CIPggZ8kBjooPgM0TiYEUUjqBGchZqAQlyYRTA+kJiJQiJGMjN5zYzT3dP1rrr3HBeTjDGTSfc8Dvyruud89Z9z6kIJdBj31763MivsJXKuZYF6dak5++2mh7NOcsXVHq6sHbhOK/24kOJJMO4AE1vKygwZhxlKSHGKiD+RSu09vOXB43OCrHz96y6T2lsh+OmKXzFdlbLne2UopSAupBhjECcZgjDMgiiSxPhcK/nCr1sfOtcWcm/tq9uEsL4rl0vdK67pKVu2jUwTMk0wBBAzpBCQAnAtiZIlwWQwPlHPglZQAFj1Y23VwVkh92zbd59U+Kanp+p2L12mooKQ5AbcpuclS6LiKoRhxOfHzhXMcs3PtVV7Z0DufXH/LSzpSG9vr1/p6kIz0dDUrvx/IYXAsrJCkWc4e/Z0Zpgf+KX26A/TkNtrXziesY9Xq8tvWNZdVfVYg7hzwKVv3O3ZiKMWj46OTrq5fdOh1x5pSADwjdzo2nbv0u6qqkca2jCIMGcZAuqRhu8vEX7ZK2V2WgMAcXdtvyeKbPS662+osCohzMycHVweniNREoShoZO5KYobpciSh23bFq7rIUgNiLFghRkBlg2v7GlpiccsCHrcryzxUk3zmsNskeYGvt/lxVH4hMWEu9xSWaQFYQ7L1B6iGZ5bBoy+zWKiHiltFHpqeIsVhWaosg1iqlgg4wAAEYEXsV3EmNppJmExMFYUxfVSuIs6E0sI5FkBBhLJzH9laQxLSjBj0WQJgSJPweDTkknvS4JGbCuxKOt7UY4lEQfNnAu9TzLxN2nUdAQTLAEw8YIlAVgAkmDCSBL75eCutSeY+GTUqqNkqUVxUbIl4qgJo4vWzecrhyQAMJldYf1MXLLl1EIsYBZgoGwpRI2zMTPtGBhYbSQAlJF9lieRzNMIriVBzPOWawvoIkYaNC0u9IcAIAHgp75NLQl8ENbPZJ6jgAU48RyFqHEuZyE+Pda/vjENAQBD5s209Y+kPJlyM4+r3lUS0AWSyVEhpHnjYu1pyO+7N4ywwPvhxHDiuwo8j1b5rkQwMZIziYHBXetPzIAAgIV8exZOSMoieI6aU5vKtgR0jqw1JtiYbZfW/R/kSN+mcWbxdtwYjn1XTd9B7cQAfNdCWB/OhBR7jvWv/3tWCAAoO3ktjyZZJ0HHbsq2AooERVQXzPKly2vOgPz29jNNBr+e1IcSz5YAM4hmFzPDtyWS+lDK4N2DfU+dbgsBAFHyd+oszE3agt/GjWcrUBEjj5sQBb96pXpXhAzueDJi4u1p41TsuQpCiFln4bkKeXMoJeadg++tG+sYAgBBXOo3RRrruAnfkWDmGfIdCeQhiiQgQbxjtlqzQk59vCZlNluL5lDiORLyMjcA4DsKeXM4AfDKxa97ThAAqPaMfaR1Nq6jOiqOAhOm5TsKJg1QZGGRedY7V6tzVcjBWk1D0JZ8cigt2RJSimkXnqOgW8MxQLUTb6wN5g0BgGPV0c9BekTH41xx5YXrQ8FkTRgdpxU7ea9djbYQ1GokmJ43wUhWtgRcS04tQjAcw9CWw29tThYOAXD03XVfMps/TTTOy30blDZgiqxFK6p7OsnvCDJ1UD9LyUjORoPDkUQyPfdHbXW+qJCjfRsOwOAoNY4z6Xz01rHq3k5zO4ZMHTabYSIhJD87MLB64f8Ys8WdG/tfBljMJedfwY+s/2P4Pv8AAAAASUVORK5CYII="
-var icon_url = "//cdn.rawgit.com/openlayers/ol3/master/examples/data/icon.png";
+
 var defaultStyle = new ol.style.Style({
   image: new ol.style.Icon({   anchor: [12, 41],  anchorXUnits: 'pixels',   anchorYUnits: 'pixels',    src: markerImage    })	,
 	text: new ol.style.Text({    offsetY: -24,offsetX: 0,     text: 'A',   placement: 'point',        textAlign: 'center',     fill: new ol.style.Fill({color: 'rgb(255, 255, 255)'}),
@@ -241,9 +406,11 @@ var defaultStyle = new ol.style.Style({
 	        })
 });
 
-var styles = { route: new ol.style.Style({ stroke: new ol.style.Stroke({    width: 6,    color: [40, 40, 40, 0.8],   }),   }),
-  icon: new ol.style.Style({   image: new ol.style.Icon({      anchor: [0.5, 1],      src: icon_url,    }),   }),
-}
+
+
+var routeStyle = new ol.style.Style({ stroke: new ol.style.Stroke({    width: 3,    color: [40, 40, 40, 0.8],   }),   });
+
+
 
 //"address":{"road":"Тодор Хаджистанчев","neighbourhood":"Дълбокото дере","suburb":"кв. Виница","city":"Варна","county":"Приморски","state_district":"Варна","state":"Варна","ISO3166-2-lvl4":"BG-03","postcode":"9022","country":"България","country_code":"bg"}
 
@@ -251,9 +418,11 @@ var styles = { route: new ol.style.Style({ stroke: new ol.style.Stroke({    widt
 //Бл.209, бл. 209, кв. Кайсиева градина, Варна, Владислав Варненчик, Варна, 9023, България"
 
 
-
+//TODO
 function formatAddress(json)
 {
+	
+	return json.display_name;
 	var address=json.address;
 	var ret='';
 	if(!(address.road===undefined))
@@ -414,7 +583,7 @@ function simpleReverseGeocoding(waypoint) {
 	createFeature(coord) {
 	  var g=new ol.geom.Point(ol.proj.fromLonLat(coord));
       var feature = new ol.Feature({type: 'place',   geometry:  g });
-          feature.setStyle(styles.icon);
+          feature.setStyle(defaultStyle);
 		  vectorSource.addFeature(feature);
 	  var translate1 = new app.Drag({features: new ol.Collection([feature])});
       map.addInteraction(translate1);
@@ -448,7 +617,10 @@ function simpleReverseGeocoding(waypoint) {
 const route =new Route();
   
   
-        route.add(new Waypoint([27.981982,43.238152],'text1'));
+        //route.add(new Waypoint([27.981982,43.238152],'text1'));
+		
+		route.add(new Waypoint([27.9797321,43.2388151],'text1'));
+		
 		route.add(new Waypoint([27.897369,43.221216],'text2'));
 		
 		
@@ -619,6 +791,8 @@ const route =new Route();
 	  	input.setAttribute('placeholder', placeholder);
 		input.setAttribute('style', 'width:100%;');
 		
+		
+		autocomplete(input, countries);
 		//
 		
 		  
@@ -636,7 +810,47 @@ const route =new Route();
 
 	  
 	  map.addControl(new RouteControl(route));
-	  </script>
+	  
+	  var urll='https://'+hostname+':8443/route/v1/driving/'
+	  
+	  //search?q=Тодор Хаджистанчев&limit=20&format=json&addressdetails=1&city=Варна&accept-language=bg-BG
+	 // &limit=2
+	   // https://localhost:8443/api?&q=%D0%92%D0%B8%D0%BD%D0%B8%D1%86%D0%B0&limit=2
+	  async function fetchMAddress(q) {
+	  	//var url='http://127.0.0.1:8181/search?q='+q+'&limit=5&format=json&addressdetails=1&city=varna&accept-language=bg-BG'
+		var url='https://'+hostname+':8443/api?&q='+q;
+	   // const response = await fetch();
+	   const response = await fetch(url);
+
+	   	const json = await response.json();
+
+	  	var df= await JSON.stringify(json);
+	   	log(df);
+	  	//initggg(df);
+		return df;
+	  }
+	  var res=fetchMAddress('Тодор Хаджистанчев');
+	  log(res);
+
+  
+	  function fetchMAddresscb(q) {
+	  	
+	  	var url='https://'+hostname+':8443/api?&q=Варна '+q;
+	  	 var url='https://'+hostname+':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
+	  	         fetch(url).then(function(response) {
+	  	           return response.json();
+	  	         }).then(function(json) {
+	  	 //          alert(json.display_name);
+	  	 var name=formatAddress(json);
+	  	 
+	  	 
+	  	         })
+	  	       }
+  
+  
+  
+  
+  	  </script>
 
   </body>
 </html>
