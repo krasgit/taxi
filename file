@@ -1,1 +1,12 @@
+
+at org.eclipse.jetty.server.Request.getParameters(Request.java:467) ~[photon-0.6.0.jar:?]
+	at org.eclipse.jetty.server.Request.getParameterMap(Request.java:1078) ~[photon-0.6.0.jar:?]
+	at javax.servlet.ServletRequestWrapper.getParameterMap(ServletRequestWrapper.java:203) ~[photon-0.6.0.jar:?]
+	at spark.Request.queryParams(Request.java:348) ~[photon-0.6.0.jar:?]
+	at spark.http.matching.RequestWrapper.queryParams(RequestWrapper.java:163) ~[photon-0.6.0.jar:?]
+	at de.komoot.photon.query.PhotonRequestFactory.create(PhotonRequestFactory.java:68) ~[photon-0.6.0.jar:?]
+	at de.komoot.photon.SearchRequestHandler.handle(SearchRequestHandler.java:35) ~[photon-0.6.0.jar:?]
+	at de.komoot.photon.SearchRequestHandler.handle(SearchRequestHandler.java:20) ~[photon-0.6.0.jar:?]
+	at spark.RouteImpl$1.handle(RouteImpl.java:72) ~[photon-0.6.0.jar:?]
+	at spark.http.matching.Routes.execute(Routes.java:61) ~[photon-0.6.0.jar:?]
 {"place_id":548619,"licence":"Data © OpenStreetMap contributors, ODbL 1.0. https://osm.org/copyright","osm_type":"way","osm_id":721593699,"lat":"43.22231322096621","lon":"27.959518086352865","display_name":"Арх. Торос Тороманян, м-т Свети Никола, кв. Бриз, Варна, Приморски, Варна, 9005, България","address":{"road":"Арх. Торос Тороманян","neighbourhood":"м-т Свети Никола","suburb":"кв. Бриз","city":"Варна","county":"Приморски","state_district":"Варна","state":"Варна","ISO3166-2-lvl4":"BG-03","postcode":"9005","country":"България","country_code":"bg"},"boundingbox":["43.2219618","43.2223748","27.9587869","27.9621035"]}
