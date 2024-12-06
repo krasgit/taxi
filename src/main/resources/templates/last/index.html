@@ -26,64 +26,26 @@
  
  
  <style>
- * {
-   box-sizing: border-box;
- }
-
-
+ * {   box-sizing: border-box; }
  /*the container must be positioned relative:*/
- .autocomplete {
-   position: relative;
-   display: inline-block;
- }
 
- input {
-   border: 1px solid transparent;
-   background-color: #f1f1f1;
-   --padding: 10px;
-   font-size: 13px;
- }
+  .autocomplete {   position: relative;   display: inline-block; }
 
- input[type=text] {
-   background-color: #f1f1f1;
-   width: 100%;
- }
+ input {   border: 1px solid transparent;   background-color: #f1f1f1;   --padding: 10px;   font-size: 13px; }
+ input[type=text] {   background-color: #f1f1f1;   width: 100%; }
+ input[type=submit] {   background-color: DodgerBlue;   color: #fff;   cursor: pointer; }
 
- input[type=submit] {
-   background-color: DodgerBlue;
-   color: #fff;
-   cursor: pointer;
- }
-
- .autocomplete-items {
-   position: absolute;
-   border: 1px solid #d4d4d4;
-   border-bottom: none;
-   border-top: none;
-   z-index: 99;
+ .autocomplete-items {   position: absolute;   border: 1px solid #d4d4d4;   border-bottom: none;   border-top: none;   z-index: 99;
    /*position the autocomplete items to be the same width as the container:*/
-   top: 100%;
-   left: 0;
-   right: 0;
- }
+   top: 100%;   left: 0;   right: 0; }
 
- .autocomplete-items div {
-   padding: 10px;
-   cursor: pointer;
-   background-color: #fff; 
-   border-bottom: 1px solid #d4d4d4; 
- }
+ .autocomplete-items div {   padding: 10px;   cursor: pointer;   background-color: #fff;   border-bottom: 1px solid #d4d4d4; }
 
  /*when hovering an item:*/
- .autocomplete-items div:hover {
-   background-color: #e9e9e9; 
- }
+ .autocomplete-items div:hover {    background-color: #e9e9e9; }
 
  /*when navigating through the items using the arrow keys:*/
- .autocomplete-active {
-   background-color: DodgerBlue !important; 
-   color: #ffffff; 
- }
+ .autocomplete-active {   background-color: DodgerBlue !important;   color: #ffffff; }
  </style>
 
   
@@ -92,6 +54,16 @@
  const log = console.log;
  const url = new URL(location.origin);
  const hostname = url.hostname;
+ 
+ function getLastGeoLocationEvent()
+ {
+ 	return lastGeoLocationEvent;
+ }
+ 
+ function getPointFromLongLat (long, lat) {
+     return ol.proj.transform([long, lat], 'EPSG:4326', 'EPSG:3857')
+ }
+ 
  </script>
  <script name="auto complete ">
  	
@@ -120,11 +92,60 @@
  	  })
  	  .then(function(json) {
 		log(json);
- 	  	 var name=formatAddresss(json,autocompleteList);
- 			 initItem(autocompleteList,name,inputEl);
+ 	  	// var name=formatAddresss(json,autocompleteList);
+ 			 newinitItem(autocompleteList,json,inputEl);
         })
    } 
- 				   
+ 				 
+   
+   
+   function newinitItem(autocompleteList,json,inputEl){
+
+        var root= json.features; 
+ 
+       for (i = 0; i < root.length; i++) {
+		var value=root[i];
+		var pr=value.properties;
+		
+		var disp=pr.name +pr.state;
+		
+         b = document.createElement("DIV");
+         b.innerHTML = "<strong>" + disp.substr(0, inputEl.value.length) + "</strong>";
+         b.innerHTML += disp.substr(inputEl.value.length);
+         b.innerHTML += "<input type='hidden' value='" + disp + "'   valueId='"+i+"'>";
+         b.addEventListener("click", function(e) {
+			
+			
+			var selectesItem=this.getElementsByTagName("input")[0];
+			
+			var valueId=selectesItem.getAttribute("valueId");
+			var ff=root[valueId];
+			
+			var lngLat=ff.geometry.coordinates;
+			
+			inputEl.value = selectesItem.value;
+			
+			var featureId=inputEl.getAttribute("featureId");
+			var feature = vectorSource.getFeatureById(featureId);
+			var coord = getPointFromLongLat(lngLat[0], lngLat[1]);
+
+					feature.getGeometry().setCoordinates(coord);
+						route.updateWaypointByfeatureId(featureId,lngLat);
+ 
+   	var x = document.getElementsByClassName("autocomplete-items");
+   	    for (var i = 0; i < x.length; i++) {
+   	      //if (elmnt != x[i] && elmnt != inp) 
+   		  {
+   	        x[i].parentNode.removeChild(x[i]);
+   	      }
+   	    }
+   	
+   	    });
+   	autocompleteList.appendChild(b);
+   	}
+     }	
+   
+     
    function initItem(autocompleteList,arr,inputEl){
 	
 	log("initItem"+arr.length);
@@ -178,7 +199,7 @@
 	 autocompleteList.setAttribute("class", "autocomplete-items");
 	 /*append the DIV element as a child of the autocomplete container:*/
 	 this.parentNode.appendChild(autocompleteList);
-	var  vall="ghgfhfg";
+	var  vall="Current Location";
 	 
 	 b = document.createElement("DIV");
 	    
@@ -190,12 +211,22 @@
 			log("waypoints")
 			
 			var featureId=inp.getAttribute("featureId");
+		
+			var feature = vectorSource.getFeatureById(featureId);
 			
-			route.updateWaypointByfeatureId(featureId,"");
 			
 			
-	      inp.value = this.getElementsByTagName("input")[0].value;
-	     //closeAllLists();org 
+			var coordss =getLastGeoLocationEvent().coords;
+						
+			var lngLat=[coordss.longitude, coordss.latitude];
+			
+			//feature.getGeometry().getCoordinates();
+			
+			var coord = getPointFromLongLat(coordss.longitude, coordss.latitude);
+
+
+			feature.getGeometry().setCoordinates(coord);
+			route.updateWaypointByfeatureId(featureId,lngLat);
 	 	var x = document.getElementsByClassName("autocomplete-items");
 	 	    for (var i = 0; i < x.length; i++) {
 	 	      //if (elmnt != x[i] && elmnt != inp) 
@@ -206,10 +237,7 @@
 	 	
 	     });
 	 autocompleteList.appendChild(b);
-	 
-	 
-	 
-	 //fetchMAddresscCurentAdd(inp,autocompleteList);
+
 	
 	});
    
@@ -425,6 +453,7 @@ var app = {};
 		 	feature.setId('routeFeature')
 		     feature.setStyle(routeStyle);
 		     vectorSource.addFeature(feature);
+		//	 map.render();
 		 	return feature;
 		   },
 		   to4326: function(coord) {
@@ -567,11 +596,12 @@ function simpleReverseGeocodingByWaypoint(waypoint) {
     }
 
     update(lngLat){
-		 simpleReverseGeocodingByWaypoint(this);	
+			
 	//const targetId="bnt"+this.featureId;
 	//const el = document.getElementById(targetId);
 	
 	  this.lngLat = lngLat;
+	  simpleReverseGeocodingByWaypoint(this);
 	  
 	  //var val0=waypoints[0].lngLat;
 	  //			  var name=waypoints[0].name;
@@ -597,12 +627,12 @@ function simpleReverseGeocodingByWaypoint(waypoint) {
 	    this.waypoints = []; 
     }  
 
-	updateWaypointByfeatureId(featureId,evt){
-		var ff=[27.9797311,43.2388141];
+	updateWaypointByfeatureId(featureId,lngLat){
+	//	var ff=[27.9797311,43.2388141];
 		for (let i = 0; i < this.waypoints.length; i++) {
 			var val=this.waypoints[i];
 			if(val.featureId==featureId){
-				val.update(ff);
+				val.update(lngLat);
 			}
 			}
 			
@@ -620,10 +650,10 @@ function simpleReverseGeocodingByWaypoint(waypoint) {
       var val=this.waypoints[i];
 	  var featureuid=feature_.ol_uid;
 	  if(val.featureId===featureuid)
-   	  {
-			val.update(ff);
-					console.log('feature_ founf');
-			  }
+   	  	{
+		val.update(ff);
+		console.log('feature_ founf');
+		}
 				     }
 		this.createRoute();
 		return ;
@@ -707,8 +737,10 @@ function simpleReverseGeocodingByWaypoint(waypoint) {
 	  var translate1 = new app.Drag({features: new ol.Collection([feature])});
       map.addInteraction(translate1);
 	  
+	  var ol_uid=feature.ol_uid; 
+	  feature.setId(ol_uid);
 	 //return feature;
-	 var ol_uid=feature.ol_uid;
+	
 	 return ol_uid;
     }
     
@@ -718,6 +750,7 @@ function simpleReverseGeocodingByWaypoint(waypoint) {
         var val=this.waypoints[i];
 		var name=this.getWaypointName(i); 
         var fId=this.createFeature(val.lngLat,name); 
+		
 		val.featureId=fId
       }
     }
@@ -786,8 +819,10 @@ const route =new Route();
 		  
 		  if(wplen==0)
 		  {
-		  route.add(new Waypoint([27.9797321,43.2388151],'start'));
-		  route.add(new Waypoint([27.9797321,43.2388151],'end'));
+			route.add(new Waypoint([0 ,0],'end'));
+		  route.add(new Waypoint([0,0],'start'));
+		//  route.add(new Waypoint([0,0],'b'));
+		 
 		  route.createFeatures();
 		  }
 		  RouteControl.createContainer(options);
@@ -1010,6 +1045,9 @@ const route =new Route();
 <script name="GeoLocation">
 	var markerOverlay
 
+
+	
+	
 		function updateGeoMarker() {
 			var coordss = lastGeoLocationEvent.coords;
 			log(coordss);
