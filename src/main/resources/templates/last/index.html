@@ -6,8 +6,6 @@
     <title>Open Taxi</title>
 	<link rel="icon" type="image/x-icon" href="./resources/images/favicon.ico" th:href="@{/resources/images/favicon.png}">
 	
-	
-	
     <link rel="stylesheet" href="ol-debug.css" type="text/css"    th:href="@{/resources/openlayers/ol-debug.css}" />
 	<link rel="stylesheet" href="ol-geocoder.css"                 th:href="@{/resources/openlayers/w3.css}" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -15,15 +13,8 @@
   </head>
   <style>
         html, body { height: 100%; padding: 0; margin: 0; }
-  	    #map {
-          /* configure the size of the map */
-          width: 100%;
-          height: 100%;
-        }
-		
+  	    #map {width: 100%;height: 100%;}
  </style>
- 
- 
  
  <style>
  * {   box-sizing: border-box; }
@@ -48,21 +39,19 @@
  .autocomplete-active {   background-color: DodgerBlue !important;   color: #ffffff; }
  </style>
 
-  
+<script name="auto complete ">
+  const log = console.log;
+  const url = new URL(location.origin);
+  const hostname = url.hostname;
  
- <script name="auto complete ">
- const log = console.log;
- const url = new URL(location.origin);
- const hostname = url.hostname;
- 
- function getLastGeoLocationEvent()
- {
+  function getLastGeoLocationEvent()
+  {
  	return lastGeoLocationEvent;
- }
+  }
  
- function getPointFromLongLat (long, lat) {
-     return ol.proj.transform([long, lat], 'EPSG:4326', 'EPSG:3857')
- }
+  function getPointFromLongLat (long, lat) {
+    return ol.proj.transform([long, lat], 'EPSG:4326', 'EPSG:3857')
+  }
  
  </script>
  <script name="auto complete ">
@@ -92,8 +81,7 @@
  	  })
  	  .then(function(json) {
 		log(json);
- 	  	// var name=formatAddresss(json,autocompleteList);
- 			 newinitItem(autocompleteList,json,inputEl);
+ 		 newinitItem(autocompleteList,json,inputEl);
         })
    } 
  				 
@@ -146,29 +134,7 @@
      }	
    
      
-   function initItem(autocompleteList,arr,inputEl){
-	
-	log("initItem"+arr.length);
-     for (i = 0; i < arr.length; i++) {
-       b = document.createElement("DIV");
-       b.innerHTML = "<strong>" + arr[i].substr(0, inputEl.value.length) + "</strong>";
-       b.innerHTML += arr[i].substr(inputEl.value.length);
-       b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
-       b.addEventListener("click", function(e) {
-         inputEl.value = this.getElementsByTagName("input")[0].value;
- 	    //closeAllLists();org 
-		var x = document.getElementsByClassName("autocomplete-items");
-		    for (var i = 0; i < x.length; i++) {
-		      //if (elmnt != x[i] && elmnt != inp) 
-			  {
-		        x[i].parentNode.removeChild(x[i]);
-		      }
-		    }
-		
- 	    });
- 	autocompleteList.appendChild(b);
- 	}
-   }				   
+   			   
  	
    function autocomplete(inp) {
      var currentFocus;
@@ -207,26 +173,19 @@
 	    b.innerHTML += "<input type='hidden' value='" + vall + "'>";
 	    b.addEventListener("click", function(e) {
 			
-			let waypoints=route.getWaypoints();
-			log("waypoints")
+		let waypoints=route.getWaypoints();
+		var featureId=inp.getAttribute("featureId");
+	
+		var feature = vectorSource.getFeatureById(featureId);
+		var coordsss =getLastGeoLocationEvent()
+		const coordss = coordsss.coords;
+		var lngLat=[coordss.longitude, coordss.latitude];
 			
-			var featureId=inp.getAttribute("featureId");
-		
-			var feature = vectorSource.getFeatureById(featureId);
-			
-			
-			
-			var coordss =getLastGeoLocationEvent().coords;
-						
-			var lngLat=[coordss.longitude, coordss.latitude];
-			
-			//feature.getGeometry().getCoordinates();
-			
-			var coord = getPointFromLongLat(coordss.longitude, coordss.latitude);
-
+		var coord = getPointFromLongLat(coordss.longitude, coordss.latitude);
 
 			feature.getGeometry().setCoordinates(coord);
 			route.updateWaypointByfeatureId(featureId,lngLat);
+			route.createRoute();
 	 	var x = document.getElementsByClassName("autocomplete-items");
 	 	    for (var i = 0; i < x.length; i++) {
 	 	      //if (elmnt != x[i] && elmnt != inp) 
@@ -237,8 +196,6 @@
 	 	
 	     });
 	 autocompleteList.appendChild(b);
-
-	
 	});
    
    /*execute a function presses a key on the keyboard:*/
@@ -284,14 +241,9 @@
    }
 
  </script>
- <!--
- <img id="geolocation_marker" src="geolocation_marker.png"  th:src="@{/resources/openlayers/geolocation_marker.png}" alt="geolocation_marker"/>
- -->
   <div id="map" class="map"></div>
-	
-  <script>
 
-			
+<script>
   const source=	new ol.source.XYZ({   url: 'https://'+hostname+':8443/tile/{z}/{x}/{y}.png'       });
   const tileLayer = new  ol.layer.Tile({        source: source});
   
@@ -303,9 +255,7 @@
   var map = new ol.Map({
 	    layers: [tileLayer    ,vectorLayer   ],
         controls: ol.control.defaults({         attributionOptions:  {           collapsed: true         }
-        }).extend(
-			[new ol.control.ScaleLine()]
-			),
+        }).extend([new ol.control.ScaleLine()]),
         target: 'map',
         view: view,
       });
@@ -415,15 +365,13 @@ var app = {};
 	     app.Drag.prototype.handleUpEvent = function() {
 	       this.coordinate_ = null;
 	       this.feature_ = null;
+		   route.createRoute();
 	       return false;
 	     };
 
 //-----------------------------------------------------------------------------		 
 		 var utils = {
-	
 		   createFeature: function(coord) {
-		 	
-		 	
 		 	g=new ol.geom.Point(ol.proj.fromLonLat(coord));
 		     var feature = new ol.Feature({type: 'place',   geometry:  g });
 		     feature.setStyle(routeStyle);
@@ -441,13 +389,9 @@ var app = {};
 		       featureProjection: 'EPSG:3857'
 		     });
 		 	
-		 	
-		 	
-		 	
 		 	var routeFeature = vectorSource.getFeatureById('routeFeature');
 		 	if(routeFeature)
 		 		  vectorSource.removeFeature(routeFeature);
-		 	
 		 	
 		     var feature = new ol.Feature({ type: 'route',   geometry: route  });
 		 	feature.setId('routeFeature')
@@ -466,23 +410,6 @@ var app = {};
 		 var marker1 = new ol.geom.Point(coord1);
 		 var featureMarker1 = new ol.Feature(marker1);
 
-
-
-		 /*
-		 	  var waypoints = [
-		   [27.953315566702816,43.3520584446037],
-		   [26.953315566702816,42.3520584446037],
-		 ]
-
-		 var control = new olrm.Control({
-		   map
-		   ,  waypoints
-		 });
-
-		 map.addControl(control)
-		 */
-		 
-		     
 		 	  
 		 	    map.on('click', function(e) {
 		         var coordinate = ol.proj.toLonLat(e.coordinate).map(function(val) {
@@ -636,7 +563,8 @@ function simpleReverseGeocodingByWaypoint(waypoint) {
 			}
 			}
 			
-			this.createRoute();
+			//dinamic
+			//this.createRoute();
 		
 	}
 	
@@ -655,28 +583,9 @@ function simpleReverseGeocodingByWaypoint(waypoint) {
 		console.log('feature_ founf');
 		}
 				     }
-		this.createRoute();
-		return ;
-		
-		
-		var coordinate=evt.coordinate;
-		
-		
-		
-//		   this.fire('drag', {lngLat: ol.proj.toLonLat(e.coordinate)});
-		
-		for (let i = 0; i < this.waypoints.length; i++) {
-		       var val=this.waypoints[i];
-			   
-			   if(val.name===feature_)
-			   	  {
-					//this.feature.getGeometry().setCoordinates(coordinate);
-					
-					
-					//val.update(lngLat);
-					console.log('feature_ founf');
-				  }
-		     }
+					 
+	   //dinamic			 
+	//	this.createRoute();
 	}
 	
 	
@@ -783,217 +692,167 @@ function simpleReverseGeocodingByWaypoint(waypoint) {
 
 
 const route =new Route();
-  
-  
-        //route.add(new Waypoint([27.981982,43.238152],'text1'));
-		
+    //route.add(new Waypoint([27.981982,43.238152],'text1'));
 	//	route.add(new Waypoint([27.9797321,43.2388151],'text1'));
-		
 	//	route.add(new Waypoint([27.897369,43.221216],'text2'));
-		
 	//	route.add(new Waypoint([27.897365,43.221217],'text2'));
-		
-
-		
-		
-//		route.createFeatures();
-//				var cc=route.getPath();
-				
-//				route.createRoute();
+   
+	//		route.createFeatures();
+    //				route.createRoute();
 	  
 //-----------------------------------------------------------------------------	  
-	  
-	  
-	  
-	  
-	  
-	  
 //TODO 	  RouteControl
-	  class RouteControl extends ol.control.Control {
-	
-		    constructor(route,opt_options) {
-	      const options = opt_options || {};
+	class RouteControl extends ol.control.Control {
 
-		  
-		  var wplen= route.getWaypoints().length
-		  
-		  if(wplen==0)
-		  {
-			route.add(new Waypoint([0 ,0],'end'));
-		  route.add(new Waypoint([0,0],'start'));
-		//  route.add(new Waypoint([0,0],'b'));
-		 
-		  route.createFeatures();
-		  }
-		  RouteControl.createContainer(options);
-	  	
-		const element = document.createElement('div');
-	  	//element.setAttribute("id", "speedctr");
-	    //  element.className = 'routeControl';
-	    element.className = 'ol-unselectable ol-control w3-mobile';
-	  	
-	  	
-	  	element.style.right= "0em";
-	  	element.style.top="0em"
-	  	
-		element.style.width="301px";
-	  	
-	  	
-	  	var v=RouteControl.getctr();
-	  	 element.appendChild(v);
-	  
-	  
-	  
-	  
-	 // element.innerHTML='<button class="leaflet-routing-add-waypoint " type="button">&#8659;</button>';
-	      super({
-	        element: element,
-	        target: options.target,
-	      });
-
-		  
-		
-	    }
+		constructor(route, opt_options) {
+			const options = opt_options || {};
 
 
-		
-		static createContainer(options)
-			{
-				const element = document.createElement('div');	
-				return element;
-			} 
-	  static getctr() {
-		
-		
-		
-	      var root = document.createElement('DIV');
-	      root.setAttribute('id', 'rcorners2');
-	      root.setAttribute('class', 'leaflet-control-container inline');
+			var wplen = route.getWaypoints().length
 
-	      var node_2 = document.createElement('DIV');
-	      node_2.setAttribute('class', 'leaflet-top leaflet-left');
-	      root.appendChild(node_2);
+			if (wplen == 0) {
+				route.add(new Waypoint([0, 0], 'end'));
+				route.add(new Waypoint([0, 0], 'start'));
+				//  route.add(new Waypoint([0,0],'b'));
 
-	      var node_3 = document.createElement('DIV');
-	      node_3.setAttribute('class', 'leaflet-control-zoom leaflet-bar leaflet-control');
-	      node_2.appendChild(node_3);
+				route.createFeatures();
+			}
+			RouteControl.createContainer(options);
 
-	      var node_4 = document.createElement('A');
-	      node_4.setAttribute('class', 'leaflet-control-zoom-in');
-	      node_4.setAttribute('href', '#');
-	      node_4.setAttribute('title', 'Zoom in');
-	      node_4.setAttribute('role', 'button');
-	      node_3.appendChild(node_4);
+			const element = document.createElement('div');
+			//element.setAttribute("id", "speedctr");
+			//  element.className = 'routeControl';
+			element.className = 'ol-unselectable ol-control w3-mobile';
 
-	      var node_5 = document.createElement('SPAN');
-	      node_4.appendChild(node_5);
 
-	      var node_6 = document.createElement('A');
-	      node_6.setAttribute('class', 'leaflet-control-zoom-out');
-	      node_6.setAttribute('href', '#');
-	      node_6.setAttribute('title', 'Zoom out');
-	      node_6.setAttribute('role', 'button');
-	      node_3.appendChild(node_6);
+			element.style.right = "0em";
+			element.style.top = "0em"
 
-	      var node_7 = document.createElement('SPAN');
-	      node_6.appendChild(node_7);
+			element.style.width = "301px";
 
-	      var node_8 = document.createElement('DIV');
-	      node_8.setAttribute('class', 'leaflet-top leaflet-right');
-	      root.appendChild(node_8);
 
-	      var node_9 = document.createElement('DIV');
-	      node_9.setAttribute('class', 'leaflet-routing-container leaflet-bar leaflet-control');
-	      node_8.appendChild(node_9);
+			var v = RouteControl.getctr();
+			element.appendChild(v);
 
-	      var node_10 = document.createElement('DIV');
-	      node_10.setAttribute('class', 'leaflet-routing-geocoders ');
-	      node_9.appendChild(node_10);
- //
-	      
+			// element.innerHTML='<button class="leaflet-routing-add-waypoint " type="button">&#8659;</button>';
+			super({
+				element: element,
+				target: options.target,
+			});
+		}
 
-		  let waypoints=route.getWaypoints();
-		  	for (let i = 0; i < waypoints.length; i++) {
-		  		//      var lngLat0=waypoints[0].lngLat;
-		  			  var featureId=waypoints[i].featureId;
-		  			  
-					  
-					  var waypointName=route.getWaypointName(i);
-					  var node_12 =RouteControl.autoCompleteBtn(featureId,waypointName);
-					  	  node_10.appendChild(node_12);
-
-		  		}
-	  
-	  
-	    //  var node_15 = document.createElement('DIV');
-	    //  node_15.setAttribute('class', 'leaflet-routing-geocoder');
-	    //  node_11.appendChild(node_15);
-
-	    
-	   
-	  //var node_17 =RouteControl.autoCompleteBtn("endID",'End');
-	  //node_15.appendChild(node_17);
-
-	      var node_19 = document.createElement('BUTTON');
-	      node_19.setAttribute('class', 'leaflet-routing-add-waypoint ');
-	      node_19.setAttribute('type', 'button');
-	      //TODOnode_11.appendChild(node_19);
-	      
-	  	
-	  	
-	      return root;
-	    }
-	    
-	    static autoCompleteBtn(featureId,placeholder) {
-	    
-			
+		static createContainer(options) {
+			const element = document.createElement('div');
+			return element;
+		}
+		static getctr() {
 			var root = document.createElement('DIV');
-				      root.setAttribute('class', 'leaflet-routing-geocoder');
-						
+			root.setAttribute('id', 'rcorners2');
+			root.setAttribute('class', 'leaflet-control-container inline');
 
-	  	var div = document.createElement('DIV');
-	  	div.setAttribute('class', 'autocomplete');
-	  	div.setAttribute('style', 'width:300px;');
+			var node_2 = document.createElement('DIV');
+			node_2.setAttribute('class', 'leaflet-top leaflet-left');
+			root.appendChild(node_2);
 
-	  	var input = document.createElement('INPUT');
-	  	input.setAttribute('id', "bnt"+featureId);
-		
-		input.setAttribute('featureId', featureId);
-		
-		
-	  	input.setAttribute('type', 'text');
-	  	input.setAttribute('name', 'myCountry');
-	  	input.setAttribute('placeholder', placeholder);
-		input.setAttribute('style', 'width:90%;');
-		
-		
-		autocomplete(input);
-		//
-	
+			var node_3 = document.createElement('DIV');
+			node_3.setAttribute('class', 'leaflet-control-zoom leaflet-bar leaflet-control');
+			node_2.appendChild(node_3);
 
-		  
-		//
-		
-		
-	  	div.appendChild(input);
-	  	
-		var node_14 = document.createElement('SPAN');
-			      //node_14.setAttribute('class', 'leaflet-routing-remove-waypoint1');
-				  //node_14.innerHTML='\\00d7';
-				  
-				  var a = document.createElement('a');
-				        var linkText = document.createTextNode("x");
-				        a.appendChild(linkText);
-				        a.title = "remove";
-				        a.href = "";
-				        node_14.appendChild(a);
-				  
-			      div.appendChild(node_14);
-		
-				  root.appendChild(div);
-	  	return root;
-	    }
-	  }
+			var node_4 = document.createElement('A');
+			node_4.setAttribute('class', 'leaflet-control-zoom-in');
+			node_4.setAttribute('href', '#');
+			node_4.setAttribute('title', 'Zoom in');
+			node_4.setAttribute('role', 'button');
+			node_3.appendChild(node_4);
+
+			var node_5 = document.createElement('SPAN');
+			node_4.appendChild(node_5);
+
+			var node_6 = document.createElement('A');
+			node_6.setAttribute('class', 'leaflet-control-zoom-out');
+			node_6.setAttribute('href', '#');
+			node_6.setAttribute('title', 'Zoom out');
+			node_6.setAttribute('role', 'button');
+			node_3.appendChild(node_6);
+
+			var node_7 = document.createElement('SPAN');
+			node_6.appendChild(node_7);
+
+			var node_8 = document.createElement('DIV');
+			node_8.setAttribute('class', 'leaflet-top leaflet-right');
+			root.appendChild(node_8);
+
+			var node_9 = document.createElement('DIV');
+			node_9.setAttribute('class', 'leaflet-routing-container leaflet-bar leaflet-control');
+			node_8.appendChild(node_9);
+
+			var node_10 = document.createElement('DIV');
+			node_10.setAttribute('class', 'leaflet-routing-geocoders ');
+			node_9.appendChild(node_10);
+			//
+
+
+			let waypoints = route.getWaypoints();
+			for (let i = 0; i < waypoints.length; i++) {
+				//      var lngLat0=waypoints[0].lngLat;
+				var featureId = waypoints[i].featureId;
+
+
+				var waypointName = route.getWaypointName(i);
+				var node_12 = RouteControl.autoCompleteBtn(featureId, waypointName);
+				node_10.appendChild(node_12);
+
+			}
+
+			var node_19 = document.createElement('BUTTON');
+			node_19.setAttribute('class', 'leaflet-routing-add-waypoint ');
+			node_19.setAttribute('type', 'button');
+			return root;
+		}
+
+		static autoCompleteBtn(featureId, placeholder) {
+
+
+			var root = document.createElement('DIV');
+			root.setAttribute('class', 'leaflet-routing-geocoder');
+
+
+			var div = document.createElement('DIV');
+			div.setAttribute('class', 'autocomplete');
+			div.setAttribute('style', 'width:300px;');
+
+			var input = document.createElement('INPUT');
+			input.setAttribute('id', "bnt" + featureId);
+
+			input.setAttribute('featureId', featureId);
+
+
+			input.setAttribute('type', 'text');
+			input.setAttribute('name', 'myCountry');
+			input.setAttribute('placeholder', placeholder);
+			input.setAttribute('style', 'width:90%;');
+
+
+			autocomplete(input);
+			div.appendChild(input);
+
+			var node_14 = document.createElement('SPAN');
+			//node_14.setAttribute('class', 'leaflet-routing-remove-waypoint1');
+			//node_14.innerHTML='\\00d7';
+
+			var a = document.createElement('a');
+			var linkText = document.createTextNode("x");
+			a.appendChild(linkText);
+			a.title = "remove";
+			a.href = "";
+			node_14.appendChild(a);
+
+			div.appendChild(node_14);
+
+			root.appendChild(div);
+			return root;
+		}
+	}
 
 
 
@@ -1003,8 +862,7 @@ const route =new Route();
 	  
 	  var urll='https://'+hostname+':8443/route/v1/driving/'
 	  
-	  //search?q=Тодор Хаджистанчев&limit=20&format=json&addressdetails=1&city=Варна&accept-language=bg-BG
-	 // &limit=2
+	  //search?q=Тодор Хаджистанчев&limit=20&format=json&addressdetails=1&city=Варна&accept-language=bg-BG&limit=2
 	   // https://localhost:8443/api?&q=%D0%92%D0%B8%D0%BD%D0%B8%D1%86%D0%B0&limit=2
 	  async function fetchMAddress(q) {
 	  	//var url='http://127.0.0.1:8181/search?q='+q+'&limit=5&format=json&addressdetails=1&city=varna&accept-language=bg-BG'
@@ -1032,44 +890,34 @@ const route =new Route();
 	  	         }).then(function(json) {
 	  	 //          alert(json.display_name);
 	  	 var name=formatAddress(json);
-	  	 
-	  	 
 	  	         })
 	  	       }
-  
-  
-  
-  
   	  </script>
 
 <script name="GeoLocation">
 	var markerOverlay
 
-
 	
+  function updateGeoMarker() {
+	var coordss = lastGeoLocationEvent.coords;
+	log(coordss);
+	const projectedPosition = ol.proj.fromLonLat([coordss.longitude, coordss.latitude]);
+	var heading = coordss.heading;
+	markerOverlay.setPosition(projectedPosition);
+	map.render();
+  }
+
+  var count = 0;
+  var lastGeoLocationEvent;
 	
-		function updateGeoMarker() {
-			var coordss = lastGeoLocationEvent.coords;
-			log(coordss);
-			const projectedPosition = ol.proj.fromLonLat([coordss.longitude, coordss.latitude]);
-			var heading = coordss.heading;
-			markerOverlay.setPosition(projectedPosition);
-			map.render();
-		}
-		var count = 0;
+  function geosuccess(event) {
+    lastGeoLocationEvent = event;
+	updateGeoMarker();
+    log("geo: " + count++ + " : " + event.coords.heading + " speed:" + event.coords.speed);
+	var heading = event.coords.heading;
+	var speed = event.coords.speed;
 
-		var lastGeoLocationEvent;
-		function geosuccess(event) {
-
-			lastGeoLocationEvent = event;
-
-			updateGeoMarker();
-			log("geo: " + count++ + " : " + event.coords.heading + " speed:" + event.coords.speed);
-			//content.innerHTML="geo: " + count++ + " : " + event.coords.heading + " speed:" + event.coords.speed;
-			var heading = event.coords.heading;
-			var speed = event.coords.speed;
-
-			var sp = Math.round(speed * 3.6)
+	var sp = Math.round(speed * 3.6)
 			var ss = '<svg width="32" height="32"  viewBox="0 0 32 32"  xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="blue" stroke-width="4" fill="white"></circle><text x="16" y="20" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" font-weight="bold" text-anchor="middle" fill="black">' + sp + '</text></svg>';
 			if (sp >= 10) {
 				ss = '<svg width="32" height="32"  viewBox="0 0 32 32"  xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="red" stroke-width="4" fill="white"></circle><text x="16" y="20" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" font-weight="bold" text-anchor="middle" fill="black">' + sp + '</text></svg>';
@@ -1091,29 +939,21 @@ const route =new Route();
 		function geofailure(event) {
 			log("geofailure:  : " + event);
 		}
+  var markerOverlay
+  function initGeo() {
+    var markerEl = document.createElement('IMG');
+	markerEl.setAttribute('id', 'geolocation_marker');
+	markerEl.setAttribute('src', '/resources/openlayers/geolocation_marker.png');
+	markerEl.setAttribute('alt', 'geolocation_marker');
 
+	markerOverlay = new ol.Overlay({positioning: 'center-center', element: markerEl, stopEvent: false, });
+	map.addOverlay(markerOverlay);
 
-		var markerOverlay
-		function initGeo() {
-
-			var markerEl = document.createElement('IMG');
-			markerEl.setAttribute('id', 'geolocation_marker');
-			markerEl.setAttribute('src', '/resources/openlayers/geolocation_marker.png');
-			markerEl.setAttribute('alt', 'geolocation_marker');
-
-			markerOverlay = new ol.Overlay({positioning: 'center-center', element: markerEl, stopEvent: false, });
-			map.addOverlay(markerOverlay);
-
-			navigator.geolocation.watchPosition(geosuccess, geofailure, {enableHighAccuracy: true, maximumAge: 30000, timeout: 20000}
-			);
-			//moveSpeed(30);
-			//moveCompassNeedle(56);
+	navigator.geolocation.watchPosition(geosuccess, geofailure, {enableHighAccuracy: true, maximumAge: 30000, timeout: 20000}
+			); 			//moveSpeed(30);			//moveCompassNeedle(56);
 		}
 
 	initGeo();
-
 </script>
-
-	  
   </body>
 </html>
