@@ -86,6 +86,8 @@
  }
  </style>
 
+  
+ 
  <script name="auto complete ">
  const log = console.log;
  const url = new URL(location.origin);
@@ -164,6 +166,53 @@
  	  
  	  fetchMAddresscbb(inp,autocompleteList);
    });
+   inp.addEventListener("focus", function(e) {
+	var a, b, i, val = this.value;
+	 /*close any already open lists of autocompleted values*/
+	 closeAllLists();
+	 
+	 currentFocus = -1;
+	 
+	 autocompleteList = document.createElement("DIV");
+	 autocompleteList.setAttribute("id", this.id + "autocomplete-list");
+	 autocompleteList.setAttribute("class", "autocomplete-items");
+	 /*append the DIV element as a child of the autocomplete container:*/
+	 this.parentNode.appendChild(autocompleteList);
+	var  vall="ghgfhfg";
+	 
+	 b = document.createElement("DIV");
+	    
+	    b.innerHTML += vall;
+	    b.innerHTML += "<input type='hidden' value='" + vall + "'>";
+	    b.addEventListener("click", function(e) {
+			
+			let waypoints=route.getWaypoints();
+			log("waypoints")
+			
+			var featureId=inp.getAttribute("featureId");
+			
+			route.updateWaypointByfeatureId(featureId,"");
+			
+			
+	      inp.value = this.getElementsByTagName("input")[0].value;
+	     //closeAllLists();org 
+	 	var x = document.getElementsByClassName("autocomplete-items");
+	 	    for (var i = 0; i < x.length; i++) {
+	 	      //if (elmnt != x[i] && elmnt != inp) 
+	 		  {
+	 	        x[i].parentNode.removeChild(x[i]);
+	 	      }
+	 	    }
+	 	
+	     });
+	 autocompleteList.appendChild(b);
+	 
+	 
+	 
+	 //fetchMAddresscCurentAdd(inp,autocompleteList);
+	
+	});
+   
    /*execute a function presses a key on the keyboard:*/
    inp.addEventListener("keydown", function(e) {
        var x = document.getElementById(this.id + "autocomplete-list");
@@ -207,7 +256,9 @@
    }
 
  </script>
-
+ <!--
+ <img id="geolocation_marker" src="geolocation_marker.png"  th:src="@{/resources/openlayers/geolocation_marker.png}" alt="geolocation_marker"/>
+ -->
   <div id="map" class="map"></div>
 	
   <script>
@@ -470,12 +521,27 @@ function formatAddress(json)
 	return ret;
 }
 
-function simpleReverseGeocoding(waypoint) {
+function simpleReverseGeocoding(lon, lat) {
+	
+	var url='https://'+hostname+':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
+	log("ReverseGeocoding "+url)
+        fetch(url).then(function(response) {
+          return response.json();
+        }).then(function(json) {
+//          alert(json.display_name);
+console.log(json.display_name);
+        })
+      }
+ 
+
+function simpleReverseGeocodingByWaypoint(waypoint) {
 	
 	var lngLat=waypoint.lngLat;
 	 var lon=lngLat[0];
 	 var lat=lngLat[1];
 	 var url='https://'+hostname+':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
+	 
+	 log("simpleReverseGeocodingByWaypoint"+ url);
 	         fetch(url).then(function(response) {
 	           return response.json();
 	         }).then(function(json) {
@@ -501,7 +567,7 @@ function simpleReverseGeocoding(waypoint) {
     }
 
     update(lngLat){
-		 simpleReverseGeocoding(this);	
+		 simpleReverseGeocodingByWaypoint(this);	
 	//const targetId="bnt"+this.featureId;
 	//const el = document.getElementById(targetId);
 	
@@ -531,6 +597,20 @@ function simpleReverseGeocoding(waypoint) {
 	    this.waypoints = []; 
     }  
 
+	updateWaypointByfeatureId(featureId,evt){
+		var ff=[27.9797311,43.2388141];
+		for (let i = 0; i < this.waypoints.length; i++) {
+			var val=this.waypoints[i];
+			if(val.featureId==featureId){
+				val.update(ff);
+			}
+			}
+			
+			this.createRoute();
+		
+	}
+	
+	
 	updateWaypoint(feature_,evt){
 		var geometry = feature_.getGeometry().clone().transform(map.getView().getProjection(),'EPSG:4326');
 		var fc=geometry.flatCoordinates;
@@ -594,6 +674,8 @@ function simpleReverseGeocoding(waypoint) {
 	createRoute(){
 		var extraparams="?overview=full&alternatives=true&steps=true";  //&hints=;"
       const url=urll +this.getPath()+extraparams;
+	  
+	  log("createRoute url "+url)
 		fetch(url).then(function(r) {return r.json();
 				 }).then(function(json) {
 						      if(json.code !== 'Ok') {
@@ -672,22 +754,19 @@ const route =new Route();
   
         //route.add(new Waypoint([27.981982,43.238152],'text1'));
 		
-		route.add(new Waypoint([27.9797321,43.2388151],'text1'));
+	//	route.add(new Waypoint([27.9797321,43.2388151],'text1'));
 		
-		route.add(new Waypoint([27.897369,43.221216],'text2'));
+	//	route.add(new Waypoint([27.897369,43.221216],'text2'));
 		
-		route.add(new Waypoint([27.897365,43.221217],'text2'));
+	//	route.add(new Waypoint([27.897365,43.221217],'text2'));
 		
-		let waypoints=route.getWaypoints();
-							//for (let i = 0; i < waypoints.length; i++) {
-							      var val0=waypoints[0].lngLat;
-								  var name=waypoints[0].name;
+
 		
 		
-		route.createFeatures();
-				var cc=route.getPath();
+//		route.createFeatures();
+//				var cc=route.getPath();
 				
-				route.createRoute();
+//				route.createRoute();
 	  
 //-----------------------------------------------------------------------------	  
 	  
@@ -698,32 +777,26 @@ const route =new Route();
 	  
 //TODO 	  RouteControl
 	  class RouteControl extends ol.control.Control {
-		
-		
 	
-		
-		
-	    constructor(route,opt_options) {
+		    constructor(route,opt_options) {
 	      const options = opt_options || {};
 
+		  
+		  var wplen= route.getWaypoints().length
+		  
+		  if(wplen==0)
+		  {
+		  route.add(new Waypoint([27.9797321,43.2388151],'start'));
+		  route.add(new Waypoint([27.9797321,43.2388151],'end'));
+		  route.createFeatures();
+		  }
 		  RouteControl.createContainer(options);
 	  	
-		 
-		  
-		 log(route.getWaypointName(0));
-		 log(route.getWaypointName(1));
-	//	 log(route.getWaypointName(3));
-	  	
-	  	const element = document.createElement('div');
+		const element = document.createElement('div');
 	  	//element.setAttribute("id", "speedctr");
 	    //  element.className = 'routeControl';
 	    element.className = 'ol-unselectable ol-control w3-mobile';
 	  	
-	  	//element.style.backgroundColor = " rgba(0,0,136,0.5)";
-	  	//element.style.backgroundColor ="#4CAF50";
-	  	
-	  	//element.style.bottom="68px";
-	  	//element.style.left=".5em";
 	  	
 	  	element.style.right= "0em";
 	  	element.style.top="0em"
@@ -807,11 +880,11 @@ const route =new Route();
 		  let waypoints=route.getWaypoints();
 		  	for (let i = 0; i < waypoints.length; i++) {
 		  		//      var lngLat0=waypoints[0].lngLat;
-		  			  var featureId0=waypoints[i].featureId;
+		  			  var featureId=waypoints[i].featureId;
 		  			  
 					  
 					  var waypointName=route.getWaypointName(i);
-					  var node_12 =RouteControl.autoCompleteBtn("bnt"+featureId0,waypointName);
+					  var node_12 =RouteControl.autoCompleteBtn(featureId,waypointName);
 					  	  node_10.appendChild(node_12);
 
 		  		}
@@ -836,7 +909,7 @@ const route =new Route();
 	      return root;
 	    }
 	    
-	    static autoCompleteBtn(btnId,placeholder) {
+	    static autoCompleteBtn(featureId,placeholder) {
 	    
 			
 			var root = document.createElement('DIV');
@@ -848,7 +921,11 @@ const route =new Route();
 	  	div.setAttribute('style', 'width:300px;');
 
 	  	var input = document.createElement('INPUT');
-	  	input.setAttribute('id', btnId);
+	  	input.setAttribute('id', "bnt"+featureId);
+		
+		input.setAttribute('featureId', featureId);
+		
+		
 	  	input.setAttribute('type', 'text');
 	  	input.setAttribute('name', 'myCountry');
 	  	input.setAttribute('placeholder', placeholder);
@@ -930,5 +1007,75 @@ const route =new Route();
   
   	  </script>
 
+<script name="GeoLocation">
+	var markerOverlay
+
+		function updateGeoMarker() {
+			var coordss = lastGeoLocationEvent.coords;
+			log(coordss);
+			const projectedPosition = ol.proj.fromLonLat([coordss.longitude, coordss.latitude]);
+			var heading = coordss.heading;
+			markerOverlay.setPosition(projectedPosition);
+			map.render();
+		}
+		var count = 0;
+
+		var lastGeoLocationEvent;
+		function geosuccess(event) {
+
+			lastGeoLocationEvent = event;
+
+			updateGeoMarker();
+			log("geo: " + count++ + " : " + event.coords.heading + " speed:" + event.coords.speed);
+			//content.innerHTML="geo: " + count++ + " : " + event.coords.heading + " speed:" + event.coords.speed;
+			var heading = event.coords.heading;
+			var speed = event.coords.speed;
+
+			var sp = Math.round(speed * 3.6)
+			var ss = '<svg width="32" height="32"  viewBox="0 0 32 32"  xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="blue" stroke-width="4" fill="white"></circle><text x="16" y="20" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" font-weight="bold" text-anchor="middle" fill="black">' + sp + '</text></svg>';
+			if (sp >= 10) {
+				ss = '<svg width="32" height="32"  viewBox="0 0 32 32"  xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="red" stroke-width="4" fill="white"></circle><text x="16" y="20" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" font-weight="bold" text-anchor="middle" fill="black">' + sp + '</text></svg>';
+			}
+
+			//const speedctr = document.getElementById('speedctr');
+			//speedctr.innerHTML= ss;
+			/*
+						if (heading != null) {
+						   moveCompassNeedle(heading);
+						}
+	
+						if (speed != null) {
+							// update the speed
+							moveSpeed(speed);
+						}
+						*/
+		}
+		function geofailure(event) {
+			log("geofailure:  : " + event);
+		}
+
+
+		var markerOverlay
+		function initGeo() {
+
+			var markerEl = document.createElement('IMG');
+			markerEl.setAttribute('id', 'geolocation_marker');
+			markerEl.setAttribute('src', '/resources/openlayers/geolocation_marker.png');
+			markerEl.setAttribute('alt', 'geolocation_marker');
+
+			markerOverlay = new ol.Overlay({positioning: 'center-center', element: markerEl, stopEvent: false, });
+			map.addOverlay(markerOverlay);
+
+			navigator.geolocation.watchPosition(geosuccess, geofailure, {enableHighAccuracy: true, maximumAge: 30000, timeout: 20000}
+			);
+			//moveSpeed(30);
+			//moveCompassNeedle(56);
+		}
+
+	initGeo();
+
+</script>
+
+	  
   </body>
 </html>
