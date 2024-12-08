@@ -4,18 +4,39 @@
     <meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Open Taxi</title>
-	<link rel="icon" type="image/x-icon" href="./resources/images/favicon.ico" th:href="@{/resources/images/favicon.png}">
+	<!-- <link rel="icon" type="image/x-icon" href="/resources/images/favicon.png">-->
+	<link rel="icon" type="image/x-icon" href="./resources/images/favicon.ico">
 	
-    <link rel="stylesheet" href="ol-debug.css" type="text/css"    th:href="@{/resources/openlayers/ol-debug.css}" />
-	<link rel="stylesheet" href="ol-geocoder.css"                 th:href="@{/resources/openlayers/w3.css}" />
+    <link rel="stylesheet" href="/resources/openlayers/ol-debug.css" type="text/css"   />
+	<!--
+	<link rel="stylesheet" href="/resources/openlayers/w3.css"    />
+				 -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-	 <script src="ol-debug.js"                    th:src="@{/resources/openlayers/ol-debug.js}" ></script>
+	 <script src="/resources/openlayers/ol-debug.js"           ></script>
+	 
+	 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	 
   </head>
   <style>
-        html, body { height: 100%; padding: 0; margin: 0; }
+        html, body { height: 100%; padding: 0; margin: 0;   font-size: 12px; }
   	    #map {width: 100%;height: 100%;}
  </style>
- 
+ <style>
+ .geolocation_marker {
+  
+   color: white;
+   padding: 8px 9px;
+   text-align: center;
+   text-decoration: none;
+   display: inline-block;
+   background-size: contain;
+   background-repeat: no-repeat;
+   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABYgAAAWIBXyfQUwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAK6SURBVDiNtdXPa9NwGMfxd9KsWxhJHWx1C1h/DIa7OCaiiDt68CB4KELn8KB3ETz5D0TUQ4+exB12WEF6GHgZjIEBKaiXiTBBh1hph50wm2izLW0eD34zdhE7oQ98IAk8r3zzDTxfTUTQNE0DkqRU+gBDJQXo/KkY6ABtlUjddwABRETkIKgrIK0yAPSrGLOzsyMAi4uLWwrcVdkB9lQ66sWCAg0FZYBR4JTjONOVSqVYq9W8VqvVEFWtVqtRq9W8SqVSdBxnGjilejLKMJKvS6lVZYAxYMJ13RvNZvOTHKhW1JFW1Dn4SJrN5ifXdW8AE6o3o6wU6rMt9dYJz/MexXEciYjU/D25s/xFzj59L8aDN2I8eCNnn76XO8tfpObviYhIHMeR53mPFD6qrHSy2gHAcl33/Nzc3GNN04z5te9ce/4Rrxqw+TMiFogFNn9GvK7/4tnaFkcH+5geHdRzudyFdDr9enV19Zva/1gDbMByHCe7vr7+3Lbt8fm179x+8Zlu6tnVk9yaGsb3/Y3Jycnr9Xq9AQTJj+svl8s3bdserwcR91aqXaEA91aq1IMI27bHy+XyTbUDxj6cy+XOATysbPJjp9M1/GOnw8PKJgDK2IdTgDE0NHQa4NXXoGs0qaRHGQaQ0gGtUChkTdMcCdsx7xrhoeF3jZCwHWOa5kihUMgCmv7Prv8sHZBSqdQIw3DLNHTOZM1DI2eyJqahE4bhVqlUagCiowbK9vb2B4BLx6xDw0mPMtpAR1cXu9Vq9S3A/YtjHBlIdY0eGUhx/+IYAMrYBdr7cD6fX/B9f8Ox+iheznUNFy/ncKw+fN/fyOfzCwmczF4tCAIsy/o4MzNzbXp0UD+e6edlNWCnLX9d6ZMrJ7g1NYyItIvF4t2lpaUN4Bd/RmhvhhD0cGz2ZND37GjSenWY/ga+vttOWmiJZgAAAABJRU5ErkJggg==");
+ }
+
+ </style>
+
  <style>
  * {   box-sizing: border-box; }
  /*the container must be positioned relative:*/
@@ -37,11 +58,37 @@
 
  /*when navigating through the items using the arrow keys:*/
  .autocomplete-active {   background-color: DodgerBlue !important;   color: #ffffff; }
+ 
+ 
+ 
+ .ref1::before {  content: "Reference ";}
+ .ref2::before {  content: "Reference1 ";}
+
+ .refX::before {  content: "X ";}
+
+ .refDistance::before {  content: "Distance 11.1 km ";}
+
+ .refAdd::before {  content: "+";}
+ 
  </style>
 
 <script name="auto complete ">
   const log = console.log;
-  const url = new URL(location.origin);
+  
+  const locationOrigin=location.origin;
+  log(locationOrigin);
+  
+  
+  var url = new URL(location.origin);
+  
+  try {
+       url = new URL(location.origin);
+  } catch (error) {
+	url = new URL("https://localhost:8443");
+  }
+  
+ 
+  
   const hostname = url.hostname;
  
   function getLastGeoLocationEvent()
@@ -84,8 +131,6 @@
  		 newinitItem(autocompleteList,json,inputEl);
         })
    } 
- 				 
-   
    
    function newinitItem(autocompleteList,json,inputEl){
 
@@ -117,9 +162,9 @@
 			var feature = vectorSource.getFeatureById(featureId);
 			var coord = getPointFromLongLat(lngLat[0], lngLat[1]);
 
-					feature.getGeometry().setCoordinates(coord);
-						route.updateWaypointByfeatureId(featureId,lngLat);
- 
+			feature.getGeometry().setCoordinates(coord);
+			route.updateWaypointByfeatureId(featureId,lngLat);
+			route.createRoute();
    	var x = document.getElementsByClassName("autocomplete-items");
    	    for (var i = 0; i < x.length; i++) {
    	      //if (elmnt != x[i] && elmnt != inp) 
@@ -133,8 +178,6 @@
    	}
      }	
    
-     
-   			   
  	
    function autocomplete(inp) {
      var currentFocus;
@@ -242,7 +285,7 @@
 
  </script>
   <div id="map" class="map"></div>
-
+  
 <script>
   const source=	new ol.source.XYZ({   url: 'https://'+hostname+':8443/tile/{z}/{x}/{y}.png'       });
   const tileLayer = new  ol.layer.Tile({        source: source});
@@ -260,11 +303,7 @@
         view: view,
       });
 	  
-//-----------------------------------------------------------------------------
-var urll = new URL(location.origin);
-		var hostnamel = url.hostname;
-var urll='https://'+hostname+':8443/route/v1/driving/'	  
-//---------------------------------------------------------------------------------------	  
+	  
 var app = {};
 	     /**@constructor  @extends {module:ol/interaction/Pointer}  */
 	     app.Drag = function() {
@@ -318,7 +357,6 @@ var app = {};
 	       return !!feature;
 	     };
 
-
 	     /**
 	      * @param {module:ol/MapBrowserEvent~MapBrowserEvent} evt Map browser event.
 	      */
@@ -328,9 +366,6 @@ var app = {};
 
 	       var geometry = this.feature_.getGeometry();
 	       geometry.translate(deltaX, deltaY);
-
-		  
-		  
 		   
 	       this.coordinate_[0] = evt.coordinate[0];
 	       this.coordinate_[1] = evt.coordinate[1];
@@ -452,7 +487,6 @@ var defaultStyle = new ol.style.Style({
 var routeStyle = new ol.style.Style({ stroke: new ol.style.Stroke({    width: 3,    color: [40, 40, 40, 0.8],   }),   });
 
 
-
 //"address":{"road":"Тодор Хаджистанчев","neighbourhood":"Дълбокото дере","suburb":"кв. Виница","city":"Варна","county":"Приморски","state_district":"Варна","state":"Варна","ISO3166-2-lvl4":"BG-03","postcode":"9022","country":"България","country_code":"bg"}
 
 //building: "Бл.209" city: "Варна" ​​country: "България"​​country_code: "bg" county: "Владислав Варненчик"house_number: "бл. 209"​​postcode: "9023"​​state: "Варна" state_district: "Варна"​​suburb: "кв. Кайсиева градина"
@@ -501,14 +535,9 @@ function simpleReverseGeocodingByWaypoint(waypoint) {
 	         fetch(url).then(function(response) {
 	           return response.json();
 	         }).then(function(json) {
-	 //          alert(json.display_name);
 	 waypoint.name=formatAddress(json);
 	 const targetId="bnt"+waypoint.featureId;
 	 	const el = document.getElementById(targetId);
-	 	  
-	 	  //var val0=waypoints[0].lngLat;
-	 	  //			  var name=waypoints[0].name;
-		
 	 	  el.value=waypoint.name+'('+lon.toFixed(6) +';'+lat.toFixed(6)+')';
 	 
 	         })
@@ -523,17 +552,9 @@ function simpleReverseGeocodingByWaypoint(waypoint) {
     }
 
     update(lngLat){
-			
-	//const targetId="bnt"+this.featureId;
-	//const el = document.getElementById(targetId);
-	
 	  this.lngLat = lngLat;
 	  simpleReverseGeocodingByWaypoint(this);
-	  
-	  //var val0=waypoints[0].lngLat;
-	  //			  var name=waypoints[0].name;
-	//  el.value=this.name+'('+lngLat+')';
-    }
+      }
   }
 //-----------------------------------------------------------------------------
   class Route {
@@ -594,7 +615,14 @@ function simpleReverseGeocodingByWaypoint(waypoint) {
 		this.waypoints.slice(index);	
 	} 
     add(waypoint) {
-      	this.waypoints.push(waypoint);
+		
+		//-------------------------
+		var i=this.waypoints.push(waypoint);
+			var name=this.getWaypointName(i); 
+		       var fId=this.createFeature(waypoint.lngLat,name); 
+			
+			waypoint.featureId=fId
+		
     }
 		 
 	getPath(){
@@ -612,6 +640,7 @@ function simpleReverseGeocodingByWaypoint(waypoint) {
 
 	createRoute(){
 		var extraparams="?overview=full&alternatives=true&steps=true";  //&hints=;"
+	var urll='https://'+hostname+':8443/route/v1/driving/'
       const url=urll +this.getPath()+extraparams;
 	  
 	  log("createRoute url "+url)
@@ -690,7 +719,6 @@ function simpleReverseGeocodingByWaypoint(waypoint) {
 	  
 //-----------------------------------------------------------------------------
 
-
 const route =new Route();
     //route.add(new Waypoint([27.981982,43.238152],'text1'));
 	//	route.add(new Waypoint([27.9797321,43.2388151],'text1'));
@@ -700,13 +728,12 @@ const route =new Route();
 	//		route.createFeatures();
     //				route.createRoute();
 	  
-//-----------------------------------------------------------------------------	  
-//TODO 	  RouteControl
-	class RouteControl extends ol.control.Control {
+//RouteControl------------------------------------------------	  
+
+class RouteControl extends ol.control.Control {
 
 		constructor(route, opt_options) {
 			const options = opt_options || {};
-
 
 			var wplen = route.getWaypoints().length
 
@@ -715,155 +742,249 @@ const route =new Route();
 				route.add(new Waypoint([0, 0], 'start'));
 				//  route.add(new Waypoint([0,0],'b'));
 
-				route.createFeatures();
+			//	route.createFeatures();
 			}
-			RouteControl.createContainer(options);
-
-			const element = document.createElement('div');
-			//element.setAttribute("id", "speedctr");
-			//  element.className = 'routeControl';
-			element.className = 'ol-unselectable ol-control w3-mobile';
-
-
-			element.style.right = "0em";
-			element.style.top = "0em"
-
-			element.style.width = "301px";
-
-
-			var v = RouteControl.getctr();
-			element.appendChild(v);
-
-			// element.innerHTML='<button class="leaflet-routing-add-waypoint " type="button">&#8659;</button>';
-			super({
-				element: element,
-				target: options.target,
-			});
+			
+			var container=RouteControl.createContainer(options);
+			super({ element: container,	target: options.target,	});
 		}
 
+		static delete(featureId) {
+		
+			log("delete featureId "+featureId);	
+			var id="bnt" + featureId;
+			
+			const bnt = document.getElementById(id);	
+		 
+			
+			if(bnt.value=='')
+			{
+				var waypoints=route.getWaypoints();
+				for (let i = 0; i < waypoints.length; i++) {
+				      var val=waypoints[i];
+					  log("fff" +val );
+					
+					  if(val.featureId===featureId)
+				   	  	{
+							waypoints.slice(i,1);	
+										
+								}
+				}
+				
+				
+				
+				//--
+				//
+				let waypointss = route.getWaypoints();
+						
+						
+						
+
+						
+						
+										for (let i = 0; i < waypointss.length; i++) {
+												
+										var featureId = waypointss[i].featureId;
+											var waypointName = route.getWaypointName(i);
+													var node_11 = RouteControl.autoCompleteBtn(featureId, waypointName);
+													Waypointd.appendChild(node_11);
+
+									}
+						
+				//--
+				
+				
+				
+				
+				var feature = vectorSource.getFeatureById(featureId);
+				vectorSource.removeFeature(feature) 
+				return;
+			}
+			
+			bnt.value='';
+		   //return "Hello " + x.name;
+		 }
+		 static add(featureId) {
+			log("add ");	
+			route.add(new Waypoint([0, 0], 'end'));
+			
+			var Waypointd = document.getElementById("Waypoint");	
+			
+			while (Waypointd.firstChild) {
+						  Waypointd.removeChild(Waypointd.firstChild);
+						}
+			
+			
+			let waypoints = route.getWaypoints();
+			
+			
+			
+
+			
+			
+							for (let i = 0; i < waypoints.length; i++) {
+									
+							var featureId = waypoints[i].featureId;
+								var waypointName = route.getWaypointName(i);
+										var node_11 = RouteControl.autoCompleteBtn(featureId, waypointName);
+										Waypointd.appendChild(node_11);
+
+						}
+			
+ 			
+ 		 }
+		
 		static createContainer(options) {
-			const element = document.createElement('div');
-			return element;
-		}
-		static getctr() {
-			var root = document.createElement('DIV');
-			root.setAttribute('id', 'rcorners2');
-			root.setAttribute('class', 'leaflet-control-container inline');
+
+
+			var node_1 = document.createElement('DIV');
+			node_1.setAttribute('name', 'RouteControl');
+			node_1.setAttribute('id', 'control');
+			node_1.setAttribute('class', '     border w3-border-red  ');
+			node_1.setAttribute('style', ' background-color: lightblue; min-width: 400px;;position: absolute; right : 0em; top : 0em ');
 
 			var node_2 = document.createElement('DIV');
-			node_2.setAttribute('class', 'leaflet-top leaflet-left');
-			root.appendChild(node_2);
+			node_2.setAttribute('name', 'header');
+			node_2.setAttribute('class', 'container ');
+			node_2.setAttribute('style', ' ');
+			node_1.appendChild(node_2);
 
 			var node_3 = document.createElement('DIV');
-			node_3.setAttribute('class', 'leaflet-control-zoom leaflet-bar leaflet-control');
+			node_3.setAttribute('class', 'd-flex justify-content-between ');
 			node_2.appendChild(node_3);
 
-			var node_4 = document.createElement('A');
-			node_4.setAttribute('class', 'leaflet-control-zoom-in');
-			node_4.setAttribute('href', '#');
-			node_4.setAttribute('title', 'Zoom in');
-			node_4.setAttribute('role', 'button');
+			var node_4 = document.createElement('DIV');
+			node_4.setAttribute('class', '');
 			node_3.appendChild(node_4);
 
 			var node_5 = document.createElement('SPAN');
+			node_5.setAttribute('class', 'ref1');
 			node_4.appendChild(node_5);
 
-			var node_6 = document.createElement('A');
-			node_6.setAttribute('class', 'leaflet-control-zoom-out');
-			node_6.setAttribute('href', '#');
-			node_6.setAttribute('title', 'Zoom out');
-			node_6.setAttribute('role', 'button');
+			var node_6 = document.createElement('DIV');
+			node_6.setAttribute('class', '');
 			node_3.appendChild(node_6);
 
 			var node_7 = document.createElement('SPAN');
+			node_7.setAttribute('class', 'ref2');
 			node_6.appendChild(node_7);
 
 			var node_8 = document.createElement('DIV');
-			node_8.setAttribute('class', 'leaflet-top leaflet-right');
-			root.appendChild(node_8);
+			node_8.setAttribute('class', '');
+			node_3.appendChild(node_8);
 
-			var node_9 = document.createElement('DIV');
-			node_9.setAttribute('class', 'leaflet-routing-container leaflet-bar leaflet-control');
+			var node_9 = document.createElement('SPAN');
+			node_9.setAttribute('class', 'refX');
 			node_8.appendChild(node_9);
 
 			var node_10 = document.createElement('DIV');
-			node_10.setAttribute('class', 'leaflet-routing-geocoders ');
-			node_9.appendChild(node_10);
-			//
-
-
+			node_10.setAttribute('name', 'Waypoint');
+			node_10.setAttribute('id', 'Waypoint');
+			node_1.appendChild(node_10);
+			
+			//---------------------------------------------------
 			let waypoints = route.getWaypoints();
-			for (let i = 0; i < waypoints.length; i++) {
-				//      var lngLat0=waypoints[0].lngLat;
+				for (let i = 0; i < waypoints.length; i++) {
+						
 				var featureId = waypoints[i].featureId;
-
-
-				var waypointName = route.getWaypointName(i);
-				var node_12 = RouteControl.autoCompleteBtn(featureId, waypointName);
-				node_10.appendChild(node_12);
+					var waypointName = route.getWaypointName(i);
+							var node_11 = RouteControl.autoCompleteBtn(featureId, waypointName);
+							node_10.appendChild(node_11);
 
 			}
+	
+			
+			var node_19 = document.createElement('DIV');
+			node_19.setAttribute('name', 'footer');
+			node_19.setAttribute('class', 'd-flex justify-content-between ');
+			node_1.appendChild(node_19);
 
-			var node_19 = document.createElement('BUTTON');
-			node_19.setAttribute('class', 'leaflet-routing-add-waypoint ');
-			node_19.setAttribute('type', 'button');
-			return root;
+			var node_20 = document.createElement('DIV');
+			node_20.setAttribute('class', '');
+			node_19.appendChild(node_20);
+
+			var node_21 = document.createElement('BUTTON');
+			node_21.setAttribute('type', 'button');
+			node_21.setAttribute('class', 'btn btn-primary btn-sm');
+			node_21.setAttribute('onclick', 'RouteControl.add()');
+			
+			
+			node_20.appendChild(node_21);
+
+			var node_22 = document.createElement('SPAN');
+			node_22.setAttribute('class', 'refAdd');
+			node_21.appendChild(node_22);
+
+			var node_23 = document.createElement('DIV');
+			node_23.setAttribute('class', '');
+			node_19.appendChild(node_23);
+
+			var node_24 = document.createElement('SPAN');
+			node_24.setAttribute('class', 'refDistance');
+			node_23.appendChild(node_24);
+
+         return node_1;
 		}
+		
 
 		static autoCompleteBtn(featureId, placeholder) {
 
+			var node_11 = document.createElement('DIV');
+						node_11.setAttribute('class', 'input-group mb-1 mt-1');
+					
 
-			var root = document.createElement('DIV');
-			root.setAttribute('class', 'leaflet-routing-geocoder');
+						var node_12 = document.createElement('SPAN');
+						node_12.setAttribute('class', 'input-group-text');
+						node_12.setAttribute('style', 'display:none1');
+						node_11.appendChild(node_12);
 
+						var node_13 = document.createElement('IMG');
+						node_13.setAttribute('src', 'data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==');
+						node_13.setAttribute('alt', 'Red dot');
+						node_12.appendChild(node_13);
 
-			var div = document.createElement('DIV');
-			div.setAttribute('class', 'autocomplete');
-			div.setAttribute('style', 'width:300px;');
+						var node_14 = document.createElement('INPUT');
+						node_14.setAttribute('type', 'text');
+						node_14.setAttribute('class', 'form-control');
+						
+						node_14.setAttribute('id', "bnt" + featureId);
+						node_14.setAttribute('featureId', featureId);
+						
+						node_14.setAttribute('placeholder', placeholder);
+						
+						node_11.appendChild(node_14);
 
-			var input = document.createElement('INPUT');
-			input.setAttribute('id', "bnt" + featureId);
+						autocomplete(node_14);
+						
+						var node_15 = document.createElement('BUTTON');
+						node_15.setAttribute('type', 'button');
+						node_15.setAttribute('class', ' btn btn-primary btn-sm');
+						node_11.appendChild(node_15);
 
-			input.setAttribute('featureId', featureId);
+						var node_16 = document.createElement('IMG');
+						node_16.setAttribute('class', 'geolocation_marker');
+						node_15.appendChild(node_16);
 
-
-			input.setAttribute('type', 'text');
-			input.setAttribute('name', 'myCountry');
-			input.setAttribute('placeholder', placeholder);
-			input.setAttribute('style', 'width:90%;');
-
-
-			autocomplete(input);
-			div.appendChild(input);
-
-			var node_14 = document.createElement('SPAN');
-			//node_14.setAttribute('class', 'leaflet-routing-remove-waypoint1');
-			//node_14.innerHTML='\\00d7';
-
-			var a = document.createElement('a');
-			var linkText = document.createTextNode("x");
-			a.appendChild(linkText);
-			a.title = "remove";
-			a.href = "";
-			node_14.appendChild(a);
-
-			div.appendChild(node_14);
-
-			root.appendChild(div);
-			return root;
+						var node_17 = document.createElement('BUTTON');
+						node_17.setAttribute('type', 'button');
+						node_17.setAttribute('class', 'btn btn-primary btn-sm');
+						node_17.setAttribute('onclick', 'RouteControl.delete('+featureId+')');
+						node_11.appendChild(node_17);
+			            
+						var node_18 = document.createElement('I');
+						node_18.setAttribute('class', 'fa fa-trash');
+						node_17.appendChild(node_18);
+						
+			
+			
+			return node_11;
 		}
 	}
-
-
-
-
-	  
-	  map.addControl(new RouteControl(route));
-	  
-	  var urll='https://'+hostname+':8443/route/v1/driving/'
+	
+	 map.addControl(new RouteControl(route));
 	  
 	  //search?q=Тодор Хаджистанчев&limit=20&format=json&addressdetails=1&city=Варна&accept-language=bg-BG&limit=2
-	   // https://localhost:8443/api?&q=%D0%92%D0%B8%D0%BD%D0%B8%D1%86%D0%B0&limit=2
+      // https://localhost:8443/api?&q=%D0%92%D0%B8%D0%BD%D0%B8%D1%86%D0%B0&limit=2
 	  async function fetchMAddress(q) {
 	  	//var url='http://127.0.0.1:8181/search?q='+q+'&limit=5&format=json&addressdetails=1&city=varna&accept-language=bg-BG'
 		var url='https://'+hostname+':8443/api?&q='+q;
@@ -874,7 +995,6 @@ const route =new Route();
 
 	  	var df= await JSON.stringify(json);
 	   	log(df);
-	  	//initggg(df);
 		return df;
 	  }
 	  var res=fetchMAddress('Тодор Хаджистанчев');
@@ -888,7 +1008,6 @@ const route =new Route();
 	  	         fetch(url).then(function(response) {
 	  	           return response.json();
 	  	         }).then(function(json) {
-	  	 //          alert(json.display_name);
 	  	 var name=formatAddress(json);
 	  	         })
 	  	       }
@@ -896,7 +1015,6 @@ const route =new Route();
 
 <script name="GeoLocation">
 	var markerOverlay
-
 	
   function updateGeoMarker() {
 	var coordss = lastGeoLocationEvent.coords;
@@ -922,18 +1040,16 @@ const route =new Route();
 			if (sp >= 10) {
 				ss = '<svg width="32" height="32"  viewBox="0 0 32 32"  xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="red" stroke-width="4" fill="white"></circle><text x="16" y="20" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" font-weight="bold" text-anchor="middle" fill="black">' + sp + '</text></svg>';
 			}
-
 			//const speedctr = document.getElementById('speedctr');
 			//speedctr.innerHTML= ss;
 			/*
-						if (heading != null) {
-						   moveCompassNeedle(heading);
-						}
-	
-						if (speed != null) {
-							// update the speed
-							moveSpeed(speed);
-						}
+			if (heading != null) {
+			   moveCompassNeedle(heading);
+				}
+			if (speed != null) {
+				// update the speed
+				moveSpeed(speed);
+			}
 						*/
 		}
 		function geofailure(event) {
