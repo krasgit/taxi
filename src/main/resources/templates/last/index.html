@@ -1,747 +1,858 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
+
+<head>
+	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Open Taxi</title>
+	<title>Open Taxi</title>
 	<!-- <link rel="icon" type="image/x-icon" href="/resources/images/favicon.png">-->
 	<link rel="icon" type="image/x-icon" href="./resources/images/favicon.ico">
-	
-    <link rel="stylesheet" href="/resources/openlayers/ol-debug.css" type="text/css"   />
+
+	<link rel="stylesheet" href="/resources/openlayers/ol-debug.css" type="text/css" />
 	<!--
 	<link rel="stylesheet" href="/resources/openlayers/w3.css"    />
 				 -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-	 <script src="/resources/openlayers/ol-debug.js"           ></script>
-	 
-	 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-	  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-	 
-  </head>
-  <style>
-        html, body { height: 100%; padding: 0; margin: 0;   font-size: 12px; }
-  	    #map {width: 100%;height: 100%;}
- </style>
- <style>
- .geolocation_marker {
-  
-   color: white;
-   padding: 8px 9px;
-   text-align: center;
-   text-decoration: none;
-   display: inline-block;
-   background-size: contain;
-   background-repeat: no-repeat;
-   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABYgAAAWIBXyfQUwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAK6SURBVDiNtdXPa9NwGMfxd9KsWxhJHWx1C1h/DIa7OCaiiDt68CB4KELn8KB3ETz5D0TUQ4+exB12WEF6GHgZjIEBKaiXiTBBh1hph50wm2izLW0eD34zdhE7oQ98IAk8r3zzDTxfTUTQNE0DkqRU+gBDJQXo/KkY6ABtlUjddwABRETkIKgrIK0yAPSrGLOzsyMAi4uLWwrcVdkB9lQ66sWCAg0FZYBR4JTjONOVSqVYq9W8VqvVEFWtVqtRq9W8SqVSdBxnGjilejLKMJKvS6lVZYAxYMJ13RvNZvOTHKhW1JFW1Dn4SJrN5ifXdW8AE6o3o6wU6rMt9dYJz/MexXEciYjU/D25s/xFzj59L8aDN2I8eCNnn76XO8tfpObviYhIHMeR53mPFD6qrHSy2gHAcl33/Nzc3GNN04z5te9ce/4Rrxqw+TMiFogFNn9GvK7/4tnaFkcH+5geHdRzudyFdDr9enV19Zva/1gDbMByHCe7vr7+3Lbt8fm179x+8Zlu6tnVk9yaGsb3/Y3Jycnr9Xq9AQTJj+svl8s3bdserwcR91aqXaEA91aq1IMI27bHy+XyTbUDxj6cy+XOATysbPJjp9M1/GOnw8PKJgDK2IdTgDE0NHQa4NXXoGs0qaRHGQaQ0gGtUChkTdMcCdsx7xrhoeF3jZCwHWOa5kihUMgCmv7Prv8sHZBSqdQIw3DLNHTOZM1DI2eyJqahE4bhVqlUagCiowbK9vb2B4BLx6xDw0mPMtpAR1cXu9Vq9S3A/YtjHBlIdY0eGUhx/+IYAMrYBdr7cD6fX/B9f8Ox+iheznUNFy/ncKw+fN/fyOfzCwmczF4tCAIsy/o4MzNzbXp0UD+e6edlNWCnLX9d6ZMrJ7g1NYyItIvF4t2lpaUN4Bd/RmhvhhD0cGz2ZND37GjSenWY/ga+vttOWmiJZgAAAABJRU5ErkJggg==");
- }
+	<script src="/resources/openlayers/ol-debug.js"></script>
 
- </style>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
- <style>
- * {   box-sizing: border-box; }
- /*the container must be positioned relative:*/
+</head>
+<style>
+	html,
+	body {height: 100%;padding: 0;margin: 0;font-size: 14px;
+	}
 
-  .autocomplete {   position: relative;   display: inline-block; }
+	#map {width: 100%;height: 100%;}
+</style>
+<style>
+	.geolocation_marker {
 
- input {   border: 1px solid transparent;   background-color: #f1f1f1;   --padding: 10px;   font-size: 13px; }
- input[type=text] {   background-color: #f1f1f1;   width: 100%; }
- input[type=submit] {   background-color: DodgerBlue;   color: #fff;   cursor: pointer; }
+		color: white;
+		padding: 8px 9px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		background-size: contain;
+		background-repeat: no-repeat;
+		background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABYgAAAWIBXyfQUwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAK6SURBVDiNtdXPa9NwGMfxd9KsWxhJHWx1C1h/DIa7OCaiiDt68CB4KELn8KB3ETz5D0TUQ4+exB12WEF6GHgZjIEBKaiXiTBBh1hph50wm2izLW0eD34zdhE7oQ98IAk8r3zzDTxfTUTQNE0DkqRU+gBDJQXo/KkY6ABtlUjddwABRETkIKgrIK0yAPSrGLOzsyMAi4uLWwrcVdkB9lQ66sWCAg0FZYBR4JTjONOVSqVYq9W8VqvVEFWtVqtRq9W8SqVSdBxnGjilejLKMJKvS6lVZYAxYMJ13RvNZvOTHKhW1JFW1Dn4SJrN5ifXdW8AE6o3o6wU6rMt9dYJz/MexXEciYjU/D25s/xFzj59L8aDN2I8eCNnn76XO8tfpObviYhIHMeR53mPFD6qrHSy2gHAcl33/Nzc3GNN04z5te9ce/4Rrxqw+TMiFogFNn9GvK7/4tnaFkcH+5geHdRzudyFdDr9enV19Zva/1gDbMByHCe7vr7+3Lbt8fm179x+8Zlu6tnVk9yaGsb3/Y3Jycnr9Xq9AQTJj+svl8s3bdserwcR91aqXaEA91aq1IMI27bHy+XyTbUDxj6cy+XOATysbPJjp9M1/GOnw8PKJgDK2IdTgDE0NHQa4NXXoGs0qaRHGQaQ0gGtUChkTdMcCdsx7xrhoeF3jZCwHWOa5kihUMgCmv7Prv8sHZBSqdQIw3DLNHTOZM1DI2eyJqahE4bhVqlUagCiowbK9vb2B4BLx6xDw0mPMtpAR1cXu9Vq9S3A/YtjHBlIdY0eGUhx/+IYAMrYBdr7cD6fX/B9f8Ox+iheznUNFy/ncKw+fN/fyOfzCwmczF4tCAIsy/o4MzNzbXp0UD+e6edlNWCnLX9d6ZMrJ7g1NYyItIvF4t2lpaUN4Bd/RmhvhhD0cGz2ZND37GjSenWY/ga+vttOWmiJZgAAAABJRU5ErkJggg==");
+	}
+</style>
 
- .autocomplete-items {   position: absolute;   border: 1px solid #d4d4d4;   border-bottom: none;   border-top: none;   z-index: 99;
-   /*position the autocomplete items to be the same width as the container:*/
-   top: 100%;   left: 0;   right: 0; }
+<style>
+	* {
+		box-sizing: border-box;
+	}
 
- .autocomplete-items div {   padding: 10px;   cursor: pointer;   background-color: #fff;   border-bottom: 1px solid #d4d4d4; }
+	/*the container must be positioned relative:*/
 
- /*when hovering an item:*/
- .autocomplete-items div:hover {    background-color: #e9e9e9; }
+	.autocomplete {
+		position: relative;
+		display: inline-block;
+	}
 
- /*when navigating through the items using the arrow keys:*/
- .autocomplete-active {   background-color: DodgerBlue !important;   color: #ffffff; }
- 
- 
- 
- .ref1::before {  content: "Reference ";}
- .ref2::before {  content: "Reference1 ";}
+	input {
+		border: 1px solid transparent;
+		background-color: #f1f1f1;
+		--padding: 10px;
+		font-size: 13px;
+	}
 
- .refX::before {  content: "X ";}
+	input[type=text] {
+		background-color: #f1f1f1;
+		width: 100%;
+	}
 
- .refDistance::before {  content: "Distance 11.1 km ";}
+	input[type=submit] {
+		background-color: DodgerBlue;
+		color: #fff;
+		cursor: pointer;
+	}
 
- .refAdd::before {  content: "+";}
- 
- </style>
+	.autocomplete-items {
+		position: absolute;
+		border: 1px solid #d4d4d4;
+		border-bottom: none;
+		border-top: none;
+		z-index: 99;
+		/*position the autocomplete items to be the same width as the container:*/
+		top: 100%;
+		left: 0;
+		right: 0;
+	}
+
+	.autocomplete-items div {
+		padding: 10px;
+		cursor: pointer;
+		background-color: #fff;
+		border-bottom: 1px solid #d4d4d4;
+	}
+
+	/*when hovering an item:*/
+	.autocomplete-items div:hover {
+		background-color: #e9e9e9;
+	}
+
+	/*when navigating through the items using the arrow keys:*/
+	.autocomplete-active {
+		background-color: DodgerBlue !important;
+		color: #ffffff;
+	}
+
+	.ref1::before {
+		content: "Reference ";
+	}
+
+	.ref2::before {
+		content: "Reference1 ";
+	}
+
+	.refX::before {
+		content: "X ";
+	}
+
+	.refDistance::before {
+		content: "Distance ";
+	}
+
+	.refAdd::before {
+		content: " + ";
+	}
+</style>
 
 <script name="auto complete ">
-  const log = console.log;
-  
-  const locationOrigin=location.origin;
-  log(locationOrigin);
-  
-  
-  var url = new URL(location.origin);
-  
-  try {
-       url = new URL(location.origin);
-  } catch (error) {
-	url = new URL("https://localhost:8443");
-  }
-  
- 
-  
-  const hostname = url.hostname;
- 
-  function getLastGeoLocationEvent()
-  {
- 	return lastGeoLocationEvent;
-  }
- 
-  function getPointFromLongLat (long, lat) {
-    return ol.proj.transform([long, lat], 'EPSG:4326', 'EPSG:3857')
-  }
- 
- </script>
- <script name="auto complete ">
- 	
- 	var br=2;
- 		
-   function formatAddresss(json,autocompleteList){
-	//alert("formatAddresss");
-     var root= json.features; 
- 	const fruits = [];
- 	for (let i = 0; i < root.length; i++) {
- 	  var value=root[i];
- 	  var pr=value.properties;
-     //  if(pr.state==='Varna')
- 					fruits.push(pr.name +pr.state+" ["+pr.osm_id+"] "+value.geometry.coordinates	);	
- 		}
-   return fruits;
-   }
-   
-   function fetchMAddresscbb(inputEl,autocompleteList) {
- 	var q = inputEl.value;	
- 	var url='https://'+hostname+':8443/api?q=Varna '+q;
- 	log("fetchMAddresscbb url"+url)
- 	fetch(url)
- 	  .then(function(response) {
- 	    return response.json();
- 	  })
- 	  .then(function(json) {
-		log(json);
- 		 newinitItem(autocompleteList,json,inputEl);
-        })
-   } 
-   
-   function newinitItem(autocompleteList,json,inputEl){
+	const log = console.log;
 
-        var root= json.features; 
- 
-       for (i = 0; i < root.length; i++) {
-		var value=root[i];
-		var pr=value.properties;
+	const locationOrigin = location.origin;
+	log(locationOrigin);
+
+
+	var url = new URL(location.origin);
+
+	try {
+		url = new URL(location.origin);
+	} catch (error) {
+		url = new URL("https://localhost:8443");
+	}
+
+
+
+	const hostname = url.hostname;
+
+	function getLastGeoLocationEvent() {
+		return lastGeoLocationEvent;
+	}
+
+	function getPointFromLongLat(long, lat) {
+		return ol.proj.transform([long, lat], 'EPSG:4326', 'EPSG:3857')
+	}
+
+</script>
+<script name="auto complete ">
+
+	var br = 2;
+
+	function formatAddresss(json, autocompleteList) {
+		//alert("formatAddresss");
+		var root = json.features;
+		const fruits = [];
+		for (let i = 0; i < root.length; i++) {
+			var value = root[i];
+			var pr = value.properties;
+			//  if(pr.state==='Varna')
+			fruits.push(pr.name + pr.state + " [" + pr.osm_id + "] " + value.geometry.coordinates);
+		}
+		return fruits;
+	}
+
+	function fetchMAddresscbb(inputEl, autocompleteList) {
+		var q = inputEl.value;
+		var url = 'https://' + hostname + ':8443/api?q=Varna ' + q;
+		log("fetchMAddresscbb url" + url)
+		fetch(url)
+			.then(function (response) {
+				return response.json();
+			})
+			.then(function (json) {
+				log(json);
+				newinitItem(autocompleteList, json, inputEl);
+			})
+	}
+
+	function newinitItem(autocompleteList, json, inputEl) {
+
+		var root = json.features;
+
+		for (i = 0; i < root.length; i++) {
+			var value = root[i];
+			var pr = value.properties;
+
+			var disp = pr.name + pr.state;
+
+			b = document.createElement("DIV");
+			b.innerHTML = "<strong>" + disp.substr(0, inputEl.value.length) + "</strong>";
+			b.innerHTML += disp.substr(inputEl.value.length);
+			b.innerHTML += "<input type='hidden' value='" + disp + "'   valueId='" + i + "'>";
+			b.addEventListener("click", function (e) {
+
+				var selectesItem = this.getElementsByTagName("input")[0];
+				var featureId = inputEl.getAttribute("featureId");
+				var valueId = selectesItem.getAttribute("valueId");
+				var ff = root[valueId];//var valueId=selectesItem.getAttribute("valueId");
+				//var ff= selectesItem.value;
+
+				var pr = ff.properties;
+				var coordinates = ff.geometry.coordinates;
+				var value = pr.name;
+				RouteControl.updateFeature(featureId, coordinates, value);
+
+
+				/*
+				var selectesItem=this.getElementsByTagName("input")[0];
+				
+				var valueId=selectesItem.getAttribute("valueId");
+				var ff=root[valueId];
+				
+				var lngLat=ff.geometry.coordinates;
+				
+				inputEl.value = selectesItem.value;
+				
+				var featureId=inputEl.getAttribute("featureId");
+				var feature = vectorSource.getFeatureById(featureId);
+				var coord = getPointFromLongLat(lngLat[0], lngLat[1]);
+	
+				feature.getGeometry().setCoordinates(coord);
+				route.updateWaypointByfeatureId(featureId,lngLat);
+				route.createRoute();
+				*/
+				var x = document.getElementsByClassName("autocomplete-items");
+				for (var i = 0; i < x.length; i++) {
+					//if (elmnt != x[i] && elmnt != inp) 
+					{
+						x[i].parentNode.removeChild(x[i]);
+					}
+				}
+
+			});
+			autocompleteList.appendChild(b);
+		}
+	}
+
+
+	function autocomplete(inp) {
+		var currentFocus;
+		inp.addEventListener("input", function (e) {
+			var a, b, i, val = this.value;
+			/*close any already open lists of autocompleted values*/
+			closeAllLists();
+			if (!val) {return false;}
+			currentFocus = -1;
+
+			autocompleteList = document.createElement("DIV");
+			autocompleteList.setAttribute("id", this.id + "autocomplete-list");
+			autocompleteList.setAttribute("class", "autocomplete-items");
+			/*append the DIV element as a child of the autocomplete container:*/
+			this.parentNode.appendChild(autocompleteList);
+
+			fetchMAddresscbb(inp, autocompleteList);
+		});
+		inp.addEventListener("focus", function (e) {
+			var a, b, i, val = this.value;
+			/*close any already open lists of autocompleted values*/
+			closeAllLists();
+
+			currentFocus = -1;
+
+			autocompleteList = document.createElement("DIV");
+			autocompleteList.setAttribute("id", this.id + "autocomplete-list");
+			autocompleteList.setAttribute("class", "autocomplete-items");
+			/*append the DIV element as a child of the autocomplete container:*/
+			this.parentNode.appendChild(autocompleteList);
+			var vall = "Current Location";
+
+			b = document.createElement("DIV");
+
+			b.innerHTML += vall;
+			b.innerHTML += "<input type='hidden' value='" + vall + "'>";
+			b.addEventListener("click", function (e) {
+
+				var featureId = inp.getAttribute("featureId");
+
+				var coordsss = getLastGeoLocationEvent()
+				const coordss = coordsss.coords;
+				//	var coordinates = getPointFromLongLat(coordss.longitude, coordss.latitude);
+				var coordinates = [coordss.longitude, coordss.latitude];
+				RouteControl.updateFeature(featureId, coordinates, "");
+				/*
+			let waypoints=route.getWaypoints();
+			var featureId=inp.getAttribute("featureId");
 		
-		var disp=pr.name +pr.state;
-		
-         b = document.createElement("DIV");
-         b.innerHTML = "<strong>" + disp.substr(0, inputEl.value.length) + "</strong>";
-         b.innerHTML += disp.substr(inputEl.value.length);
-         b.innerHTML += "<input type='hidden' value='" + disp + "'   valueId='"+i+"'>";
-         b.addEventListener("click", function(e) {
-			
-			var selectesItem=this.getElementsByTagName("input")[0];
-			var featureId=inputEl.getAttribute("featureId");
-			var valueId=selectesItem.getAttribute("valueId");
-			var ff=root[valueId];//var valueId=selectesItem.getAttribute("valueId");
-			//var ff= selectesItem.value;
-			
-			
-			RouteControl.updateFeature(featureId,ff);
-			
-			
-			/*
-			var selectesItem=this.getElementsByTagName("input")[0];
-			
-			var valueId=selectesItem.getAttribute("valueId");
-			var ff=root[valueId];
-			
-			var lngLat=ff.geometry.coordinates;
-			
-			inputEl.value = selectesItem.value;
-			
-			var featureId=inputEl.getAttribute("featureId");
 			var feature = vectorSource.getFeatureById(featureId);
-			var coord = getPointFromLongLat(lngLat[0], lngLat[1]);
-
-			feature.getGeometry().setCoordinates(coord);
-			route.updateWaypointByfeatureId(featureId,lngLat);
-			route.createRoute();
-			*/
-   	var x = document.getElementsByClassName("autocomplete-items");
-   	    for (var i = 0; i < x.length; i++) {
-   	      //if (elmnt != x[i] && elmnt != inp) 
-   		  {
-   	        x[i].parentNode.removeChild(x[i]);
-   	      }
-   	    }
-   	
-   	    });
-   	autocompleteList.appendChild(b);
-   	}
-     }	
-   
- 	
-   function autocomplete(inp) {
-     var currentFocus;
- 	inp.addEventListener("input", function(e) {
-     	 var a, b, i, val = this.value;
-       /*close any already open lists of autocompleted values*/
-       closeAllLists();
-       if (!val) { return false;}
-       currentFocus = -1;
- 	  
-       autocompleteList = document.createElement("DIV");
-       autocompleteList.setAttribute("id", this.id + "autocomplete-list");
-       autocompleteList.setAttribute("class", "autocomplete-items");
-       /*append the DIV element as a child of the autocomplete container:*/
-       this.parentNode.appendChild(autocompleteList);
- 	  
- 	  fetchMAddresscbb(inp,autocompleteList);
-   });
-   inp.addEventListener("focus", function(e) {
-	var a, b, i, val = this.value;
-	 /*close any already open lists of autocompleted values*/
-	 closeAllLists();
-	 
-	 currentFocus = -1;
-	 
-	 autocompleteList = document.createElement("DIV");
-	 autocompleteList.setAttribute("id", this.id + "autocomplete-list");
-	 autocompleteList.setAttribute("class", "autocomplete-items");
-	 /*append the DIV element as a child of the autocomplete container:*/
-	 this.parentNode.appendChild(autocompleteList);
-	var  vall="Current Location";
-	 
-	 b = document.createElement("DIV");
-	    
-	    b.innerHTML += vall;
-	    b.innerHTML += "<input type='hidden' value='" + vall + "'>";
-	    b.addEventListener("click", function(e) {
-			
-		let waypoints=route.getWaypoints();
-		var featureId=inp.getAttribute("featureId");
+			var coordsss =getLastGeoLocationEvent()
+			const coordss = coordsss.coords;
+			var lngLat=[coordss.longitude, coordss.latitude];
+				
+			var coord = getPointFromLongLat(coordss.longitude, coordss.latitude);
 	
-		var feature = vectorSource.getFeatureById(featureId);
-		var coordsss =getLastGeoLocationEvent()
-		const coordss = coordsss.coords;
-		var lngLat=[coordss.longitude, coordss.latitude];
-			
-		var coord = getPointFromLongLat(coordss.longitude, coordss.latitude);
+				feature.getGeometry().setCoordinates(coord);
+				route.updateWaypointByfeatureId(featureId,lngLat);
+				route.createRoute();
+				*/
+				var x = document.getElementsByClassName("autocomplete-items");
+				for (var i = 0; i < x.length; i++) {
+					//if (elmnt != x[i] && elmnt != inp) 
+					{
+						x[i].parentNode.removeChild(x[i]);
+					}
+				}
 
-			feature.getGeometry().setCoordinates(coord);
-			route.updateWaypointByfeatureId(featureId,lngLat);
-			route.createRoute();
-	 	var x = document.getElementsByClassName("autocomplete-items");
-	 	    for (var i = 0; i < x.length; i++) {
-	 	      //if (elmnt != x[i] && elmnt != inp) 
-	 		  {
-	 	        x[i].parentNode.removeChild(x[i]);
-	 	      }
-	 	    }
-	 	
-	     });
-	 autocompleteList.appendChild(b);
-	});
-   
-   /*execute a function presses a key on the keyboard:*/
-   inp.addEventListener("keydown", function(e) {
-       var x = document.getElementById(this.id + "autocomplete-list");
-       if (x) x = x.getElementsByTagName("div");
-       if (e.keyCode == 40) {
-         currentFocus++;
-         addActive(x);
-       } else if (e.keyCode == 38) { //up
-         currentFocus--;
-         addActive(x);
-       } else if (e.keyCode == 13) {
-         e.preventDefault();
-         if (currentFocus > -1) {
-           if (x) x[currentFocus].click();
-         }
-       }
-   });
-   function addActive(x) {
-     if (!x) return false;
-     removeActive(x);
-     if (currentFocus >= x.length) currentFocus = 0;
-     if (currentFocus < 0) currentFocus = (x.length - 1);
-     x[currentFocus].classList.add("autocomplete-active");
-   }
-   function removeActive(x) {
-     for (var i = 0; i < x.length; i++) {
-       x[i].classList.remove("autocomplete-active");
-     }
-   }
-   function closeAllLists(elmnt) {
-     var x = document.getElementsByClassName("autocomplete-items");
-     for (var i = 0; i < x.length; i++) {
-       if (elmnt != x[i] && elmnt != inp) {
-         x[i].parentNode.removeChild(x[i]);
-       }
-     }
-   }
-   document.addEventListener("click", function (e) {
-       closeAllLists(e.target);
-     });
-   }
+			});
+			autocompleteList.appendChild(b);
+		});
 
- </script>
-  <div id="map" class="map"></div>
-  
+		/*execute a function presses a key on the keyboard:*/
+		inp.addEventListener("keydown", function (e) {
+			var x = document.getElementById(this.id + "autocomplete-list");
+			if (x) x = x.getElementsByTagName("div");
+			if (e.keyCode == 40) {
+				currentFocus++;
+				addActive(x);
+			} else if (e.keyCode == 38) { //up
+				currentFocus--;
+				addActive(x);
+			} else if (e.keyCode == 13) {
+				e.preventDefault();
+				if (currentFocus > -1) {
+					if (x) x[currentFocus].click();
+				}
+			}
+		});
+		function addActive(x) {
+			if (!x) return false;
+			removeActive(x);
+			if (currentFocus >= x.length) currentFocus = 0;
+			if (currentFocus < 0) currentFocus = (x.length - 1);
+			x[currentFocus].classList.add("autocomplete-active");
+		}
+		function removeActive(x) {
+			for (var i = 0; i < x.length; i++) {
+				x[i].classList.remove("autocomplete-active");
+			}
+		}
+		function closeAllLists(elmnt) {
+			var x = document.getElementsByClassName("autocomplete-items");
+			for (var i = 0; i < x.length; i++) {
+				if (elmnt != x[i] && elmnt != inp) {
+					x[i].parentNode.removeChild(x[i]);
+				}
+			}
+		}
+		document.addEventListener("click", function (e) {
+			closeAllLists(e.target);
+		});
+	}
+
+</script>
+<div id="map" class="map"></div>
+
 <script>
-  const source=	new ol.source.XYZ({   url: 'https://'+hostname+':8443/tile/{z}/{x}/{y}.png'       });
-  const tileLayer = new  ol.layer.Tile({        source: source});
-  
-  const vectorSource = new ol.source.Vector();
-  const vectorLayer = new ol.layer.Vector({  source: vectorSource})
-  
-  const view =  new ol.View({ center: ol.proj.fromLonLat([27.953315566702816,43.3520584446037]),      zoom: 10   })
-  
-  var map = new ol.Map({
-	    layers: [tileLayer    ,vectorLayer   ],
-        controls: ol.control.defaults({         attributionOptions:  {           collapsed: true         }
-        }).extend([new ol.control.ScaleLine()]),
-        target: 'map',
-        view: view,
-      });
-	  
-	  
-var app = {};
-	     /**@constructor  @extends {module:ol/interaction/Pointer}  */
-	     app.Drag = function() {
+	const source = new ol.source.XYZ({url: 'https://' + hostname + ':8443/tile/{z}/{x}/{y}.png'});
+	const tileLayer = new ol.layer.Tile({source: source});
 
-	       ol.interaction.Pointer.call(this, {
-	         handleDownEvent: app.Drag.prototype.handleDownEvent,
-	         handleDragEvent: app.Drag.prototype.handleDragEvent,
-	         handleMoveEvent: app.Drag.prototype.handleMoveEvent,
-	         handleUpEvent: app.Drag.prototype.handleUpEvent
-	       });
+	const vectorSource = new ol.source.Vector();
+	const vectorLayer = new ol.layer.Vector({source: vectorSource})
 
-	       /** @type {module:ol/pixel~Pixel}* @private */
-	       this.coordinate_ = null;
+	const view = new ol.View({center: ol.proj.fromLonLat([27.953315566702816, 43.3520584446037]), zoom: 10})
 
-	       /**
-	        * @type {string|undefined}
-	        * @private
-	        */
-	       this.cursor_ = 'pointer';
-
-	       /**
-	        * @type {module:ol/Feature~Feature}
-	        * @private
-	        */
-	       this.feature_ = null;
-
-	       /** @type {string|undefined} @private*/
-	       this.previousCursor_ = undefined;
-
-	     };
-	    // inherits(app.Drag, PointerInteraction);
-		 ol.inherits(app.Drag, ol.interaction.Pointer);
-
-	     /**
-	      * @param {module:ol/MapBrowserEvent~MapBrowserEvent} evt Map browser event.
-	      * @return {boolean} `true` to start the drag sequence.
-	      */
-	     app.Drag.prototype.handleDownEvent = function(evt) {
-	       var map = evt.map;
-
-	       var feature = map.forEachFeatureAtPixel(evt.pixel,
-	         function(feature) {
-	           return feature;
-	         });
-
-	       if (feature) {
-	         this.coordinate_ = evt.coordinate;
-	         this.feature_ = feature;
-	       }
-
-	       return !!feature;
-	     };
-
-	     /**
-	      * @param {module:ol/MapBrowserEvent~MapBrowserEvent} evt Map browser event.
-	      */
-	     app.Drag.prototype.handleDragEvent = function(evt) {
-	       var deltaX = evt.coordinate[0] - this.coordinate_[0];
-	       var deltaY = evt.coordinate[1] - this.coordinate_[1];
-
-	       var geometry = this.feature_.getGeometry();
-	       geometry.translate(deltaX, deltaY);
-		   
-	       this.coordinate_[0] = evt.coordinate[0];
-	       this.coordinate_[1] = evt.coordinate[1];
-		   
-		   route.updateWaypoint(this.feature_,evt);
-	     };
-
-		 /** @param {module:ol/MapBrowserEvent~MapBrowserEvent} evt Event.  */
-	     app.Drag.prototype.handleMoveEvent = function(evt) {
-	       if (this.cursor_) {
-	         var map = evt.map;
-	         var feature = map.forEachFeatureAtPixel(evt.pixel,
-	           function(feature) {
-	             return feature;
-	           });
-	         var element = evt.map.getTargetElement();
-	         if (feature) {
-	           if (element.style.cursor != this.cursor_) {
-	             this.previousCursor_ = element.style.cursor;
-	             element.style.cursor = this.cursor_;
-	           }
-			   
-			   //feature.getGeometry().setCoordinates(evt.coordinate);
-	         } else if (this.previousCursor_ !== undefined) {
-	           element.style.cursor = this.previousCursor_;
-	           this.previousCursor_ = undefined;
-	         }
-	       }
-	     };
-
-	     /**  @return {boolean} `false` to stop the drag sequence.    */
-	     app.Drag.prototype.handleUpEvent = function() {
-	       this.coordinate_ = null;
-	       this.feature_ = null;
-		   route.createRoute();
-	       return false;
-	     };
-
-//-----------------------------------------------------------------------------		 
-		 var utils = {
-		   createFeature: function(coord) {
-		 	g=new ol.geom.Point(ol.proj.fromLonLat(coord));
-		     var feature = new ol.Feature({type: 'place',   geometry:  g });
-		     feature.setStyle(routeStyle);
-		     vectorSource.addFeature(feature);
-		 	var translate1 = new app.Drag({
-		 		features: new ol.Collection([feature])
-		 	});
-		 	map.addInteraction(translate1);
-		   },
-		   createRoute: function(polyline) {
-		     // route is ol.geom.LineString
-		     var route = new ol.format.Polyline({  factor: 1e5
-		     }).readGeometry(polyline, {
-		       dataProjection: 'EPSG:4326',
-		       featureProjection: 'EPSG:3857'
-		     });
-		 	
-		 	var routeFeature = vectorSource.getFeatureById('routeFeature');
-		 	if(routeFeature)
-		 		  vectorSource.removeFeature(routeFeature);
-		 	
-		     var feature = new ol.Feature({ type: 'route',   geometry: route  });
-		 	feature.setId('routeFeature')
-		     feature.setStyle(routeStyle);
-		     vectorSource.addFeature(feature);
-		//	 map.render();
-		 	return feature;
-		   },
-		   to4326: function(coord) {
-		     return ol.proj.transform([
-		       parseFloat(coord[0]), parseFloat(coord[1])
-		     ], 'EPSG:3857', 'EPSG:4326');
-		   }
-		 };
-		 var coord1 = [-5707673.76, -3499420.81];
-		 var marker1 = new ol.geom.Point(coord1);
-		 var featureMarker1 = new ol.Feature(marker1);
-
-		 	  
-		 	    map.on('click', function(e) {
-		         var coordinate = ol.proj.toLonLat(e.coordinate).map(function(val) {
-		           return val.toFixed(6);
-		         });
-		         var lon = coordinate[0];
-		         var lat = coordinate[1];
-		         simpleReverseGeocoding(lon, lat);
-		       });
-
-		 
-//-----------------------------------------------------------------------------
-var markerImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAApCAYAAADAk4LOAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAUlSURBVFjDrZdLiBxVFIb/e289uqt6kkx6zIiIoKgLRReKuMhCcaOIAUEIiCCE4CIPggZ8kBjooPgM0TiYEUUjqBGchZqAQlyYRTA+kJiJQiJGMjN5zYzT3dP1rrr3HBeTjDGTSfc8Dvyruud89Z9z6kIJdBj31763MivsJXKuZYF6dak5++2mh7NOcsXVHq6sHbhOK/24kOJJMO4AE1vKygwZhxlKSHGKiD+RSu09vOXB43OCrHz96y6T2lsh+OmKXzFdlbLne2UopSAupBhjECcZgjDMgiiSxPhcK/nCr1sfOtcWcm/tq9uEsL4rl0vdK67pKVu2jUwTMk0wBBAzpBCQAnAtiZIlwWQwPlHPglZQAFj1Y23VwVkh92zbd59U+Kanp+p2L12mooKQ5AbcpuclS6LiKoRhxOfHzhXMcs3PtVV7Z0DufXH/LSzpSG9vr1/p6kIz0dDUrvx/IYXAsrJCkWc4e/Z0Zpgf+KX26A/TkNtrXziesY9Xq8tvWNZdVfVYg7hzwKVv3O3ZiKMWj46OTrq5fdOh1x5pSADwjdzo2nbv0u6qqkca2jCIMGcZAuqRhu8vEX7ZK2V2WgMAcXdtvyeKbPS662+osCohzMycHVweniNREoShoZO5KYobpciSh23bFq7rIUgNiLFghRkBlg2v7GlpiccsCHrcryzxUk3zmsNskeYGvt/lxVH4hMWEu9xSWaQFYQ7L1B6iGZ5bBoy+zWKiHiltFHpqeIsVhWaosg1iqlgg4wAAEYEXsV3EmNppJmExMFYUxfVSuIs6E0sI5FkBBhLJzH9laQxLSjBj0WQJgSJPweDTkknvS4JGbCuxKOt7UY4lEQfNnAu9TzLxN2nUdAQTLAEw8YIlAVgAkmDCSBL75eCutSeY+GTUqqNkqUVxUbIl4qgJo4vWzecrhyQAMJldYf1MXLLl1EIsYBZgoGwpRI2zMTPtGBhYbSQAlJF9lieRzNMIriVBzPOWawvoIkYaNC0u9IcAIAHgp75NLQl8ENbPZJ6jgAU48RyFqHEuZyE+Pda/vjENAQBD5s209Y+kPJlyM4+r3lUS0AWSyVEhpHnjYu1pyO+7N4ywwPvhxHDiuwo8j1b5rkQwMZIziYHBXetPzIAAgIV8exZOSMoieI6aU5vKtgR0jqw1JtiYbZfW/R/kSN+mcWbxdtwYjn1XTd9B7cQAfNdCWB/OhBR7jvWv/3tWCAAoO3ktjyZZJ0HHbsq2AooERVQXzPKly2vOgPz29jNNBr+e1IcSz5YAM4hmFzPDtyWS+lDK4N2DfU+dbgsBAFHyd+oszE3agt/GjWcrUBEjj5sQBb96pXpXhAzueDJi4u1p41TsuQpCiFln4bkKeXMoJeadg++tG+sYAgBBXOo3RRrruAnfkWDmGfIdCeQhiiQgQbxjtlqzQk59vCZlNluL5lDiORLyMjcA4DsKeXM4AfDKxa97ThAAqPaMfaR1Nq6jOiqOAhOm5TsKJg1QZGGRedY7V6tzVcjBWk1D0JZ8cigt2RJSimkXnqOgW8MxQLUTb6wN5g0BgGPV0c9BekTH41xx5YXrQ8FkTRgdpxU7ea9djbYQ1GokmJ43wUhWtgRcS04tQjAcw9CWw29tThYOAXD03XVfMps/TTTOy30blDZgiqxFK6p7OsnvCDJ1UD9LyUjORoPDkUQyPfdHbXW+qJCjfRsOwOAoNY4z6Xz01rHq3k5zO4ZMHTabYSIhJD87MLB64f8Ys8WdG/tfBljMJedfwY+s/2P4Pv8AAAAASUVORK5CYII="
-
-
-function getFeatureStyle(text )
-{
-	var defaultStyle = new ol.style.Style({
-	  image: new ol.style.Icon({   anchor: [12, 41],  anchorXUnits: 'pixels',   anchorYUnits: 'pixels',    src: markerImage    })	,
-		text: new ol.style.Text({    offsetY: -24,offsetX: 0,     text: text,   placement: 'point',        textAlign: 'center',     fill: new ol.style.Fill({color: 'rgb(255, 255, 255)'}),
-		    //        backgroundFill: new ol.style.Fill({color: 'black'}),
-		            padding: [3, 5, 3, 5]
-		        })
+	var map = new ol.Map({
+		layers: [tileLayer, vectorLayer],
+		controls: ol.control.defaults({
+			attributionOptions: {collapsed: true}
+		}).extend([new ol.control.ScaleLine()]),
+		target: 'map',
+		view: view,
 	});
-	return defaultStyle;
-}
-
-var defaultStyle = new ol.style.Style({
-  image: new ol.style.Icon({   anchor: [12, 41],  anchorXUnits: 'pixels',   anchorYUnits: 'pixels',    src: markerImage    })	,
-	text: new ol.style.Text({    offsetY: -24,offsetX: 0,     text: 'A',   placement: 'point',        textAlign: 'center',     fill: new ol.style.Fill({color: 'rgb(255, 255, 255)'}),
-	    //        backgroundFill: new ol.style.Fill({color: 'black'}),
-	            padding: [3, 5, 3, 5]
-	        })
-});
 
 
+	var app = {};
+	/**@constructor  @extends {module:ol/interaction/Pointer}  */
+	app.Drag = function () {
+
+		ol.interaction.Pointer.call(this, {
+			handleDownEvent: app.Drag.prototype.handleDownEvent,
+			handleDragEvent: app.Drag.prototype.handleDragEvent,
+			handleMoveEvent: app.Drag.prototype.handleMoveEvent,
+			handleUpEvent: app.Drag.prototype.handleUpEvent
+		});
+
+		/** @type {module:ol/pixel~Pixel}* @private */
+		this.coordinate_ = null;
+
+		/**
+		 * @type {string|undefined}
+		 * @private
+		 */
+		this.cursor_ = 'pointer';
+
+		/**
+		 * @type {module:ol/Feature~Feature}
+		 * @private
+		 */
+		this.feature_ = null;
+
+		/** @type {string|undefined} @private*/
+		this.previousCursor_ = undefined;
+
+	};
+	// inherits(app.Drag, PointerInteraction);
+	ol.inherits(app.Drag, ol.interaction.Pointer);
+
+	/**
+	 * @param {module:ol/MapBrowserEvent~MapBrowserEvent} evt Map browser event.
+	 * @return {boolean} `true` to start the drag sequence.
+	 */
+	app.Drag.prototype.handleDownEvent = function (evt) {
+		var map = evt.map;
+
+		var feature = map.forEachFeatureAtPixel(evt.pixel,
+			function (feature) {
+				return feature;
+			});
+
+		if (feature) {
+			this.coordinate_ = evt.coordinate;
+			this.feature_ = feature;
+		}
+
+		return !!feature;
+	};
+
+	/**
+	 * @param {module:ol/MapBrowserEvent~MapBrowserEvent} evt Map browser event.
+	 */
+	app.Drag.prototype.handleDragEvent = function (evt) {
+		var deltaX = evt.coordinate[0] - this.coordinate_[0];
+		var deltaY = evt.coordinate[1] - this.coordinate_[1];
+
+		var geometry = this.feature_.getGeometry();
+		geometry.translate(deltaX, deltaY);
+
+		this.coordinate_[0] = evt.coordinate[0];
+		this.coordinate_[1] = evt.coordinate[1];
+
+		var featureId = this.feature_.getId();
+		var bntEl = document.getElementById("bnt" + featureId);
+
+		var geometry = this.feature_.getGeometry().clone().transform(map.getView().getProjection(), 'EPSG:4326');
+		var coordinates = geometry.flatCoordinates;
 
 
+		reverseGeocoding(coordinates[0], coordinates[1], bntEl, callbackSetInputElVal)
 
-var routeStyle = new ol.style.Style({ stroke: new ol.style.Stroke({    width: 3,    color: [40, 40, 40, 0.8],   }),   });
+	};
 
+	/** @param {module:ol/MapBrowserEvent~MapBrowserEvent} evt Event.  */
+	app.Drag.prototype.handleMoveEvent = function (evt) {
+		if (this.cursor_) {
+			var map = evt.map;
+			var feature = map.forEachFeatureAtPixel(evt.pixel,
+				function (feature) {
+					return feature;
+				});
+			var element = evt.map.getTargetElement();
+			if (feature) {
+				if (element.style.cursor != this.cursor_) {
+					this.previousCursor_ = element.style.cursor;
+					element.style.cursor = this.cursor_;
+				}
 
-//"address":{"road":"Тодор Хаджистанчев","neighbourhood":"Дълбокото дере","suburb":"кв. Виница","city":"Варна","county":"Приморски","state_district":"Варна","state":"Варна","ISO3166-2-lvl4":"BG-03","postcode":"9022","country":"България","country_code":"bg"}
-
-//building: "Бл.209" city: "Варна" ​​country: "България"​​country_code: "bg" county: "Владислав Варненчик"house_number: "бл. 209"​​postcode: "9023"​​state: "Варна" state_district: "Варна"​​suburb: "кв. Кайсиева градина"
-//Бл.209, бл. 209, кв. Кайсиева градина, Варна, Владислав Варненчик, Варна, 9023, България"
-
-
-//TODO
-function formatAddress(json)
-{
-	
-	return json.display_name;
-	var address=json.address;
-	var ret='';
-	if(!(address.road===undefined))
-	  ret+=address.road+', ';  
-	
-	if(!(address.neighbourhood===undefined))
-	   ret+=+address.neighbourhood+', ';
-	
-	if(!(address.suburb===undefined)) 
-	   ret+=+address.suburb	;	
-	return ret;
-}
-
-function simpleReverseGeocoding(lon, lat) {
-	
-	var url='https://'+hostname+':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
-	log("ReverseGeocoding "+url)
-        fetch(url).then(function(response) {
-          return response.json();
-        }).then(function(json) {
-//          alert(json.display_name);
-console.log(json.display_name);
-        })
-      }
- 
-
-function simpleReverseGeocodingByWaypoint(waypoint) {
-	
-	var lngLat=waypoint.lngLat;
-	 var lon=lngLat[0];
-	 var lat=lngLat[1];
-	 var url='https://'+hostname+':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
-	 
-	 log("simpleReverseGeocodingByWaypoint"+ url);
-	         fetch(url).then(function(response) {
-	           return response.json();
-	         }).then(function(json) {
-	 waypoint.name=formatAddress(json);
-	 const targetId="bnt"+waypoint.featureId;
-	 	const el = document.getElementById(targetId);
-	 	  el.value=waypoint.name+'('+lon.toFixed(6) +';'+lat.toFixed(6)+')';
-	 
-	         })
-	       }
-//-----------------------------------------------------------------------------
-  class Waypoint {
-    constructor (lngLat, name, options) {
-      this.lngLat = lngLat;
-      this.name = name;
-      this.options = options;
-	  this.featureId ='';
-    }
-
-    update(lngLat){
-	  this.lngLat = lngLat;
-	  simpleReverseGeocodingByWaypoint(this);
-      }
-  }
-//-----------------------------------------------------------------------------
-  class Route {
-	waypoints = [];
-	url='https://'+(new URL(location.origin).hostname)+':8443/route/v1/driving/';
-		 
-    constructor (waypoint) {
-	  if(waypoint !== undefined)
-		this.waypoints=waypoint;
-	  }
-
-    getWaypoints()
-	  {
-		return this.waypoints;
-	  }
-	  
-    reset(){
-	    this.waypoints = []; 
-    }  
-
-	updateWaypointByfeatureId(featureId,lngLat){
-	//	var ff=[27.9797311,43.2388141];
-		for (let i = 0; i < this.waypoints.length; i++) {
-			var val=this.waypoints[i];
-			if(val.featureId==featureId){
-				val.update(lngLat);
+				//feature.getGeometry().setCoordinates(evt.coordinate);
+			} else if (this.previousCursor_ !== undefined) {
+				element.style.cursor = this.previousCursor_;
+				this.previousCursor_ = undefined;
 			}
-			}
+		}
+	};
+
+	/**  @return {boolean} `false` to stop the drag sequence.    */
+	app.Drag.prototype.handleUpEvent = function () {
+		this.coordinate_ = null;
+		this.feature_ = null;
+		RouteControl.refresh()
+		return false;
+	};
+
+	//-----------------------------------------------------------------------------		 
+	var utils = {
+
+		getWaypointName(index,length) {
+				//				var l = new Localization(geocoderElement.options.language).localize('ui');
+				return index === 0 ?
+					'Start' :
+					(index < length - 1 ?
+						'Via ' + index :
+						'End');
+			},
 			
+		
+		elementChildren: function (element) {
+			var childNodes = element.childNodes,
+				children = [],
+				i = childNodes.length;
+
+			while (i--) {
+				if (childNodes[i].nodeType == 1) {
+					children.unshift(childNodes[i]);
+				}
+			}
+
+			return children;
+		},
+
+
+
+		createFeature: function (coord) {
+			g = new ol.geom.Point(ol.proj.fromLonLat(coord));
+			var feature = new ol.Feature({type: 'place', geometry: g});
+			feature.setStyle(routeStyle);
+			vectorSource.addFeature(feature);
+			var translate1 = new app.Drag({
+				features: new ol.Collection([feature])
+			});
+			map.addInteraction(translate1);
+		},
+		createRoute: function (polyline) {
+			// route is ol.geom.LineString
+			var route = new ol.format.Polyline({
+				factor: 1e5
+			}).readGeometry(polyline, {
+				dataProjection: 'EPSG:4326',
+				featureProjection: 'EPSG:3857'
+			});
+
+			var routeFeature = vectorSource.getFeatureById('routeFeature');
+			if (routeFeature)
+				vectorSource.removeFeature(routeFeature);
+
+			var feature = new ol.Feature({type: 'route', geometry: route});
+			feature.setId('routeFeature')
+			feature.setStyle(routeStyle);
+			vectorSource.addFeature(feature);
+			//	 map.render();
+			return feature;
+		},
+		to4326: function (coord) {
+			return ol.proj.transform([
+				parseFloat(coord[0]), parseFloat(coord[1])
+			], 'EPSG:3857', 'EPSG:4326');
+		}
+	};
+	var coord1 = [-5707673.76, -3499420.81];
+	var marker1 = new ol.geom.Point(coord1);
+	var featureMarker1 = new ol.Feature(marker1);
+
+
+	map.on('click', function (e) {
+		var coordinate = ol.proj.toLonLat(e.coordinate).map(function (val) {
+			return val.toFixed(6);
+		});
+		var lon = coordinate[0];
+		var lat = coordinate[1];
+		simpleReverseGeocoding(lon, lat);
+	});
+
+
+	//-----------------------------------------------------------------------------
+	var markerImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAApCAYAAADAk4LOAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAUlSURBVFjDrZdLiBxVFIb/e289uqt6kkx6zIiIoKgLRReKuMhCcaOIAUEIiCCE4CIPggZ8kBjooPgM0TiYEUUjqBGchZqAQlyYRTA+kJiJQiJGMjN5zYzT3dP1rrr3HBeTjDGTSfc8Dvyruud89Z9z6kIJdBj31763MivsJXKuZYF6dak5++2mh7NOcsXVHq6sHbhOK/24kOJJMO4AE1vKygwZhxlKSHGKiD+RSu09vOXB43OCrHz96y6T2lsh+OmKXzFdlbLne2UopSAupBhjECcZgjDMgiiSxPhcK/nCr1sfOtcWcm/tq9uEsL4rl0vdK67pKVu2jUwTMk0wBBAzpBCQAnAtiZIlwWQwPlHPglZQAFj1Y23VwVkh92zbd59U+Kanp+p2L12mooKQ5AbcpuclS6LiKoRhxOfHzhXMcs3PtVV7Z0DufXH/LSzpSG9vr1/p6kIz0dDUrvx/IYXAsrJCkWc4e/Z0Zpgf+KX26A/TkNtrXziesY9Xq8tvWNZdVfVYg7hzwKVv3O3ZiKMWj46OTrq5fdOh1x5pSADwjdzo2nbv0u6qqkca2jCIMGcZAuqRhu8vEX7ZK2V2WgMAcXdtvyeKbPS662+osCohzMycHVweniNREoShoZO5KYobpciSh23bFq7rIUgNiLFghRkBlg2v7GlpiccsCHrcryzxUk3zmsNskeYGvt/lxVH4hMWEu9xSWaQFYQ7L1B6iGZ5bBoy+zWKiHiltFHpqeIsVhWaosg1iqlgg4wAAEYEXsV3EmNppJmExMFYUxfVSuIs6E0sI5FkBBhLJzH9laQxLSjBj0WQJgSJPweDTkknvS4JGbCuxKOt7UY4lEQfNnAu9TzLxN2nUdAQTLAEw8YIlAVgAkmDCSBL75eCutSeY+GTUqqNkqUVxUbIl4qgJo4vWzecrhyQAMJldYf1MXLLl1EIsYBZgoGwpRI2zMTPtGBhYbSQAlJF9lieRzNMIriVBzPOWawvoIkYaNC0u9IcAIAHgp75NLQl8ENbPZJ6jgAU48RyFqHEuZyE+Pda/vjENAQBD5s209Y+kPJlyM4+r3lUS0AWSyVEhpHnjYu1pyO+7N4ywwPvhxHDiuwo8j1b5rkQwMZIziYHBXetPzIAAgIV8exZOSMoieI6aU5vKtgR0jqw1JtiYbZfW/R/kSN+mcWbxdtwYjn1XTd9B7cQAfNdCWB/OhBR7jvWv/3tWCAAoO3ktjyZZJ0HHbsq2AooERVQXzPKly2vOgPz29jNNBr+e1IcSz5YAM4hmFzPDtyWS+lDK4N2DfU+dbgsBAFHyd+oszE3agt/GjWcrUBEjj5sQBb96pXpXhAzueDJi4u1p41TsuQpCiFln4bkKeXMoJeadg++tG+sYAgBBXOo3RRrruAnfkWDmGfIdCeQhiiQgQbxjtlqzQk59vCZlNluL5lDiORLyMjcA4DsKeXM4AfDKxa97ThAAqPaMfaR1Nq6jOiqOAhOm5TsKJg1QZGGRedY7V6tzVcjBWk1D0JZ8cigt2RJSimkXnqOgW8MxQLUTb6wN5g0BgGPV0c9BekTH41xx5YXrQ8FkTRgdpxU7ea9djbYQ1GokmJ43wUhWtgRcS04tQjAcw9CWw29tThYOAXD03XVfMps/TTTOy30blDZgiqxFK6p7OsnvCDJ1UD9LyUjORoPDkUQyPfdHbXW+qJCjfRsOwOAoNY4z6Xz01rHq3k5zO4ZMHTabYSIhJD87MLB64f8Ys8WdG/tfBljMJedfwY+s/2P4Pv8AAAAASUVORK5CYII="
+
+
+	function getFeatureStyle(text) {
+		var defaultStyle = new ol.style.Style({
+			image: new ol.style.Icon({anchor: [12, 41], anchorXUnits: 'pixels', anchorYUnits: 'pixels', src: markerImage}),
+			text: new ol.style.Text({
+				offsetY: -24, offsetX: 0, text: text, placement: 'point', textAlign: 'center', fill: new ol.style.Fill({color: 'rgb(255, 255, 255)'}),
+				//        backgroundFill: new ol.style.Fill({color: 'black'}),
+				padding: [3, 5, 3, 5]
+			})
+		});
+		return defaultStyle;
+	}
+
+	var defaultStyle = new ol.style.Style({
+		image: new ol.style.Icon({anchor: [12, 41], anchorXUnits: 'pixels', anchorYUnits: 'pixels', src: markerImage}),
+		text: new ol.style.Text({
+			offsetY: -24, offsetX: 0, text: 'A', placement: 'point', textAlign: 'center', fill: new ol.style.Fill({color: 'rgb(255, 255, 255)'}),
+			//        backgroundFill: new ol.style.Fill({color: 'black'}),
+			padding: [3, 5, 3, 5]
+		})
+	});
+
+
+
+
+
+	var routeStyle = new ol.style.Style({stroke: new ol.style.Stroke({width: 3, color: [40, 40, 40, 0.8], }), });
+
+
+	//"address":{"road":"Тодор Хаджистанчев","neighbourhood":"Дълбокото дере","suburb":"кв. Виница","city":"Варна","county":"Приморски","state_district":"Варна","state":"Варна","ISO3166-2-lvl4":"BG-03","postcode":"9022","country":"България","country_code":"bg"}
+
+	//building: "Бл.209" city: "Варна" ​​country: "България"​​country_code: "bg" county: "Владислав Варненчик"house_number: "бл. 209"​​postcode: "9023"​​state: "Варна" state_district: "Варна"​​suburb: "кв. Кайсиева градина"
+	//Бл.209, бл. 209, кв. Кайсиева градина, Варна, Владислав Варненчик, Варна, 9023, България"
+
+
+	//TODO
+	function formatAddress(json) {
+
+		return json.display_name;
+		var address = json.address;
+		var ret = '';
+		if (!(address.road === undefined))
+			ret += address.road + ', ';
+
+		if (!(address.neighbourhood === undefined))
+			ret += +address.neighbourhood + ', ';
+
+		if (!(address.suburb === undefined))
+			ret += +address.suburb;
+		return ret;
+	}
+
+	function callbackSetInputElVal(el, value) {
+		el.value = value;
+	}
+
+	//reverseGeocoding(lon, lat,el,callbackSetInputElVal)
+	function reverseGeocoding(lon, lat, el, callbackFN) {
+
+		var url = 'https://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
+		log("ReverseGeocoding " + url)
+		fetch(url).then(function (response) {
+			return response.json();
+		}).then(function (json) {
+			//          alert(json.display_name);
+			callbackFN(el, json.display_name);
+			console.log(json.display_name);
+		})
+	}
+
+	function simpleReverseGeocoding(lon, lat) {
+
+		var url = 'https://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
+		log("ReverseGeocoding " + url)
+		fetch(url).then(function (response) {
+			return response.json();
+		}).then(function (json) {
+			//          alert(json.display_name);
+			console.log(json.display_name);
+		})
+	}
+
+
+	function simpleReverseGeocodingByWaypoint(waypoint) {
+
+		var lngLat = waypoint.lngLat;
+		var lon = lngLat[0];
+		var lat = lngLat[1];
+		var url = 'https://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
+
+		log("simpleReverseGeocodingByWaypoint" + url);
+		fetch(url).then(function (response) {
+			return response.json();
+		}).then(function (json) {
+			waypoint.name = formatAddress(json);
+			const targetId = "bnt" + waypoint.featureId;
+			const el = document.getElementById(targetId);
+			el.value = waypoint.name + '(' + lon.toFixed(6) + ';' + lat.toFixed(6) + ')';
+
+		})
+	}
+	//-----------------------------------------------------------------------------
+	class Waypoint {
+		constructor(lngLat, name, options) {
+			this.lngLat = lngLat;
+			this.name = name;
+			this.options = options;
+			this.featureId = '';
+		}
+
+		update(lngLat) {
+			this.lngLat = lngLat;
+			simpleReverseGeocodingByWaypoint(this);
+		}
+	}
+	//-----------------------------------------------------------------------------
+	class Route {
+		waypoints = [];
+		url = 'https://' + (new URL(location.origin).hostname) + ':8443/route/v1/driving/';
+
+		constructor(waypoint) {
+			if (waypoint !== undefined)
+				this.waypoints = waypoint;
+		}
+
+		getWaypoints() {
+			return this.waypoints;
+		}
+
+		reset() {
+			this.waypoints = [];
+		}
+
+		updateWaypointByfeatureId(featureId, lngLat) {
+			//	var ff=[27.9797311,43.2388141];
+			for (let i = 0; i < this.waypoints.length; i++) {
+				var val = this.waypoints[i];
+				if (val.featureId == featureId) {
+					val.update(lngLat);
+				}
+			}
+
 			//dinamic
 			//this.createRoute();
-		
-	}
-	
-	
-	updateWaypoint(feature_,evt){
-		var geometry = feature_.getGeometry().clone().transform(map.getView().getProjection(),'EPSG:4326');
-		var fc=geometry.flatCoordinates;
-		var ff=[fc[0],fc[1]];
-		console.log(ff);
-		for (let i = 0; i < this.waypoints.length; i++) {
-      var val=this.waypoints[i];
-	  var featureuid=feature_.ol_uid;
-	  if(val.featureId===featureuid)
-   	  	{
-		val.update(ff);
-		console.log('feature_ founf');
+
 		}
-				     }
-					 
-	   //dinamic			 
-	//	this.createRoute();
-	}
-	
-	
-	remove(index)
-	{
-		this.waypoints.slice(index);	
-	} 
-    add(waypoint) {
-		
-		//-------------------------
-		var i=this.waypoints.push(waypoint);
-			var name=this.getWaypointName(i); 
-		       var fId=this.createFeature(waypoint.lngLat,name); 
-			
-			waypoint.featureId=fId
-		
-    }
-		 
-	getPath(){
-      let txt = "";
-      let length=this.waypoints.length;
-      
-	  for (let i = 0; i < length; i++) {
-        var val=this.waypoints[i].lngLat;
-		  txt+=val;
-			if(i<(length-1))
-			  txt+=";";
-      }
-     return txt
-	}
 
-	createRoute(){
-		var extraparams="?overview=full&alternatives=true&steps=true";  //&hints=;"
-	var urll='https://'+hostname+':8443/route/v1/driving/'
-      const url=urll +this.getPath()+extraparams;
-	  
-	  log("createRoute url "+url)
-		fetch(url).then(function(r) {return r.json();
-				 }).then(function(json) {
-						      if(json.code !== 'Ok') {
-						       console.log('No route found.');
-						        return;
-						      }
-						     console.log('Route added');
-						      //points.length = 0;
-						 var r=     utils.createRoute(json.routes[0].geometry);
-						// r.setId("ff");
-						 		
-						// 		let feature = vectorSource.getFeatureById('ff');
-						//		console.log('Route added'+feature);
-						    });
-    }	
-	
-	
-	
-	resetAllFeature()
-	{
-		vectorSource.clear();
-	}
-	
-	createFeature(coord,name) {
-	  var g=new ol.geom.Point(ol.proj.fromLonLat(coord));
-      var feature = new ol.Feature({type: 'place',   geometry:  g });
-          feature.setStyle(getFeatureStyle(name));
-		  vectorSource.addFeature(feature);
-	  var translate1 = new app.Drag({features: new ol.Collection([feature])});
-      map.addInteraction(translate1);
-	  
-	  var ol_uid=feature.ol_uid; 
-	  feature.setId(ol_uid);
-	 //return feature;
-	
-	 return ol_uid;
-    }
-    
-	createFeatures(){
-		vectorSource.clear();
-      for (let i = 0; i < this.waypoints.length; i++) {
-        var val=this.waypoints[i];
-		var name=this.getWaypointName(i); 
-        var fId=this.createFeature(val.lngLat,name); 
-		
-		val.featureId=fId
-      }
-    }
-	
-	dumpWaypoint(){
-	      for (let i = 0; i < this.waypoints.length; i++) {
-	        var val=this.waypoints[i];
-	          console.log("dumpWaypoint index "+i+"  "+val);
-	      }
-	    }
-	
-		
-			static startPlaceholder='Start';
-			static viaPlaceholder= 'Via {viaNumber}';
-			static endPlaceholder= 'End';
-			
-				
-	getWaypointName(index) {
+
+		updateWaypoint(feature_, evt) {
+			var geometry = feature_.getGeometry().clone().transform(map.getView().getProjection(), 'EPSG:4326');
+			var fc = geometry.flatCoordinates;
+			var ff = [fc[0], fc[1]];
+			console.log(ff);
+			for (let i = 0; i < this.waypoints.length; i++) {
+				var val = this.waypoints[i];
+				var featureuid = feature_.ol_uid;
+				if (val.featureId === featureuid) {
+					val.update(ff);
+					console.log('feature_ founf');
+				}
+			}
+
+			//dinamic			 
+			//	this.createRoute();
+		}
+
+
+		remove(index) {
+			this.waypoints.slice(index);
+		}
+		add(waypoint) {
+
+			//-------------------------
+			var i = this.waypoints.push(waypoint);
+			var name = this.getWaypointName(i);
+			var fId = this.createFeature(waypoint.lngLat, name);
+
+			waypoint.featureId = fId
+
+		}
+
+		getPath() {
+			let txt = "";
+			let length = this.waypoints.length;
+
+			for (let i = 0; i < length; i++) {
+				var val = this.waypoints[i].lngLat;
+				txt += val;
+				if (i < (length - 1))
+					txt += ";";
+			}
+			return txt
+		}
+
+		createRoute() {
+			var extraparams = "?overview=full&alternatives=true&steps=true";  //&hints=;"
+			var urll = 'https://' + hostname + ':8443/route/v1/driving/'
+			const url = urll + this.getPath() + extraparams;
+
+			log("createRoute url " + url)
+			fetch(url).then(function (r) {
+				return r.json();
+			}).then(function (json) {
+				if (json.code !== 'Ok') {
+					console.log('No route found.');
+					return;
+				}
+				console.log('Route added');
+				//points.length = 0;
+				var r = utils.createRoute(json.routes[0].geometry);
+				// r.setId("ff");
+
+				// 		let feature = vectorSource.getFeatureById('ff');
+				//		console.log('Route added'+feature);
+			});
+		}
+
+
+
+		resetAllFeature() {
+			vectorSource.clear();
+		}
+
+		createFeature(coord, name) {
+			var g = new ol.geom.Point(ol.proj.fromLonLat(coord));
+			var feature = new ol.Feature({type: 'place', geometry: g});
+			feature.setStyle(getFeatureStyle(name));
+			vectorSource.addFeature(feature);
+			var translate1 = new app.Drag({features: new ol.Collection([feature])});
+			map.addInteraction(translate1);
+
+			var ol_uid = feature.ol_uid;
+			feature.setId(ol_uid);
+			//return feature;
+
+			return ol_uid;
+		}
+
+		createFeatures() {
+			vectorSource.clear();
+			for (let i = 0; i < this.waypoints.length; i++) {
+				var val = this.waypoints[i];
+				var name = this.getWaypointName(i);
+				var fId = this.createFeature(val.lngLat, name);
+
+				val.featureId = fId
+			}
+		}
+
+		dumpWaypoint() {
+			for (let i = 0; i < this.waypoints.length; i++) {
+				var val = this.waypoints[i];
+				console.log("dumpWaypoint index " + i + "  " + val);
+			}
+		}
+
+
+		static startPlaceholder = 'Start';
+		static viaPlaceholder = 'Via {viaNumber}';
+		static endPlaceholder = 'End';
+
+
+		getWaypointName(index) {
 			//				var l = new Localization(geocoderElement.options.language).localize('ui');
-							return index === 0 ?
-								'Start' :
-								(index < this.waypoints.length - 1 ?
-									'Via '+index :
-									'End');
-						}	
-		
-  }	 		  
-	  
-//-----------------------------------------------------------------------------
+			return index === 0 ?
+				'Start' :
+				(index < this.waypoints.length - 1 ?
+					'Via ' + index :
+					'End');
+		}
 
-const route =new Route();
-    //route.add(new Waypoint([27.981982,43.238152],'text1'));
+	}
+
+	//-----------------------------------------------------------------------------
+
+	const route = new Route();
+	//route.add(new Waypoint([27.981982,43.238152],'text1'));
 	//	route.add(new Waypoint([27.9797321,43.2388151],'text1'));
 	//	route.add(new Waypoint([27.897369,43.221216],'text2'));
 	//	route.add(new Waypoint([27.897365,43.221217],'text2'));
-   
-	//		route.createFeatures();
-    //				route.createRoute();
-	  
-//RouteControl------------------------------------------------	  
 
-class RouteControl extends ol.control.Control {
+	//		route.createFeatures();
+	//				route.createRoute();
+
+	//RouteControl------------------------------------------------	  
+
+	class RouteControl extends ol.control.Control {
 
 		constructor(route, opt_options) {
 			const options = opt_options || {};
@@ -751,186 +862,246 @@ class RouteControl extends ol.control.Control {
 			if (wplen == 0) {
 				route.add(new Waypoint([0, 0], 'end'));
 				route.add(new Waypoint([0, 0], 'start'));
-				//  route.add(new Waypoint([0,0],'b'));
-
-			//	route.createFeatures();
 			}
-			
-			var container=RouteControl.createContainer(options);
-			super({ element: container,	target: options.target,	});
-			
-		
+
+			var container = RouteControl.createContainer(options);
+			super({element: container, target: options.target, });
 		}
 
-		init(){
+		init() {
 			const cWaypoint = document.getElementById('Waypoint');
-			var LonLat=[27.9797311,43.2388141];
-			var feature=	RouteControl._createFeature(LonLat);
-			var node_11 = RouteControl.autoCompleteBtn(feature, 'waypointName');
-				cWaypoint.appendChild(node_11);
-
-		}
-		
-		
-		static updateFeature(featureId,ff)
-		{
-		var pr=ff.properties;
-		var bntEl=document.getElementById("bnt" + featureId);		 				 					
-		    bntEl.value=pr.name;
-	    var lngLat=ff.geometry.coordinates;
-					var feature = vectorSource.getFeatureById(featureId);
-					var coord = getPointFromLongLat(lngLat[0], lngLat[1]);
-
-					feature.getGeometry().setCoordinates(coord);
-
-		
-		
-	    RouteControl.showFeature(featureId)
-		}
-		
-		static delete(featureId) {
-           try{		
-			//1
-			var inputGroupfeatureIdEl=document.getElementById("inputGroupfeatureId"+featureId);
-			inputGroupfeatureIdEl.parentNode.removeChild(inputGroupfeatureIdEl);
-			
-			
-			
-			}
-			catch(err) {
-			  document.getElementById("demo").innerHTML = err.message;
-			}
-			//2
-			
-			
-			return;
-			
-			log("delete featureId "+featureId);	
-			var id="bnt" + featureId;
-			
-			const bnt = document.getElementById(id);	
-		 
-			
-			if(bnt.value=='')
-			{
-				var waypoints=route.getWaypoints();
-				for (let i = 0; i < waypoints.length; i++) {
-				      var val=waypoints[i];
-					  log("fff" +val );
-					
-					  if(val.featureId===featureId)
-				   	  	{
-							waypoints.slice(i,1);	
-										
-								}
-				}
-				
-				
-				
-				//--
-				//
-				let waypointss = route.getWaypoints();
-						
-						
-						
-
-						
-						
-										for (let i = 0; i < waypointss.length; i++) {
-												
-										var featureId = waypointss[i].featureId;
-											var waypointName = route.getWaypointName(i);
-													var node_11 = RouteControl.autoCompleteBtn(featureId, waypointName);
-													Waypointd.appendChild(node_11);
-
-									}
-						
-				//--
-				
-				
-				
-				
-				var feature = vectorSource.getFeatureById(featureId);
-				vectorSource.removeFeature(feature) 
-				return;
-			}
-			
-			bnt.value='';
-		   //return "Hello " + x.name;
-		 }
-		 static add(featureId) {
-			const cWaypoint = document.getElementById('Waypoint');
-			var LonLat=[27.9797311,43.2388141];
-			var feature=	RouteControl._createFeature(LonLat);
-			var node_11 = RouteControl.autoCompleteBtn(feature, 'waypointName');
+			var LonLat = [0, 0];
+			var feature = RouteControl._createFeature(LonLat);
+			var node_11 = RouteControl.autoCompleteBtn(feature, 'Start');
 			cWaypoint.appendChild(node_11);
 
-			
-			
-		 }
-//-----------------------------------------------------------------
-		 static _createFeature(coord) {
-		   var g=new ol.geom.Point(ol.proj.fromLonLat(coord));
-		      var feature = new ol.Feature({type: 'place',   geometry:  g });
-			  feature.setStyle(new ol.style.Style(null));  
-		 	  vectorSource.addFeature(feature);
-		   var translate1 = new app.Drag({features: new ol.Collection([feature])});
-		      map.addInteraction(translate1);
-		   
-		   var ol_uid=feature.ol_uid; 
-		   feature.setId(ol_uid);
-		  return feature;
+			var feature1 = RouteControl._createFeature(LonLat);
+			var node_111 = RouteControl.autoCompleteBtn(feature1, 'End');
+			cWaypoint.appendChild(node_111);
 
-		  //return ol_uid;
-		    }
-		 
-		 
-		static fid;
+		}
 
-		static createFeature(){
-			log("createFeature");
-			var LonLat=[27.9797311,43.2388141];
-		 var feature=	RouteControl._createFeature(LonLat);
-		 
-		 
-		 RouteControl.fid = feature.getId();
-		 vectorSource.getFeatureById(featureId);
-		 log("createFeature");
 
-		 }
-//----------------------------------------------------------------------------
+		static updateFeature(featureId, coordinates, value) {
+			var bntEl = document.getElementById("bnt" + featureId);
 
-		 		
-		 static showFeature(featureId){
+			if (value == "")
+				reverseGeocoding(coordinates[0], coordinates[1], bntEl, callbackSetInputElVal)
+			else
+				bntEl.value = value;
+
+			var feature = vectorSource.getFeatureById(featureId);
+			var coord = getPointFromLongLat(coordinates[0], coordinates[1]);
+
+			feature.getGeometry().setCoordinates(coord);
+
+			RouteControl.showFeature(featureId);
+			RouteControl.refresh()
+		}
+
+		static getCont() {
+			var inputGroupfeatureIdEl = document.getElementById("Waypoint");
+		}
+
+	
+		
+		static getPath() {
+				let txt = "";
+				let length = this.waypoints.length;
+
+				for (let i = 0; i < length; i++) {
+					var val = this.waypoints[i].lngLat;
+					txt += val;
+					if (i < (length - 1))
+						txt += ";";
+				}
+				return txt
+			}
+
+		static	createRoute(path) {
+				var extraparams = "?overview=full&alternatives=true&steps=true";  //&hints=;"
+				var urll = 'https://' + hostname + ':8443/route/v1/driving/'
+				const url = urll + path + extraparams;
+
+				log("createRoute url " + url)
+				fetch(url).then(function (r) {
+					return r.json();
+				}).then(function (json) {
+					if (json.code !== 'Ok') {
+						console.log('No route found.');
+						return;
+					}
+					console.log('Route added');
+					//points.length = 0;
+					var r = utils.createRoute(json.routes[0].geometry);
+					// r.setId("ff");
+
+					// 		let feature = vectorSource.getFeatureById('ff');
+					//		console.log('Route added'+feature);
+				});
+			}
 		
 			
-			var feature = vectorSource.getFeatureById(featureId);
+		static refresh()//delete update add move
+		{
+			var inputGroupfeatureIdEl = document.getElementById("Waypoint");
+			var features=utils.elementChildren(inputGroupfeatureIdEl);
+		
+			let path = "";	
+			var count=0;
+			var featuresLength=features.length;
+				for (let i = 0; i < featuresLength; i++) {
+								
 				
-			var st=getFeatureStyle("name");
-			
-			feature.setStyle(st);
-			
-			log("showFeature");
-			
-		 }
-		 
-		 static hideFeature(){
-			var feature = vectorSource.getFeatureById(RouteControl.fid);
-						
+					var feature =features[i];
 					
-					feature.setStyle(new ol.style.Style(null));
-			log("hideFeature");
-		 }
-		 
-		 
-		static createContainer(options) {
+					var f=feature.feature;
+					var featureId=	f.getId();	 
+					
+					var bntEl = document.getElementById("bnt" + featureId);
+					var waypointName=utils.getWaypointName(i,featuresLength);
+					bntEl.placeholder=waypointName;
+					
+					var st = getFeatureStyle(waypointName);
+						f.setStyle(st);
+					
+					
+					var geometry =f.getGeometry().clone().transform(map.getView().getProjection(), 'EPSG:4326');
+					var coordinates = geometry.flatCoordinates;
+					
+					/** todo
+					var st=f.style;
+										if(st!=null)
+										*/
+					if(coordinates[0]!=0)
+					{
+						if(path != "")
+						path+=";";
+						
+						var lngLat = coordinates[0]+','+ coordinates[1];
+						count++;
+						path += lngLat;
+						
+					}
+					
+					
+					log(coordinates[0]+' '+ coordinates[1] );
+                    log(feature);								
+					}
+				
+			if(count>=2)
+					RouteControl.createRoute(path);
+					else {
+						//dublicate
+						var routeFeature = vectorSource.getFeatureById('routeFeature');
+														if (routeFeature)
+															vectorSource.removeFeature(routeFeature);	
+					}
+								
+			log("refresh");
+			
+		}
+		
+		
+		
+		
+		
+		
+		static delete(featureId) {
+			log("delete featureId " + featureId);
+			var bntEl = document.getElementById("bnt" + featureId);
 
+			if (bntEl.value != "") {
+				bntEl.value = "";
+				RouteControl.hideFeature(featureId);
+				RouteControl.refresh();
+				return;
+			}
+
+			try {
+				//0
+				var inputGroupfeatureIdEl = document.getElementById("Waypoint");
+				if (utils.elementChildren(inputGroupfeatureIdEl).length <= 2)
+					return
+				//1
+				var inputGroupfeatureIdEl = document.getElementById("inputGroupfeatureId" + featureId);
+				inputGroupfeatureIdEl.parentNode.removeChild(inputGroupfeatureIdEl);
+
+				var feature = vectorSource.getFeatureById(featureId);
+				vectorSource.removeFeature(feature);
+
+
+			}
+			catch (err) {
+				document.getElementById("demo").innerHTML = err.message;
+			}
+		RouteControl.refresh();
+		}
+
+		static add() {
+			const cWaypoint = document.getElementById('Waypoint');
+			var LonLat = [0, 0];
+			var feature = RouteControl._createFeature(LonLat);
+			var node_11 = RouteControl.autoCompleteBtn(feature, 'waypointName');
+			cWaypoint.appendChild(node_11);
+			RouteControl.refresh();
+		}
+
+		static _createFeature(coord) {
+			var g = new ol.geom.Point(ol.proj.fromLonLat(coord));
+			var feature = new ol.Feature({type: 'place', geometry: g});
+			feature.setStyle(new ol.style.Style(null));
+			vectorSource.addFeature(feature);
+			var translate1 = new app.Drag({features: new ol.Collection([feature])});
+			map.addInteraction(translate1);
+
+			var ol_uid = feature.ol_uid;
+			feature.setId(ol_uid);
+			return feature;
+		}
+
+		static createFeature() {
+			log("createFeature");
+			var LonLat = [27.9797311, 43.2388141];
+			var feature = RouteControl._createFeature(LonLat);
+
+
+			RouteControl.fid = feature.getId();
+			vectorSource.getFeatureById(featureId);
+			log("createFeature");
+
+		}
+
+		static showFeature(featureId) {
+			log("showFeature");
+			var feature = vectorSource.getFeatureById(featureId);
+
+			var bntEl = document.getElementById("bnt" + featureId);
+								
+				var fn=bntEl.placeholder;
+			
+			var st = getFeatureStyle(fn);
+
+			feature.setStyle(st);
+		}
+
+		static hideFeature(featureId) {
+			log("hideFeature");
+			var feature = vectorSource.getFeatureById(featureId);
+			feature.setStyle(new ol.style.Style(null));
+			
+			var coord = getPointFromLongLat(0, 0);
+					feature.getGeometry().setCoordinates(coord);
+			
+		}
+
+		static createContainer(options) {
 
 			var node_1 = document.createElement('DIV');
 			node_1.setAttribute('name', 'RouteControl');
 			node_1.setAttribute('id', 'control');
 			node_1.setAttribute('class', '     border w3-border-red  ');
-			node_1.setAttribute('style', ' background-color: lightblue; min-width: 400px;;position: absolute; right : 0em; top : 0em ');
+			node_1.setAttribute('style', ' background-color: lightblue; min-width: 400;position: absolute; right : 0em; top : 0em ');
 
 			var node_2 = document.createElement('DIV');
 			node_2.setAttribute('name', 'header');
@@ -970,20 +1141,7 @@ class RouteControl extends ol.control.Control {
 			node_10.setAttribute('name', 'Waypoint');
 			node_10.setAttribute('id', 'Waypoint');
 			node_1.appendChild(node_10);
-			
-			//---------------------------------------------------
-			/**********
-			let waypoints = route.getWaypoints();
-				for (let i = 0; i < waypoints.length; i++) {
-						
-				var featureId = waypoints[i].featureId;
-					var waypointName = route.getWaypointName(i);
-							var node_11 = RouteControl.autoCompleteBtn(featureId, waypointName);
-							node_10.appendChild(node_11);
 
-			}
-			*/
-			
 			var node_19 = document.createElement('DIV');
 			node_19.setAttribute('name', 'footer');
 			node_19.setAttribute('class', 'd-flex justify-content-between ');
@@ -997,37 +1155,20 @@ class RouteControl extends ol.control.Control {
 			node_21.setAttribute('type', 'button');
 			node_21.setAttribute('class', 'btn btn-primary btn-sm');
 			node_21.setAttribute('onclick', 'RouteControl.add()');
-			
-			
+
+
 			node_20.appendChild(node_21);
 
 			
+			
+			var hideFeature = document.createElement('BUTTON');
+			hideFeature.setAttribute('type', 'button');
+			hideFeature.setAttribute('class', 'btn btn-primary btn-sm');
+			hideFeature.setAttribute('onclick', 'RouteControl.CreateOrder()');
+			hideFeature.innerHTML = 'CreateOrder';
+			node_20.appendChild(hideFeature);
 
-			var createFeature = document.createElement('BUTTON');
-				createFeature.setAttribute('type', 'button');
-				createFeature.setAttribute('class', 'btn btn-primary btn-sm');
-				createFeature.setAttribute('onclick', 'RouteControl.createFeature()');
-				createFeature.innerHTML='createFeature';
-				
-				node_20.appendChild(createFeature);
-			
-			
-			var showFeature = document.createElement('BUTTON');
-				showFeature.setAttribute('type', 'button');
-				showFeature.setAttribute('class', 'btn btn-primary btn-sm');
-				showFeature.setAttribute('onclick', 'RouteControl.showFeature()');
-				showFeature.innerHTML='showFeature';
-				
-				node_20.appendChild(showFeature);
-			
-		    var hideFeature = document.createElement('BUTTON');
-				hideFeature.setAttribute('type', 'button');
-				hideFeature.setAttribute('class', 'btn btn-primary btn-sm');
-				hideFeature.setAttribute('onclick', 'RouteControl.hideFeature()');
-				hideFeature.innerHTML='hideFeature';						
-				node_20.appendChild(hideFeature);						
-				
-						
+
 			var node_22 = document.createElement('SPAN');
 			node_22.setAttribute('class', 'refAdd');
 			node_21.appendChild(node_22);
@@ -1040,162 +1181,160 @@ class RouteControl extends ol.control.Control {
 			node_24.setAttribute('class', 'refDistance');
 			node_23.appendChild(node_24);
 
-         return node_1;
+			return node_1;
 		}
-		
 
 		static autoCompleteBtn(feature, placeholder) {
 
 			var featureId = feature.getId();
-			
+
 			var node_11 = document.createElement('DIV');
-			
+
 			node_11.reature
-						node_11.setAttribute('class', 'input-group mb-1 mt-1');
+			node_11.setAttribute('class', 'input-group mb-1 mt-1');
 
-						node_11.setAttribute('id', "inputGroupfeatureId"+featureId);					
-						node_11.feature=feature;
-
-						var node_12 = document.createElement('SPAN');
-						node_12.setAttribute('class', 'input-group-text');
-						node_12.setAttribute('style', 'display:none1');
-						node_11.appendChild(node_12);
-
-						var node_13 = document.createElement('IMG');
-						node_13.setAttribute('src', 'data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==');
-						node_13.setAttribute('alt', 'Red dot');
-						node_12.appendChild(node_13);
-
-						var node_14 = document.createElement('INPUT');
-						node_14.setAttribute('type', 'text');
-						node_14.setAttribute('class', 'form-control');
-						
-						node_14.setAttribute('id', "bnt" + featureId);
-						node_14.setAttribute('featureId', featureId);
-						
-						node_14.setAttribute('placeholder', placeholder);
-						
-						node_11.appendChild(node_14);
-
-						autocomplete(node_14);
-						
-						var node_15 = document.createElement('BUTTON');
-						node_15.setAttribute('type', 'button');
-						node_15.setAttribute('class', ' btn btn-primary btn-sm');
-						node_11.appendChild(node_15);
-
-						var node_16 = document.createElement('IMG');
-						node_16.setAttribute('class', 'geolocation_marker');
-						node_15.appendChild(node_16);
-
-						var node_17 = document.createElement('BUTTON');
-						node_17.setAttribute('type', 'button');
-						node_17.setAttribute('class', 'btn btn-primary btn-sm');
-						node_17.setAttribute('onclick', 'RouteControl.delete('+featureId+')');
-						node_11.appendChild(node_17);
-			            
-						var node_18 = document.createElement('I');
-						node_18.setAttribute('class', 'fa fa-trash');
-						node_17.appendChild(node_18);
-						
+			node_11.setAttribute('id', "inputGroupfeatureId" + featureId);
+			node_11.feature = feature;
+			node_11.featureId = featureId;
 			
-			
+			var node_12 = document.createElement('SPAN');
+			node_12.setAttribute('class', 'input-group-text');
+			node_12.setAttribute('style', 'display:none1');
+			node_11.appendChild(node_12);
+
+			var node_13 = document.createElement('IMG');
+			node_13.setAttribute('src', 'data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==');
+			node_13.setAttribute('alt', 'Red dot');
+			node_12.appendChild(node_13);
+
+			var node_14 = document.createElement('INPUT');
+			node_14.setAttribute('type', 'text');
+			node_14.setAttribute('class', 'form-control');
+
+			node_14.setAttribute('id', "bnt" + featureId);
+			node_14.setAttribute('featureId', featureId);
+
+			node_14.setAttribute('placeholder', placeholder);
+
+			node_11.appendChild(node_14);
+
+			autocomplete(node_14);
+
+			var node_15 = document.createElement('BUTTON');
+			node_15.setAttribute('type', 'button');
+			node_15.setAttribute('class', ' btn btn-primary btn-sm');
+			node_11.appendChild(node_15);
+
+			var node_16 = document.createElement('IMG');
+			node_16.setAttribute('class', 'geolocation_marker');
+			node_15.appendChild(node_16);
+
+			var node_17 = document.createElement('BUTTON');
+			node_17.setAttribute('type', 'button');
+			node_17.setAttribute('class', 'btn btn-primary btn-sm');
+			node_17.setAttribute('onclick', 'RouteControl.delete(' + featureId + ')');
+			node_11.appendChild(node_17);
+
+			var node_18 = document.createElement('I');
+			node_18.setAttribute('class', 'fa fa-trash');
+			node_17.appendChild(node_18);
 			return node_11;
 		}
 	}
-	
-	var rc=new RouteControl(route);
-	
-	 map.addControl(rc);
-	 rc.init();
-	  
-	  //search?q=Тодор Хаджистанчев&limit=20&format=json&addressdetails=1&city=Варна&accept-language=bg-BG&limit=2
-      // https://localhost:8443/api?&q=%D0%92%D0%B8%D0%BD%D0%B8%D1%86%D0%B0&limit=2
-	  async function fetchMAddress(q) {
-	  	//var url='http://127.0.0.1:8181/search?q='+q+'&limit=5&format=json&addressdetails=1&city=varna&accept-language=bg-BG'
-		var url='https://'+hostname+':8443/api?&q='+q;
-	   // const response = await fetch();
-	   const response = await fetch(url);
 
-	   	const json = await response.json();
+	var rc = new RouteControl(route);
 
-	  	var df= await JSON.stringify(json);
-	   	log(df);
+	map.addControl(rc);
+	rc.init();
+
+	//search?q=Тодор Хаджистанчев&limit=20&format=json&addressdetails=1&city=Варна&accept-language=bg-BG&limit=2
+	// https://localhost:8443/api?&q=%D0%92%D0%B8%D0%BD%D0%B8%D1%86%D0%B0&limit=2
+	async function fetchMAddress(q) {
+		//var url='http://127.0.0.1:8181/search?q='+q+'&limit=5&format=json&addressdetails=1&city=varna&accept-language=bg-BG'
+		var url = 'https://' + hostname + ':8443/api?&q=' + q;
+		// const response = await fetch();
+		const response = await fetch(url);
+
+		const json = await response.json();
+
+		var df = await JSON.stringify(json);
+		log(df);
 		return df;
-	  }
-	  var res=fetchMAddress('Тодор Хаджистанчев');
-	  log(res);
+	}
+	var res = fetchMAddress('Тодор Хаджистанчев');
+	log(res);
 
-  
-	  function fetchMAddresscb(q) {
-	  	
-	  	var url='https://'+hostname+':8443/api?&q=Варна '+q;
-	  	 var url='https://'+hostname+':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
-	  	         fetch(url).then(function(response) {
-	  	           return response.json();
-	  	         }).then(function(json) {
-	  	 var name=formatAddress(json);
-	  	         })
-	  	       }
-  	  </script>
+
+	function fetchMAddresscb(q) {
+
+		var url = 'https://' + hostname + ':8443/api?&q=Варна ' + q;
+		var url = 'https://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
+		fetch(url).then(function (response) {
+			return response.json();
+		}).then(function (json) {
+			var name = formatAddress(json);
+		})
+	}
+</script>
 
 <script name="GeoLocation">
 	var markerOverlay
-	
-  function updateGeoMarker() {
-	var coordss = lastGeoLocationEvent.coords;
-	log(coordss);
-	const projectedPosition = ol.proj.fromLonLat([coordss.longitude, coordss.latitude]);
-	var heading = coordss.heading;
-	markerOverlay.setPosition(projectedPosition);
-	map.render();
-  }
 
-  var count = 0;
-  var lastGeoLocationEvent;
-	
-  function geosuccess(event) {
-    lastGeoLocationEvent = event;
-	updateGeoMarker();
-    log("geo: " + count++ + " : " + event.coords.heading + " speed:" + event.coords.speed);
-	var heading = event.coords.heading;
-	var speed = event.coords.speed;
+	function updateGeoMarker() {
+		var coordss = lastGeoLocationEvent.coords;
+		//log(coordss);
+		const projectedPosition = ol.proj.fromLonLat([coordss.longitude, coordss.latitude]);
+		var heading = coordss.heading;
+		markerOverlay.setPosition(projectedPosition);
+		map.render();
+	}
 
-	var sp = Math.round(speed * 3.6)
-			var ss = '<svg width="32" height="32"  viewBox="0 0 32 32"  xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="blue" stroke-width="4" fill="white"></circle><text x="16" y="20" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" font-weight="bold" text-anchor="middle" fill="black">' + sp + '</text></svg>';
-			if (sp >= 10) {
-				ss = '<svg width="32" height="32"  viewBox="0 0 32 32"  xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="red" stroke-width="4" fill="white"></circle><text x="16" y="20" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" font-weight="bold" text-anchor="middle" fill="black">' + sp + '</text></svg>';
+	var count = 0;
+	var lastGeoLocationEvent;
+
+	function geosuccess(event) {
+		lastGeoLocationEvent = event;
+		updateGeoMarker();
+		//log("geo: " + count++ + " : " + event.coords.heading + " speed:" + event.coords.speed);
+		var heading = event.coords.heading;
+		var speed = event.coords.speed;
+
+		var sp = Math.round(speed * 3.6)
+		var ss = '<svg width="32" height="32"  viewBox="0 0 32 32"  xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="blue" stroke-width="4" fill="white"></circle><text x="16" y="20" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" font-weight="bold" text-anchor="middle" fill="black">' + sp + '</text></svg>';
+		if (sp >= 10) {
+			ss = '<svg width="32" height="32"  viewBox="0 0 32 32"  xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="red" stroke-width="4" fill="white"></circle><text x="16" y="20" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" font-weight="bold" text-anchor="middle" fill="black">' + sp + '</text></svg>';
+		}
+		//const speedctr = document.getElementById('speedctr');
+		//speedctr.innerHTML= ss;
+		/*
+		if (heading != null) {
+		   moveCompassNeedle(heading);
 			}
-			//const speedctr = document.getElementById('speedctr');
-			//speedctr.innerHTML= ss;
-			/*
-			if (heading != null) {
-			   moveCompassNeedle(heading);
-				}
-			if (speed != null) {
-				// update the speed
-				moveSpeed(speed);
-			}
-						*/
+		if (speed != null) {
+			// update the speed
+			moveSpeed(speed);
 		}
-		function geofailure(event) {
-			log("geofailure:  : " + event);
-		}
-  var markerOverlay
-  function initGeo() {
-    var markerEl = document.createElement('IMG');
-	markerEl.setAttribute('id', 'geolocation_marker');
-	markerEl.setAttribute('src', '/resources/openlayers/geolocation_marker.png');
-	markerEl.setAttribute('alt', 'geolocation_marker');
+					*/
+	}
+	function geofailure(event) {
+		log("geofailure:  : " + event);
+	}
+	var markerOverlay
+	function initGeo() {
+		var markerEl = document.createElement('IMG');
+		markerEl.setAttribute('id', 'geolocation_marker');
+		markerEl.setAttribute('src', '/resources/openlayers/geolocation_marker.png');
+		markerEl.setAttribute('alt', 'geolocation_marker');
 
-	markerOverlay = new ol.Overlay({positioning: 'center-center', element: markerEl, stopEvent: false, });
-	map.addOverlay(markerOverlay);
+		markerOverlay = new ol.Overlay({positioning: 'center-center', element: markerEl, stopEvent: false, });
+		map.addOverlay(markerOverlay);
 
-	navigator.geolocation.watchPosition(geosuccess, geofailure, {enableHighAccuracy: true, maximumAge: 30000, timeout: 20000}
-			); 			//moveSpeed(30);			//moveCompassNeedle(56);
-		}
+		navigator.geolocation.watchPosition(geosuccess, geofailure, {enableHighAccuracy: true, maximumAge: 30000, timeout: 20000}
+		); 			//moveSpeed(30);			//moveCompassNeedle(56);
+	}
 
 	initGeo();
 </script>
-  </body>
+</body>
+
 </html>
