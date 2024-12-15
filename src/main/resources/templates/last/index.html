@@ -7,6 +7,9 @@
 	<title>Open Taxi</title>
 	<!-- <link rel="icon" type="image/x-icon" href="/resources/images/favicon.png">-->
 	<link rel="icon" type="image/x-icon" href="./resources/images/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="./resources/sc/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="./resources/sc1/favicon.ico">
+	
 
 	<link rel="stylesheet" href="/resources/openlayers/ol-debug.css" type="text/css" />
 	<!--
@@ -17,15 +20,42 @@
 
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
+	<script src="SignalMessage.js"                   th:src="@{/resources/openlayers/SignalMessage.js}" ></script>	
+	<script src="webSocketClient.js"           th:src="@{/resources/openlayers/webSocketClient.js}" ></script>
 </head>
 <style>
 	html,
-	body {height: 100%;padding: 0;margin: 0;font-size: 14px;
-	}
+	body {height: 100%;padding: 0;margin: 0;font-size: 14px;}
 
 	#map {width: 100%;height: 100%;}
 </style>
+
+
+<style name="">
+
+	
+	.kelement {
+		position: fixed;
+		  left: 0px;
+		  right: 0px;
+		  bottom: 8px;
+		  width: 300px;
+		  max-width: calc(
+		    100vw - 4px
+		  );
+		  margin-inline: auto;
+	} 
+	
+	/*92 08 2A 14 12 E1*/
+/* Full-width input fields */
+k_input[type=text], input[type=password] {   width: 100%;  padding: 4px 4px;  margin: 2px 0;  display: inline-block;  border: 1px solid #ccc;}
+
+/* Set a style for all buttons */
+k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin: 2px 0;  border: none;  cursor: pointer;}
+
+</style>
+
+
 <style>
 	.geolocation_marker {
 
@@ -101,11 +131,11 @@
 	}
 
 	.ref1::before {
-		content: "Reference ";
+		content: "bg ";
 	}
 
 	.ref2::before {
-		content: "Reference1 ";
+		content: "cart ";
 	}
 
 	.refX::before {
@@ -284,21 +314,7 @@
 				//	var coordinates = getPointFromLongLat(coordss.longitude, coordss.latitude);
 				var coordinates = [coordss.longitude, coordss.latitude];
 				RouteControl.updateFeature(featureId, coordinates, "");
-				/*
-			let waypoints=route.getWaypoints();
-			var featureId=inp.getAttribute("featureId");
-		
-			var feature = vectorSource.getFeatureById(featureId);
-			var coordsss =getLastGeoLocationEvent()
-			const coordss = coordsss.coords;
-			var lngLat=[coordss.longitude, coordss.latitude];
-				
-			var coord = getPointFromLongLat(coordss.longitude, coordss.latitude);
-	
-				feature.getGeometry().setCoordinates(coord);
-				route.updateWaypointByfeatureId(featureId,lngLat);
-				route.createRoute();
-				*/
+
 				var x = document.getElementsByClassName("autocomplete-items");
 				for (var i = 0; i < x.length; i++) {
 					//if (elmnt != x[i] && elmnt != inp) 
@@ -356,6 +372,39 @@
 </script>
 <div id="map" class="map"></div>
 
+
+<div id='loginCont' style=' background-color: rgb(114, 159, 207); border:1px solid' jstyle=' background-color: rgb(114, 159, 207); border:1px solid black;max-width: fit-content;  margin-left: auto;  margin-right: auto;'>
+
+
+  <div class="ontainer">
+    <label for="uname"><b>Username</b></label>
+    <input type="text" placeholder="Enter Username" name="uname" >
+	<br>	
+	<div class="input-group -1 mt-1">
+	      <span class="input-group-text" style="display:none1" >
+	         <img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" alt="Red dot" />
+	      </span>
+	      <input type="text" class="form-control" placeholder="Start">
+	         <button type="button" class=" btn btn-primary btn-sm">
+	          <img class="geolocation_marker" />
+	         </button>
+
+	      <button type="button" class="btn btn-primary btn-sm">
+	          <i class="fa fa-trash"></i>
+	      </button>
+	  </div>
+<br>
+    <label for="psw"><b>Password</b></label>
+    <input type="password" placeholder="Enter Password" name="psw" >
+<br>
+    <button type="submit">Login</button>
+ <button type="submit">Register</button>
+<span  style="float: right;  ">
+ <button type="button" class="">Cancel</button>
+</span>
+   
+  </div>
+
 <script>
 	const source = new ol.source.XYZ({url: 'https://' + hostname + ':8443/tile/{z}/{x}/{y}.png'});
 	const tileLayer = new ol.layer.Tile({source: source});
@@ -363,7 +412,7 @@
 	const vectorSource = new ol.source.Vector();
 	const vectorLayer = new ol.layer.Vector({source: vectorSource})
 
-	const view = new ol.View({center: ol.proj.fromLonLat([27.953315566702816, 43.3520584446037]), zoom: 10})
+	const view = new ol.View({center: ol.proj.fromLonLat([27.953315566702816, 43.3520584446037]), zoom: 12})
 
 	var map = new ol.Map({
 		layers: [tileLayer, vectorLayer],
@@ -509,8 +558,6 @@
 
 			return children;
 		},
-
-
 
 		createFeature: function (coord) {
 			g = new ol.geom.Point(ol.proj.fromLonLat(coord));
@@ -667,203 +714,15 @@
 
 		})
 	}
-	//-----------------------------------------------------------------------------
-	class Waypoint {
-		constructor(lngLat, name, options) {
-			this.lngLat = lngLat;
-			this.name = name;
-			this.options = options;
-			this.featureId = '';
-		}
-
-		update(lngLat) {
-			this.lngLat = lngLat;
-			simpleReverseGeocodingByWaypoint(this);
-		}
-	}
-	//-----------------------------------------------------------------------------
-	class Route {
-		waypoints = [];
-		url = 'https://' + (new URL(location.origin).hostname) + ':8443/route/v1/driving/';
-
-		constructor(waypoint) {
-			if (waypoint !== undefined)
-				this.waypoints = waypoint;
-		}
-
-		getWaypoints() {
-			return this.waypoints;
-		}
-
-		reset() {
-			this.waypoints = [];
-		}
-
-		updateWaypointByfeatureId(featureId, lngLat) {
-			//	var ff=[27.9797311,43.2388141];
-			for (let i = 0; i < this.waypoints.length; i++) {
-				var val = this.waypoints[i];
-				if (val.featureId == featureId) {
-					val.update(lngLat);
-				}
-			}
-
-			//dinamic
-			//this.createRoute();
-
-		}
-
-
-		updateWaypoint(feature_, evt) {
-			var geometry = feature_.getGeometry().clone().transform(map.getView().getProjection(), 'EPSG:4326');
-			var fc = geometry.flatCoordinates;
-			var ff = [fc[0], fc[1]];
-			console.log(ff);
-			for (let i = 0; i < this.waypoints.length; i++) {
-				var val = this.waypoints[i];
-				var featureuid = feature_.ol_uid;
-				if (val.featureId === featureuid) {
-					val.update(ff);
-					console.log('feature_ founf');
-				}
-			}
-
-			//dinamic			 
-			//	this.createRoute();
-		}
-
-
-		remove(index) {
-			this.waypoints.slice(index);
-		}
-		add(waypoint) {
-
-			//-------------------------
-			var i = this.waypoints.push(waypoint);
-			var name = this.getWaypointName(i);
-			var fId = this.createFeature(waypoint.lngLat, name);
-
-			waypoint.featureId = fId
-
-		}
-
-		getPath() {
-			let txt = "";
-			let length = this.waypoints.length;
-
-			for (let i = 0; i < length; i++) {
-				var val = this.waypoints[i].lngLat;
-				txt += val;
-				if (i < (length - 1))
-					txt += ";";
-			}
-			return txt
-		}
-
-		createRoute() {
-			var extraparams = "?overview=full&alternatives=true&steps=true";  //&hints=;"
-			var urll = 'https://' + hostname + ':8443/route/v1/driving/'
-			const url = urll + this.getPath() + extraparams;
-
-			log("createRoute url " + url)
-			fetch(url).then(function (r) {
-				return r.json();
-			}).then(function (json) {
-				if (json.code !== 'Ok') {
-					console.log('No route found.');
-					return;
-				}
-				console.log('Route added');
-				//points.length = 0;
-				var r = utils.createRoute(json.routes[0].geometry);
-				// r.setId("ff");
-
-				// 		let feature = vectorSource.getFeatureById('ff');
-				//		console.log('Route added'+feature);
-			});
-		}
-
-
-
-		resetAllFeature() {
-			vectorSource.clear();
-		}
-
-		createFeature(coord, name) {
-			var g = new ol.geom.Point(ol.proj.fromLonLat(coord));
-			var feature = new ol.Feature({type: 'place', geometry: g});
-			feature.setStyle(getFeatureStyle(name));
-			vectorSource.addFeature(feature);
-			var translate1 = new app.Drag({features: new ol.Collection([feature])});
-			map.addInteraction(translate1);
-
-			var ol_uid = feature.ol_uid;
-			feature.setId(ol_uid);
-			//return feature;
-
-			return ol_uid;
-		}
-
-		createFeatures() {
-			vectorSource.clear();
-			for (let i = 0; i < this.waypoints.length; i++) {
-				var val = this.waypoints[i];
-				var name = this.getWaypointName(i);
-				var fId = this.createFeature(val.lngLat, name);
-
-				val.featureId = fId
-			}
-		}
-
-		dumpWaypoint() {
-			for (let i = 0; i < this.waypoints.length; i++) {
-				var val = this.waypoints[i];
-				console.log("dumpWaypoint index " + i + "  " + val);
-			}
-		}
-
-
-		static startPlaceholder = 'Start';
-		static viaPlaceholder = 'Via {viaNumber}';
-		static endPlaceholder = 'End';
-
-
-		getWaypointName(index) {
-			//				var l = new Localization(geocoderElement.options.language).localize('ui');
-			return index === 0 ?
-				'Start' :
-				(index < this.waypoints.length - 1 ?
-					'Via ' + index :
-					'End');
-		}
-
-	}
-
-	//-----------------------------------------------------------------------------
-
-	const route = new Route();
-	//route.add(new Waypoint([27.981982,43.238152],'text1'));
-	//	route.add(new Waypoint([27.9797321,43.2388151],'text1'));
-	//	route.add(new Waypoint([27.897369,43.221216],'text2'));
-	//	route.add(new Waypoint([27.897365,43.221217],'text2'));
-
-	//		route.createFeatures();
-	//				route.createRoute();
 
 	//RouteControl------------------------------------------------	  
 
 	class RouteControl extends ol.control.Control {
 
-		constructor(route, opt_options) {
+		constructor( opt_options) {
 			const options = opt_options || {};
 
-			var wplen = route.getWaypoints().length
-
-			if (wplen == 0) {
-				route.add(new Waypoint([0, 0], 'end'));
-				route.add(new Waypoint([0, 0], 'start'));
-			}
-
+		
 			var container = RouteControl.createContainer(options);
 			super({element: container, target: options.target, });
 		}
@@ -880,6 +739,7 @@
 			cWaypoint.appendChild(node_111);
 
 		}
+
 
 
 		static updateFeature(featureId, coordinates, value) {
@@ -934,6 +794,7 @@
 					console.log('Route added');
 					//points.length = 0;
 					var r = utils.createRoute(json.routes[0].geometry);
+					var r = RouteControl.updateRouteInfo(json.routes[0]);
 					// r.setId("ff");
 
 					// 		let feature = vectorSource.getFeatureById('ff');
@@ -941,6 +802,97 @@
 				});
 			}
 		
+			//			
+			//kilometers: "km"
+			//meters: "m"
+			//
+			
+			static updateRouteInfo(json)
+			{
+			const	un= {
+				   meters: 'm',
+				   kilometers: 'km'}
+				
+				
+				
+				var duration=	json.duration;
+				var distance=json.distance;
+				
+				var v =distance; //roundFn(d, sensitivity);
+				var  data = {
+				    value: v >= 1000 ? (v / 1000) : v,
+				    unit: v >= 1000 ? un.kilometers : un.meters
+				  };
+				
+				var refDistance = document.getElementById("refDistance");
+				refDistance.innerHTML=data.value.toFixed(1) +' '+data.unit +' '+(duration/60).toFixed(1)+' min';
+				
+			}	
+			
+			static loadOrder(){
+				log('loadOrder');
+			var json=' {"coord":[{"lon":27.990425599999995,"lat":43.23737599999998,"name":"Васил Стоилов, Дълбокото дере, кв. Виница, Варна, Приморски, Варна, 9006, България"},{"lon":27.96982623476562,"lat":43.23512489505694,"name":"Горна Трака, кв. Виница, Варна, Приморски, Варна, 9022, България"}]}';
+			             
+			const cWaypoint = document.getElementById('Waypoint');
+			
+			cWaypoint.innerText="";
+			vectorSource.clear();
+			const obj = JSON.parse(json);
+			
+
+			for (let item of obj.coord) {
+				log(item);
+				var LonLat = [item.lon, item.lat];
+							var feature = RouteControl._createFeature(LonLat);
+							var node_11 = RouteControl.autoCompleteBtn(feature, item.name);
+							cWaypoint.appendChild(node_11);
+
+			}						
+			
+			RouteControl.refresh();
+
+			
+			}
+			static createOrder()
+			{
+				var order = {};
+				var coord = []
+				order.coord = coord;
+
+				
+				var inputGroupfeatureIdEl = document.getElementById("Waypoint");
+				var features=utils.elementChildren(inputGroupfeatureIdEl);
+						
+							let path = "";	
+							var count=0;
+							var featuresLength=features.length;
+								for (let i = 0; i < featuresLength; i++) {
+												
+								
+									var feature =features[i];
+									
+									var f=feature.feature;
+									var featureId=	f.getId();	 
+									
+									var bntEl = document.getElementById("bnt" + featureId);
+									var waypointName=utils.getWaypointName(i,featuresLength);
+									bntEl.placeholder=waypointName;
+									
+									var st = getFeatureStyle(waypointName);
+										f.setStyle(st);
+									
+									
+									var geometry =f.getGeometry().clone().transform(map.getView().getProjection(), 'EPSG:4326');
+									var coordinates = geometry.flatCoordinates;
+									
+									var coord = {  "lon": coordinates[0],  "lat": coordinates[1],  "name":bntEl.value }
+									order.coord.push(coord);
+					
+									}
+				log('order json '+JSON.stringify(order));	
+				
+		
+			}
 			
 		static refresh()//delete update add move
 		{
@@ -992,6 +944,7 @@
 			if(count>=2)
 					RouteControl.createRoute(path);
 					else {
+						var refDistance = document.getElementById("refDistance").innerHTML='';
 						//dublicate
 						var routeFeature = vectorSource.getFeatureById('routeFeature');
 														if (routeFeature)
@@ -1042,7 +995,7 @@
 			const cWaypoint = document.getElementById('Waypoint');
 			var LonLat = [0, 0];
 			var feature = RouteControl._createFeature(LonLat);
-			var node_11 = RouteControl.autoCompleteBtn(feature, 'waypointName');
+			var node_11 = RouteControl.autoCompleteBtn(feature, '');
 			cWaypoint.appendChild(node_11);
 			RouteControl.refresh();
 		}
@@ -1161,14 +1114,22 @@
 
 			
 			
-			var hideFeature = document.createElement('BUTTON');
-			hideFeature.setAttribute('type', 'button');
-			hideFeature.setAttribute('class', 'btn btn-primary btn-sm');
-			hideFeature.setAttribute('onclick', 'RouteControl.CreateOrder()');
-			hideFeature.innerHTML = 'CreateOrder';
-			node_20.appendChild(hideFeature);
+			var createOrder = document.createElement('BUTTON');
+			createOrder.setAttribute('type', 'button');
+			createOrder.setAttribute('class', 'btn btn-primary btn-sm');
+			createOrder.setAttribute('onclick', 'RouteControl.createOrder()');
+			createOrder.innerHTML = 'CreateOrder';
+			node_20.appendChild(createOrder);
 
 
+			var loadOrder = document.createElement('BUTTON');
+						loadOrder.setAttribute('type', 'button');
+						loadOrder.setAttribute('class', 'btn btn-primary btn-sm');
+						loadOrder.setAttribute('onclick', 'RouteControl.loadOrder()');
+						loadOrder.innerHTML = 'loadOrder';
+						node_20.appendChild(loadOrder);
+			
+			
 			var node_22 = document.createElement('SPAN');
 			node_22.setAttribute('class', 'refAdd');
 			node_21.appendChild(node_22);
@@ -1178,13 +1139,16 @@
 			node_19.appendChild(node_23);
 
 			var node_24 = document.createElement('SPAN');
-			node_24.setAttribute('class', 'refDistance');
+			node_24.id='refDistance';
+			//node_14.setAttribute('id', "refDistance");
+			
+			node_24.setAttribute('class', 'f_refDistance');
 			node_23.appendChild(node_24);
 
 			return node_1;
 		}
 
-		static autoCompleteBtn(feature, placeholder) {
+		static autoCompleteBtn(feature, value) {
 
 			var featureId = feature.getId();
 
@@ -1214,7 +1178,7 @@
 			node_14.setAttribute('id', "bnt" + featureId);
 			node_14.setAttribute('featureId', featureId);
 
-			node_14.setAttribute('placeholder', placeholder);
+			node_14.value=value;
 
 			node_11.appendChild(node_14);
 
@@ -1242,10 +1206,150 @@
 		}
 	}
 
-	var rc = new RouteControl(route);
+	var rc = new RouteControl();
 
 	map.addControl(rc);
 	rc.init();
+	//rc.handleRotateNorth();
+	
+	class LoginControl extends ol.control.Control {
+	  /**
+	   * @param {Object} [opt_options] Control options.
+	   */
+	  constructor(opt_options) {
+	    const options = opt_options || {};
+
+	    const button = document.createElement('button');
+		button.setAttribute("id", "b1");
+	    button.innerHTML ='<i class="fa fa-sign-in"></i>';// 'Login';
+		////button.innerHTML ='<i class="fa fa-sign-out"></i>';// 'Loginout';
+		//button.style.width="3.875em";
+	    
+		//button.style.backgroundColor ="#4CAF50";
+		
+		
+		const element = document.createElement('span');
+		element.setAttribute("id", "d1");
+	    element.className = 'rotate-north ol-unselectable o l-control kelement';
+		
+		//element.style.backgroundColor = " rgba(0,0,136,0.5)";
+		//element.style.backgroundColor ="#4CAF50";
+		
+		const loginCont = document.getElementById('loginCont');
+		
+		//element.style.top = "95px"; 
+	    element.appendChild(loginCont);
+
+	    super({
+	      element: element,
+	      target: options.target,
+	    });
+
+	    button.addEventListener('click', this.handleRotateNorth.bind(this), false);
+	  }
+
+	  //https://www.joshwcomeau.com/css/center-a-div/
+	  setState(state) {
+
+	  }
+	  
+	  handleRotateNorth(e) {
+		
+		
+		var pos = map.getView().getCenter();  
+		
+		const loginCont = document.getElementById('loginCont');
+		//dialog=document.getElementById('id01')
+		//loginCont.style.display='block'
+		//  var pos = map.getView().getCenter(); 
+		//  const loginOverlay = new ol.Overlay({position: pos,  element: loginCont,   positioning: 'bottom-center',   stopEvent: true, });
+		//  map.addOverlay(loginOverlay);
+		
+		//loginOverlay.setPosition(pos);
+		const button = document.getElementById("b1");
+		//button.innerHTML = 'A';
+		//const button=document.getElementById("di");
+		button.parentNode.appendChild(loginCont);
+	//	var innerHTML=button.innerHTML;
+		
+		if(innerHTML==='<i class="fa fa-sign-out"></i>')
+			{
+			//button.setAttribute("id", "b1");
+			//TODO MAKE CALL
+		    button.innerHTML = '<i class="fa fa-sign-in"></i>';
+		 return;
+			}
+			
+		loginCont.style.display='block'
+		
+	    //this.getMap().getView().setRotation(0);
+	  }
+	}
+	//var lc = new LoginControl();
+		//map.addControl(lc);
+	//import {Control, defaults as defaultControls} from './ol/control.js';
+	class SuperCookie extends ol.control.Control {
+	  /**
+	   * @param {Object} [opt_options] Control options.
+	   */
+	  constructor(opt_options) {
+	    const options = opt_options || {};
+
+	    const button = document.createElement('button');
+		button.setAttribute("id", "b1");
+	    button.innerHTML ='<i class="fa fa-sign-in"></i>';// 'Login';
+		////button.innerHTML ='<i class="fa fa-sign-out"></i>';// 'Loginout';
+		//button.style.width="3.875em";
+	    
+		//button.style.backgroundColor ="#4CAF50";
+		
+		
+		const element = document.createElement('span');
+		element.setAttribute("id", "d1");
+	    element.className = 'rotate-north ol-unselectable ol-control';
+		
+		//element.style.backgroundColor = " rgba(0,0,136,0.5)";
+		//element.style.backgroundColor ="#4CAF50";
+		
+		
+		element.style.top = "95px"; 
+	    element.appendChild(button);
+
+	    super({
+	      element: element,
+	      target: options.target,
+	    });
+
+	    button.addEventListener('click', this.handleRotateNorth.bind(this), false);
+	  }
+
+	  
+	  setState(state) {
+
+	  }
+	  
+	  handleRotateNorth(e) {
+		
+		const button=document.getElementById("b1");
+		button.innerHTML="W";
+		
+		
+		
+	    //this.getMap().getView().setRotation(0);
+	  }
+	}
+
+	
+	var sc = new SuperCookie();
+		map.addControl(sc);
+	// export default RotateNorthControl;
+
+
+	//var lc = new LoginControl();
+	//map.addControl(lc);
+	// export default RotateNorthControl;
+
+
 
 	//search?q=Тодор Хаджистанчев&limit=20&format=json&addressdetails=1&city=Варна&accept-language=bg-BG&limit=2
 	// https://localhost:8443/api?&q=%D0%92%D0%B8%D0%BD%D0%B8%D1%86%D0%B0&limit=2

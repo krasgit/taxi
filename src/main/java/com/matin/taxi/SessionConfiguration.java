@@ -3,10 +3,10 @@ package com.matin.taxi;
 import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
+//import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
 import org.springframework.transaction.PlatformTransactionManager;
 
-@EnableJdbcHttpSession
+//@EnableJdbcHttpSession
 public class SessionConfiguration {
 
     @Bean
