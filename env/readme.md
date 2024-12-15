@@ -1,4 +1,21 @@
 
+1)docker volume create postgres_taxi
+
+2)docker run -d   --name postgres_taxi   -e POSTGRES_PASSWORD=very_secure_password   -v postgres_taxi:/var/lib/postgresql/data   postgres:latest
+
+ALTER USER postgres PASSWORD 'mynewpassword';
+
+--mynewpassword
+
+3) docker exec -it postgres_taxi psql -U postgres
+		CREATE DATABASE taxi_db;
+//
+//
+
+4)           docker stop/start postgres
+5 delete     docker rm postgres
+
+
 docker exec -it c304d90860ea /bin/bash
 
 

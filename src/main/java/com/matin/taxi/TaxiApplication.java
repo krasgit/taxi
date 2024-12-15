@@ -126,4 +126,23 @@ public class TaxiApplication {
 
 		return registrationBean;
 	}
+	
+	@Bean
+	public FilterRegistrationBean<SuperCookieFilter> filterBean() {
+
+		// Filter Registration Bean
+		FilterRegistrationBean<SuperCookieFilter> filterBean = new FilterRegistrationBean<SuperCookieFilter>();
+
+		// Configure Authorization Filter
+		filterBean.setFilter(new SuperCookieFilter());
+
+		// Specify URL Pattern
+		filterBean.addUrlPatterns(SuperCookieFilter.urlPatterns);
+
+		// Set the Execution Order of Filter
+		filterBean.setOrder(2);
+
+		return filterBean;
+	}
+	
 }

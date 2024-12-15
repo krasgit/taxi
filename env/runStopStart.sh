@@ -7,15 +7,16 @@ sudo zerotier-cli join a0cbf4b62ac3c44d
 
 echo "stop "
 
-
-docker stop unruffled_haslett
-docker start unruffled_haslett
-
-docker stop compassionate_dubinsky
-docker start compassionate_dubinsky
+docker stop musing_ardinghelli
+docker start musing_ardinghelli
+docker stop compassionate_meninsky
+docker start compassionate_meninsky
 
 docker stop nominatim
 docker start  nominatim
+
+docker  stop postgres_taxi
+docker  start postgres_taxi
 
 docker ps
 
