@@ -37,40 +37,31 @@ function init() {
 
 function processWsMessage(message) {
     var signal = JSON.parse(message.data);
-    logMessage(signal);
+    logMessage("processWsMessage"+  signal);
     // you have logged in
     switch (signal.type) {
 		
-		case 'session':
-		            handleSession(signal);
-		            break;
-		
-        case 'init':
-            handleInit(signal);
-            break;
-        case 'logout':
-            handleLogout(signal);
-            break;
-        case 'offer':
-            handleOffer(signal);
-            break;
-        case 'answer':
-            handleAnswer(signal);
-            break;
-        case 'ice':
-            handleIce(signal);
-			
-		case 'pong':
-		     handlePong(signal);	
-            break;
-			
-			
-			case 'login':
-					     handleLogin(signal);	
-			            break;	
+		case 'session':handleSession(signal);break;
+		case 'init':   handleInit(signal);   break;
+        case 'logout': handleLogout(signal); break;
+        case 'offer':  handleOffer(signal);  break;
+        case 'answer': handleAnswer(signal); break;
+        case 'ice':    handleIce(signal);    break;
+		case 'pong':   handlePong(signal);   break;
+     	case 'login':  handleLogin(signal);   break;	
+     	case 'UpdatePostion': handleUpdatePostion(signal);      break;				
+						
     }
 
 }
+
+function handleUpdatePostion(signal) {
+	
+	log("handleUpdatePostion" +signal);
+	//const obj = JSON.parse(signal.data);
+	updatePositionMarker(signal.data)
+	
+	}
 
 function handleLogin(signal) {
 	var res=signal.data;
@@ -286,6 +277,18 @@ function wsPing() {
 	console.log("msg "+msg);
 	ws.send( msg);
 }
+
+
+
+function wsUpdatePostion(data) {
+	
+	type="updatePostion";
+	msg=JSON.stringify({type:type, sender: sesionID, receiver: sesionID,data:data});
+	console.log("msg "+msg);
+	ws.send( msg);
+}
+
+
 
 function wsSend(msg) {
 	

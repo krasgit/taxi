@@ -1329,6 +1329,7 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 	  }
 	  
 	  handleRotateNorth(e) {
+		wsPing();
 		
 		const button=document.getElementById("b1");
 		button.innerHTML="W";
@@ -1382,6 +1383,29 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 </script>
 
 <script name="GeoLocation">
+	
+	var geoPositionOverlay;
+	function geoPosition() {
+			var markerEl = document.createElement('IMG');
+			markerEl.setAttribute('id', 'geolocation_marker_heading');
+			markerEl.setAttribute('src', '/resources/openlayers/geolocation_marker_heading.png');
+			markerEl.setAttribute('alt', 'geolocation_marker_heading');
+
+			geoPositionOverlay = new ol.Overlay({positioning: 'center-center', element: markerEl, stopEvent: false, });
+			map.addOverlay(geoPositionOverlay);
+
+	}
+	geoPosition();
+	function updatePositionMarker(ev) {
+			var coordss = ev.coords;
+			//log(coordss);
+			const projectedPosition = ol.proj.fromLonLat([coordss.longitude, coordss.latitude]);
+			var heading = coordss.heading;
+			geoPositionOverlay.setPosition(projectedPosition);
+			map.render();
+		}
+	
+	
 	var markerOverlay
 
 	function updateGeoMarker() {
@@ -1398,6 +1422,9 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 
 	function geosuccess(event) {
 		lastGeoLocationEvent = event;
+		
+		wsUpdatePostion(event);
+		
 		updateGeoMarker();
 		//log("geo: " + count++ + " : " + event.coords.heading + " speed:" + event.coords.speed);
 		var heading = event.coords.heading;
@@ -1423,7 +1450,7 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 	function geofailure(event) {
 		log("geofailure:  : " + event);
 	}
-	var markerOverlay
+	
 	function initGeo() {
 		var markerEl = document.createElement('IMG');
 		markerEl.setAttribute('id', 'geolocation_marker');

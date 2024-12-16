@@ -79,26 +79,7 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
     
     
      
-    void handleLogin(WebSocketSession session, SignalMessage signalMessage) throws Exception
-    {
-       WebSocketSession destSocket = connectedUsers.get(signalMessage.getSender());
-       
-       SignalMessage responceMessage=new SignalMessage();
-       responceMessage.setType("login");
-       /*
-       HashMap<?, ?> map = signalMessage.getMap();
-       Object u = map.get("username");
-       String username = (String) u;
-       */
-       if(signalMessage.getMap().get("username").equals(""))
-         responceMessage.setData(SignalMessage.logned);
-       else 
-    	 responceMessage.setData(SignalMessage.notlogned);
-       //
-       
-       //
-       SendMessage(destSocket,responceMessage);
-    }
+   
      
     void SendMessage(WebSocketSession destSocket,SignalMessage message ) throws Exception{
     if (destSocket != null && destSocket.isOpen()) {
@@ -119,6 +100,14 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
         
         SignalMessage signalMessage = Utils.getObject(payload);
 
+
+        if(signalMessage.getType().equals("updatePostion"))
+        {
+        	handleUpdatePostion(session,signalMessage);
+        	return ;
+        }
+        
+        
         if(signalMessage.getType().equals("login"))
         {
         	handleLogin(session,signalMessage);
@@ -147,7 +136,7 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    private void removeUserAndSendLogout(final String sessionId) {
+	private void removeUserAndSendLogout(final String sessionId) {
 
         connectedUsers.remove(sessionId);
 
@@ -164,4 +153,51 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
             }
         });
     }
+	
+	 void handleLogin(WebSocketSession session, SignalMessage signalMessage) throws Exception
+	    {
+		 	System.err.println(signalMessage.getSender());
+	       WebSocketSession destSocket = connectedUsers.get(signalMessage.getSender());
+	       
+	       SignalMessage responceMessage=new SignalMessage();
+	       responceMessage.setType("login");
+	       /*
+	       HashMap<?, ?> map = signalMessage.getMap();
+	       Object u = map.get("username");
+	       String username = (String) u;
+	       */
+	       if(signalMessage.getMap().get("username").equals(""))
+	         responceMessage.setData(SignalMessage.logned);
+	       else 
+	    	 responceMessage.setData(SignalMessage.notlogned);
+	       //
+	       
+	       //
+	       SendMessage(destSocket,responceMessage);
+	    }
+	 
+	 private void handleUpdatePostion(WebSocketSession session, SignalMessage signalMessage) throws Exception{
+		 System.err.println(signalMessage.getSender());
+   	  //WebSocketSession destSocket = connectedUsers.get(signalMessage.getReceiver());
+         
+         SignalMessage responceMessage=new SignalMessage();
+         responceMessage.setType("UpdatePostion");
+         /*
+         HashMap<?, ?> map = signalMessage.getMap();
+         Object u = map.get("username");
+         String username = (String) u;
+         */
+         
+      	 responceMessage.setData(signalMessage.getData());
+         //
+         
+      	for (var entry : connectedUsers.entrySet()) {
+      	    //System.out.println(entry.getKey() + "/" + entry.getValue());
+      		if(!entry.getKey().equals(signalMessage.getSender()))
+      		{
+      			WebSocketSession destSocket=entry.getValue();
+      	        SendMessage(destSocket,responceMessage);
+      		}
+      	}
+ 	}
 }
