@@ -535,6 +535,11 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 	//-----------------------------------------------------------------------------		 
 	var utils = {
 
+		distanceBetweenPoints (latlng1, latlng2){
+		            var line = new ol.geom.LineString([latlng1, latlng2]);
+		            return Math.round(line.getLength() * 100) / 100;
+		},
+		
 		getWaypointName(index,length) {
 				//				var l = new Localization(geocoderElement.options.language).localize('ui');
 				return index === 0 ?
@@ -1383,6 +1388,7 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 </script>
 
 <script name="GeoLocation">
+
 	
 	var geoPositionOverlay;
 	function geoPosition() {
@@ -1404,8 +1410,10 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 			geoPositionOverlay.setPosition(projectedPosition);
 			map.render();
 		}
+
+		</script>			
 	
-	
+	<script name="GeoLocation">	
 	var markerOverlay
 
 	function updateGeoMarker() {
