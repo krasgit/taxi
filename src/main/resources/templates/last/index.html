@@ -532,12 +532,16 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 		return false;
 	};
 
-	//-----------------------------------------------------------------------------		 
+	//-----------------------------------------------------------------------------	
+	
+		 
 	var utils = {
 
 		distanceBetweenPoints (latlng1, latlng2){
 		            var line = new ol.geom.LineString([latlng1, latlng2]);
-		            return Math.round(line.getLength() * 100) / 100;
+					
+				
+		            return line.getLength()*1000*100/1.2;//in m??
 		},
 		
 		getWaypointName(index,length) {
@@ -907,6 +911,9 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 			let path = "";	
 			var count=0;
 			var featuresLength=features.length;
+			
+			const ca = [];
+			
 				for (let i = 0; i < featuresLength; i++) {
 								
 				
@@ -938,7 +945,7 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 						var lngLat = coordinates[0]+','+ coordinates[1];
 						count++;
 						path += lngLat;
-						
+						ca.push([coordinates[0], coordinates[1]])
 					}
 					
 					
@@ -947,7 +954,16 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 					}
 				
 			if(count>=2)
+			{
+				
+			
+				var d= window._allTheFns;
+				var  length = ol.Sphere.getLength_([ca[0], ca[1]],6371008.8);
+				var distance=utils.distanceBetweenPoints (ca[0], ca[1]);
+				log(distance);
 					RouteControl.createRoute(path);
+					var refDistance = document.getElementById("refDistance").innerHTML='';
+					}
 					else {
 						var refDistance = document.getElementById("refDistance").innerHTML='';
 						//dublicate
@@ -1309,7 +1325,7 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 		//button.style.backgroundColor ="#4CAF50";
 		
 		
-		const element = document.createElement('span');
+		const element = document.createElement('div');
 		element.setAttribute("id", "d1");
 	    element.className = 'rotate-north ol-unselectable ol-control';
 		
@@ -1335,7 +1351,16 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 	  
 	  handleRotateNorth(e) {
 		wsPing();
+		//{"lon":27.91940200827637,"lat":43.22019301099303, //105   001293523373954321
+		//"lon":27.920689468603523,"lat":43.22006791652882,
 		
+		//"lon":27.931085710745243,"lat":43.21074765713317,
+		//"lon":27.92988408110657,"lat":43.210763296345306,
+		
+
+		//"lon":27.7548645784668,"lat":43.15861553537073,"name":"Константиново, Варна, България"},{"lon":27.766880874853527,"lat":43.15861553537073,"name":"Припек, Константиново, Варна, 9140, България"}]}
+var distance=utils.distanceBetweenPoints ([27.7548645784668, 43.15861553537073], [27.766880874853527,43.21074765713317]);
+
 		const button=document.getElementById("b1");
 		button.innerHTML="W";
 		
@@ -1389,7 +1414,8 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 
 <script name="GeoLocation">
 
-	
+	var count = 0;
+		var lastGeoLocationEvent;
 	var geoPositionOverlay;
 	function geoPosition() {
 			var markerEl = document.createElement('IMG');
@@ -1411,9 +1437,7 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 			map.render();
 		}
 
-		</script>			
 	
-	<script name="GeoLocation">	
 	var markerOverlay
 
 	function updateGeoMarker() {
@@ -1425,14 +1449,28 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 		map.render();
 	}
 
-	var count = 0;
-	var lastGeoLocationEvent;
+	
 
 	function geosuccess(event) {
-		lastGeoLocationEvent = event;
+		if(lastGeoLocationEvent===undefined)
+		   lastGeoLocationEvent = event;
 		
-		wsUpdatePostion(event);
+		var curentCoord = event.coords;
 		
+		var lastCoord=lastGeoLocationEvent.coords;
+		
+		var distance=utils.distanceBetweenPoints ([curentCoord.longitude, curentCoord.latitude], [lastCoord.longitude, lastCoord.latitude]);
+		//log([curentCoord.longitude, curentCoord.latitude], [lastCoord.longitude, lastCoord.latitude]);
+	
+		
+		const button=document.getElementById("b1");
+				button.innerHTML=""+distance ;
+		
+		if(distance>0)
+			{
+			wsUpdatePostion(event);
+	        }	
+		 lastGeoLocationEvent = event;
 		updateGeoMarker();
 		//log("geo: " + count++ + " : " + event.coords.heading + " speed:" + event.coords.speed);
 		var heading = event.coords.heading;
