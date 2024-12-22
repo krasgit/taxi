@@ -14,156 +14,78 @@
 	<link rel="stylesheet" href="/resources/openlayers/ol-debug.css" type="text/css" />
 	<!--
 	<link rel="stylesheet" href="/resources/openlayers/w3.css"    />
-				 -->
+				 
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	-->
 	<script src="/resources/openlayers/ol-debug.js"></script>
 
+	
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	
 	<script src="SignalMessage.js"                   th:src="@{/resources/openlayers/SignalMessage.js}" ></script>	
 	<script src="webSocketClient.js"           th:src="@{/resources/openlayers/webSocketClient.js}" ></script>
+	<script src="autoComplete.js"           th:src="@{/resources/openlayers/autoComplete.js}" ></script>
+	<script src="autoComplete.js"           th:src="@{/resources/openlayers/autoComplete.js}" ></script>
+	c	
+	<script src="interaction.js"           th:src="@{/resources/openlayers/interaction.js}" ></script>
+	<script src="routeControl.js"           th:src="@{/resources/openlayers/routeControl.js}" ></script>
+	<script src="route.js"           th:src="@{/resources/openlayers/route.js}" ></script>
+	<script src="utils.js"           th:src="@{/resources/openlayers/utils.js}" ></script>
+	<script src="geoLocation.js"           th:src="@{/resources/openlayers/geoLocation.js}" ></script>
+	<script src="superCookie.js"           th:src="@{/resources/openlayers/superCookie.js}" ></script>
+	
+	<link rel="stylesheet" href="/resources/openlayers/bulma.css" type="text/css" />	
+	
 </head>
 <style>
-	html,
-	body {height: 100%;padding: 0;margin: 0;font-size: 14px;}
-
+	html,body {height: 100%;padding: 0;margin: 0;font-size: 14px; background: #c9c9ce;}
 	#map {width: 100%;height: 100%;}
 </style>
-
-
 <style name="">
-
-	
-	.kelement {
-		position: fixed;
-		  left: 0px;
-		  right: 0px;
-		  bottom: 8px;
-		  width: 300px;
-		  max-width: calc(
-		    100vw - 4px
-		  );
-		  margin-inline: auto;
-	} 
-	
-	/*92 08 2A 14 12 E1*/
-/* Full-width input fields */
-k_input[type=text], input[type=password] {   width: 100%;  padding: 4px 4px;  margin: 2px 0;  display: inline-block;  border: 1px solid #ccc;}
-
-/* Set a style for all buttons */
-k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin: 2px 0;  border: none;  cursor: pointer;}
-
+	.kelement {	position: fixed; left: 0px;	right: 0px;	bottom: 8px; width: 300px; max-width: calc(	100vw - 4px ); margin-inline: auto; } 
+	/* Full-width input fields */
+    k_input[type=text], input[type=password] {   width: 100%;  padding: 4px 4px;  margin: 2px 0;  display: inline-block;  border: 1px solid #ccc;}
+    /* Set a style for all buttons */
+    k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin: 2px 0;  border: none;  cursor: pointer;}
 </style>
-
-
 <style>
-	.geolocation_marker {
-
-		color: white;
-		padding: 8px 9px;
-		text-align: center;
-		text-decoration: none;
-		display: inline-block;
-		background-size: contain;
-		background-repeat: no-repeat;
+	.geolocation_marker { color: white; padding: 8px 9px; text-align: center; text-decoration: none; display: inline-block; background-size: contain; background-repeat: no-repeat;
 		background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABYgAAAWIBXyfQUwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAK6SURBVDiNtdXPa9NwGMfxd9KsWxhJHWx1C1h/DIa7OCaiiDt68CB4KELn8KB3ETz5D0TUQ4+exB12WEF6GHgZjIEBKaiXiTBBh1hph50wm2izLW0eD34zdhE7oQ98IAk8r3zzDTxfTUTQNE0DkqRU+gBDJQXo/KkY6ABtlUjddwABRETkIKgrIK0yAPSrGLOzsyMAi4uLWwrcVdkB9lQ66sWCAg0FZYBR4JTjONOVSqVYq9W8VqvVEFWtVqtRq9W8SqVSdBxnGjilejLKMJKvS6lVZYAxYMJ13RvNZvOTHKhW1JFW1Dn4SJrN5ifXdW8AE6o3o6wU6rMt9dYJz/MexXEciYjU/D25s/xFzj59L8aDN2I8eCNnn76XO8tfpObviYhIHMeR53mPFD6qrHSy2gHAcl33/Nzc3GNN04z5te9ce/4Rrxqw+TMiFogFNn9GvK7/4tnaFkcH+5geHdRzudyFdDr9enV19Zva/1gDbMByHCe7vr7+3Lbt8fm179x+8Zlu6tnVk9yaGsb3/Y3Jycnr9Xq9AQTJj+svl8s3bdserwcR91aqXaEA91aq1IMI27bHy+XyTbUDxj6cy+XOATysbPJjp9M1/GOnw8PKJgDK2IdTgDE0NHQa4NXXoGs0qaRHGQaQ0gGtUChkTdMcCdsx7xrhoeF3jZCwHWOa5kihUMgCmv7Prv8sHZBSqdQIw3DLNHTOZM1DI2eyJqahE4bhVqlUagCiowbK9vb2B4BLx6xDw0mPMtpAR1cXu9Vq9S3A/YtjHBlIdY0eGUhx/+IYAMrYBdr7cD6fX/B9f8Ox+iheznUNFy/ncKw+fN/fyOfzCwmczF4tCAIsy/o4MzNzbXp0UD+e6edlNWCnLX9d6ZMrJ7g1NYyItIvF4t2lpaUN4Bd/RmhvhhD0cGz2ZND37GjSenWY/ga+vttOWmiJZgAAAABJRU5ErkJggg==");
 	}
 </style>
 
 <style>
-	* {
-		box-sizing: border-box;
-	}
+	* {box-sizing: border-box;}
 
 	/*the container must be positioned relative:*/
-
-	.autocomplete {
-		position: relative;
-		display: inline-block;
-	}
-
-	input {
-		border: 1px solid transparent;
-		background-color: #f1f1f1;
-		--padding: 10px;
-		font-size: 13px;
-	}
-
-	input[type=text] {
-		background-color: #f1f1f1;
-		width: 100%;
-	}
-
-	input[type=submit] {
-		background-color: DodgerBlue;
-		color: #fff;
-		cursor: pointer;
-	}
-
-	.autocomplete-items {
-		position: absolute;
-		border: 1px solid #d4d4d4;
-		border-bottom: none;
-		border-top: none;
-		z-index: 99;
+	.autocomplete {		position: relative;		display: inline-block;	}
+	input {	border: 1px solid transparent; background-color: #f1f1f1;	--padding: 10px; font-size: 13px; }
+	input[type=text] { background-color: #f1f1f1; width: 100%; } 
+	input[type=submit] { background-color: DodgerBlue; color: #fff; cursor: pointer; }
+	.autocomplete-items { position: absolute; border: 1px solid #d4d4d4; border-bottom: none; border-top: none; z-index: 99;
 		/*position the autocomplete items to be the same width as the container:*/
-		top: 100%;
-		left: 0;
-		right: 0;
+		top: 100%; left: 0; right: 0; 
 	}
-
-	.autocomplete-items div {
-		padding: 10px;
-		cursor: pointer;
-		background-color: #fff;
-		border-bottom: 1px solid #d4d4d4;
-	}
+	.autocomplete-items div { padding: 10px; cursor: pointer; background-color: #fff; border-bottom: 1px solid #d4d4d4; }
 
 	/*when hovering an item:*/
-	.autocomplete-items div:hover {
-		background-color: #e9e9e9;
-	}
+	.autocomplete-items div:hover { background-color: #e9e9e9; }
 
 	/*when navigating through the items using the arrow keys:*/
-	.autocomplete-active {
-		background-color: DodgerBlue !important;
-		color: #ffffff;
-	}
-
-	.ref1::before {
-		content: "bg ";
-	}
-
-	.ref2::before {
-		content: "cart ";
-	}
-
-	.refX::before {
-		content: "X ";
-	}
-
-	.refDistance::before {
-		content: "Distance ";
-	}
-
-	.refAdd::before {
-		content: " + ";
-	}
+	.autocomplete-active { background-color: DodgerBlue !important; color: #ffffff; }
+ 	.ref1::before { content: "bg "; } 
+	.ref2::before {	content: "cart ";}
+	.refX::before {	content: "X "; 	}
+	.refDistance::before { content: "Distance "; }
+	.refAdd::before { content: " + "; }
 </style>
-
-<!--
-<script type="module">
-    import {getArea, getLength} from './ol-debug.js';
-	window.getLength = getLength;	
-</script> >
--->
 
 <script name="auto complete ">
 	const log = console.log;
 
 	const locationOrigin = location.origin;
 	log(locationOrigin);
-
 
 	var url = new URL(location.origin);
 
@@ -172,8 +94,6 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 	} catch (error) {
 		url = new URL("https://localhost:8443");
 	}
-
-
 
 	const hostname = url.hostname;
 
@@ -186,203 +106,49 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 	}
 
 </script>
-<script name="auto complete ">
 
-	var br = 2;
-
-	function formatAddresss(json, autocompleteList) {
-		//alert("formatAddresss");
-		var root = json.features;
-		const fruits = [];
-		for (let i = 0; i < root.length; i++) {
-			var value = root[i];
-			var pr = value.properties;
-			//  if(pr.state==='Varna')
-			fruits.push(pr.name + pr.state + " [" + pr.osm_id + "] " + value.geometry.coordinates);
-		}
-		return fruits;
-	}
-
-	function fetchMAddresscbb(inputEl, autocompleteList) {
-		var q = inputEl.value;
-		var url = 'https://' + hostname + ':8443/api?q=Varna ' + q;
-		log("fetchMAddresscbb url" + url)
-		fetch(url)
-			.then(function (response) {
-				return response.json();
-			})
-			.then(function (json) {
-				log(json);
-				newinitItem(autocompleteList, json, inputEl);
-			})
-	}
-
-	function newinitItem(autocompleteList, json, inputEl) {
-
-		var root = json.features;
-
-		for (i = 0; i < root.length; i++) {
-			var value = root[i];
-			var pr = value.properties;
-
-			var disp = pr.name + pr.state;
-
-			b = document.createElement("DIV");
-			b.innerHTML = "<strong>" + disp.substr(0, inputEl.value.length) + "</strong>";
-			b.innerHTML += disp.substr(inputEl.value.length);
-			b.innerHTML += "<input type='hidden' value='" + disp + "'   valueId='" + i + "'>";
-			b.addEventListener("click", function (e) {
-
-				var selectesItem = this.getElementsByTagName("input")[0];
-				var featureId = inputEl.getAttribute("featureId");
-				var valueId = selectesItem.getAttribute("valueId");
-				var ff = root[valueId];//var valueId=selectesItem.getAttribute("valueId");
-				//var ff= selectesItem.value;
-
-				var pr = ff.properties;
-				var coordinates = ff.geometry.coordinates;
-				var value = pr.name;
-				RouteControl.updateFeature(featureId, coordinates, value);
+<section id='loginsection' class="section" style="display:qaz ">
+  <div class="container">
 
 
-				/*
-				var selectesItem=this.getElementsByTagName("input")[0];
-				
-				var valueId=selectesItem.getAttribute("valueId");
-				var ff=root[valueId];
-				
-				var lngLat=ff.geometry.coordinates;
-				
-				inputEl.value = selectesItem.value;
-				
-				var featureId=inputEl.getAttribute("featureId");
-				var feature = vectorSource.getFeatureById(featureId);
-				var coord = getPointFromLongLat(lngLat[0], lngLat[1]);
-	
-				feature.getGeometry().setCoordinates(coord);
-				route.updateWaypointByfeatureId(featureId,lngLat);
-				route.createRoute();
-				*/
-				var x = document.getElementsByClassName("autocomplete-items");
-				for (var i = 0; i < x.length; i++) {
-					//if (elmnt != x[i] && elmnt != inp) 
-					{
-						x[i].parentNode.removeChild(x[i]);
-					}
-				}
+    <div class="card" id="log-in-card">
+      <header class="card-header">
+        <h1 class="card-header-title">
+          Log In
+        </h1>
+      </header>
+      <div class="card-content">
+        <div class="content">
 
-			});
-			autocompleteList.appendChild(b);
-		}
-	}
+          <div class="field">
+            <label class="label">Username</label>
+            <div class="control">
+              <input id="username" class="input" type="email" placeholder="user@example.com">
+            </div>
+          </div>          
 
+          <div class="field">
+            <label class="label">Password</label>
+            <div class="control">
+              <input id="password" class="input" type="password">
+            </div>
+          </div>
 
-	function autocomplete(inp) {
-		var currentFocus;
-		inp.addEventListener("input", function (e) {
-			var a, b, i, val = this.value;
-			/*close any already open lists of autocompleted values*/
-			closeAllLists();
-			if (!val) {return false;}
-			currentFocus = -1;
+          <p style="text-align: right;"><a href="#" id="open-userinfo">Forgot your password?</a></p>
 
-			autocompleteList = document.createElement("DIV");
-			autocompleteList.setAttribute("id", this.id + "autocomplete-list");
-			autocompleteList.setAttribute("class", "autocomplete-items");
-			/*append the DIV element as a child of the autocomplete container:*/
-			this.parentNode.appendChild(autocompleteList);
+        </div>
+      </div>
+      <footer class="card-footer">
+        <div class="card-footer-item"><a href="#" onclick='initMap();' class="button is-primary" id="log-in-button">Log In</a></div>
+      </footer>
+    </div>
 
-			fetchMAddresscbb(inp, autocompleteList);
-		});
-		inp.addEventListener("focus", function (e) {
-			var a, b, i, val = this.value;
-			/*close any already open lists of autocompleted values*/
-			closeAllLists();
+  </div>
+</section>
 
-			currentFocus = -1;
-
-			autocompleteList = document.createElement("DIV");
-			autocompleteList.setAttribute("id", this.id + "autocomplete-list");
-			autocompleteList.setAttribute("class", "autocomplete-items");
-			/*append the DIV element as a child of the autocomplete container:*/
-			this.parentNode.appendChild(autocompleteList);
-			var vall = "Current Location";
-
-			b = document.createElement("DIV");
-
-			b.innerHTML += vall;
-			b.innerHTML += "<input type='hidden' value='" + vall + "'>";
-			b.addEventListener("click", function (e) {
-
-				var featureId = inp.getAttribute("featureId");
-
-				var coordsss = getLastGeoLocationEvent()
-				const coordss = coordsss.coords;
-				//	var coordinates = getPointFromLongLat(coordss.longitude, coordss.latitude);
-				var coordinates = [coordss.longitude, coordss.latitude];
-				RouteControl.updateFeature(featureId, coordinates, "");
-
-				var x = document.getElementsByClassName("autocomplete-items");
-				for (var i = 0; i < x.length; i++) {
-					//if (elmnt != x[i] && elmnt != inp) 
-					{
-						x[i].parentNode.removeChild(x[i]);
-					}
-				}
-
-			});
-			autocompleteList.appendChild(b);
-		});
-
-		/*execute a function presses a key on the keyboard:*/
-		inp.addEventListener("keydown", function (e) {
-			var x = document.getElementById(this.id + "autocomplete-list");
-			if (x) x = x.getElementsByTagName("div");
-			if (e.keyCode == 40) {
-				currentFocus++;
-				addActive(x);
-			} else if (e.keyCode == 38) { //up
-				currentFocus--;
-				addActive(x);
-			} else if (e.keyCode == 13) {
-				e.preventDefault();
-				if (currentFocus > -1) {
-					if (x) x[currentFocus].click();
-				}
-			}
-		});
-		function addActive(x) {
-			if (!x) return false;
-			removeActive(x);
-			if (currentFocus >= x.length) currentFocus = 0;
-			if (currentFocus < 0) currentFocus = (x.length - 1);
-			x[currentFocus].classList.add("autocomplete-active");
-		}
-		function removeActive(x) {
-			for (var i = 0; i < x.length; i++) {
-				x[i].classList.remove("autocomplete-active");
-			}
-		}
-		function closeAllLists(elmnt) {
-			var x = document.getElementsByClassName("autocomplete-items");
-			for (var i = 0; i < x.length; i++) {
-				if (elmnt != x[i] && elmnt != inp) {
-					x[i].parentNode.removeChild(x[i]);
-				}
-			}
-		}
-		document.addEventListener("click", function (e) {
-			closeAllLists(e.target);
-		});
-	}
-
-</script>
 <div id="map" class="map"></div>
 
-
 <div id='loginCont' style=' background-color: rgb(114, 159, 207); border:1px solid' jstyle=' background-color: rgb(114, 159, 207); border:1px solid black;max-width: fit-content;  margin-left: auto;  margin-right: auto;'>
-
-
   <div class="ontainer">
     <label for="uname"><b>Username</b></label>
     <input type="text" placeholder="Enter Username" name="uname" >
@@ -409,19 +175,26 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 <span  style="float: right;  ">
  <button type="button" class="">Cancel</button>
 </span>
-   
-  </div>
+</div>
 
 <script>
+		
+	//--------
+	const vectorSource = new ol.source.Vector(); //!!!GLOBAL
+	var map;
+	function initMap (){
+	
+		document.getElementById('loginsection').style.display='none';
+		
 	const source = new ol.source.XYZ({url: 'https://' + hostname + ':8443/tile/{z}/{x}/{y}.png'});
 	const tileLayer = new ol.layer.Tile({source: source});
 
-	const vectorSource = new ol.source.Vector();
+	
 	const vectorLayer = new ol.layer.Vector({source: vectorSource})
 
 	const view = new ol.View({center: ol.proj.fromLonLat([27.953315566702816, 43.3520584446037]), zoom: 12})
 
-	var map = new ol.Map({
+	 map = new ol.Map({
 		layers: [tileLayer, vectorLayer],
 		controls: ol.control.defaults({
 			attributionOptions: {collapsed: true}
@@ -430,192 +203,14 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 		view: view,
 	});
 
+	var rc = new RouteControl();
 
-	var app = {};
-	/**@constructor  @extends {module:ol/interaction/Pointer}  */
-	app.Drag = function () {
+	map.addControl(rc);
+	rc.init();
 
-		ol.interaction.Pointer.call(this, {
-			handleDownEvent: app.Drag.prototype.handleDownEvent,
-			handleDragEvent: app.Drag.prototype.handleDragEvent,
-			handleMoveEvent: app.Drag.prototype.handleMoveEvent,
-			handleUpEvent: app.Drag.prototype.handleUpEvent
-		});
-
-		/** @type {module:ol/pixel~Pixel}* @private */
-		this.coordinate_ = null;
-
-		/**
-		 * @type {string|undefined}
-		 * @private
-		 */
-		this.cursor_ = 'pointer';
-
-		/**
-		 * @type {module:ol/Feature~Feature}
-		 * @private
-		 */
-		this.feature_ = null;
-
-		/** @type {string|undefined} @private*/
-		this.previousCursor_ = undefined;
-
-	};
-	// inherits(app.Drag, PointerInteraction);
-	ol.inherits(app.Drag, ol.interaction.Pointer);
-
-	/**
-	 * @param {module:ol/MapBrowserEvent~MapBrowserEvent} evt Map browser event.
-	 * @return {boolean} `true` to start the drag sequence.
-	 */
-	app.Drag.prototype.handleDownEvent = function (evt) {
-		var map = evt.map;
-
-		var feature = map.forEachFeatureAtPixel(evt.pixel,
-			function (feature) {
-				return feature;
-			});
-
-		if (feature) {
-			this.coordinate_ = evt.coordinate;
-			this.feature_ = feature;
-		}
-
-		return !!feature;
-	};
-
-	/**
-	 * @param {module:ol/MapBrowserEvent~MapBrowserEvent} evt Map browser event.
-	 */
-	app.Drag.prototype.handleDragEvent = function (evt) {
-		var deltaX = evt.coordinate[0] - this.coordinate_[0];
-		var deltaY = evt.coordinate[1] - this.coordinate_[1];
-
-		var geometry = this.feature_.getGeometry();
-		geometry.translate(deltaX, deltaY);
-
-		this.coordinate_[0] = evt.coordinate[0];
-		this.coordinate_[1] = evt.coordinate[1];
-
-		var featureId = this.feature_.getId();
-		var bntEl = document.getElementById("bnt" + featureId);
-
-		var geometry = this.feature_.getGeometry().clone().transform(map.getView().getProjection(), 'EPSG:4326');
-		var coordinates = geometry.flatCoordinates;
-
-
-		reverseGeocoding(coordinates[0], coordinates[1], bntEl, callbackSetInputElVal)
-
-	};
-
-	/** @param {module:ol/MapBrowserEvent~MapBrowserEvent} evt Event.  */
-	app.Drag.prototype.handleMoveEvent = function (evt) {
-		if (this.cursor_) {
-			var map = evt.map;
-			var feature = map.forEachFeatureAtPixel(evt.pixel,
-				function (feature) {
-					return feature;
-				});
-			var element = evt.map.getTargetElement();
-			if (feature) {
-				if (element.style.cursor != this.cursor_) {
-					this.previousCursor_ = element.style.cursor;
-					element.style.cursor = this.cursor_;
-				}
-
-				//feature.getGeometry().setCoordinates(evt.coordinate);
-			} else if (this.previousCursor_ !== undefined) {
-				element.style.cursor = this.previousCursor_;
-				this.previousCursor_ = undefined;
-			}
-		}
-	};
-
-	/**  @return {boolean} `false` to stop the drag sequence.    */
-	app.Drag.prototype.handleUpEvent = function () {
-		this.coordinate_ = null;
-		this.feature_ = null;
-		RouteControl.refresh()
-		return false;
-	};
-
-	//-----------------------------------------------------------------------------	
+	var sc = new SuperCookie();
+		map.addControl(sc);
 	
-		 
-	var utils = {
-
-		distanceBetweenPoints (latlng1, latlng2){
-		            var line = new ol.geom.LineString([latlng1, latlng2]);
-					
-				
-		            return line.getLength()*1000*100/1.2;//in m??
-		},
-		
-		getWaypointName(index,length) {
-				//				var l = new Localization(geocoderElement.options.language).localize('ui');
-				return index === 0 ?
-					'Start' :
-					(index < length - 1 ?
-						'Via ' + index :
-						'End');
-			},
-			
-		
-		elementChildren: function (element) {
-			var childNodes = element.childNodes,
-				children = [],
-				i = childNodes.length;
-
-			while (i--) {
-				if (childNodes[i].nodeType == 1) {
-					children.unshift(childNodes[i]);
-				}
-			}
-
-			return children;
-		},
-
-		createFeature: function (coord) {
-			g = new ol.geom.Point(ol.proj.fromLonLat(coord));
-			var feature = new ol.Feature({type: 'place', geometry: g});
-			feature.setStyle(routeStyle);
-			vectorSource.addFeature(feature);
-			var translate1 = new app.Drag({
-				features: new ol.Collection([feature])
-			});
-			map.addInteraction(translate1);
-		},
-		createRoute: function (polyline) {
-			// route is ol.geom.LineString
-			var route = new ol.format.Polyline({
-				factor: 1e5
-			}).readGeometry(polyline, {
-				dataProjection: 'EPSG:4326',
-				featureProjection: 'EPSG:3857'
-			});
-
-			var routeFeature = vectorSource.getFeatureById('routeFeature');
-			if (routeFeature)
-				vectorSource.removeFeature(routeFeature);
-
-			var feature = new ol.Feature({type: 'route', geometry: route});
-			feature.setId('routeFeature')
-			feature.setStyle(routeStyle);
-			vectorSource.addFeature(feature);
-			//	 map.render();
-			return feature;
-		},
-		to4326: function (coord) {
-			return ol.proj.transform([
-				parseFloat(coord[0]), parseFloat(coord[1])
-			], 'EPSG:3857', 'EPSG:4326');
-		}
-	};
-	var coord1 = [-5707673.76, -3499420.81];
-	var marker1 = new ol.geom.Point(coord1);
-	var featureMarker1 = new ol.Feature(marker1);
-
-
 	map.on('click', function (e) {
 		var coordinate = ol.proj.toLonLat(e.coordinate).map(function (val) {
 			return val.toFixed(6);
@@ -624,11 +219,15 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 		var lat = coordinate[1];
 		simpleReverseGeocoding(lon, lat);
 	});
-
-
-	//-----------------------------------------------------------------------------
+		
+	
+	initGeo(); //depends of map
+	
+	}
+	
+//	initMap ();
+//-----------------------------------------------------------------------------
 	var markerImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAApCAYAAADAk4LOAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAUlSURBVFjDrZdLiBxVFIb/e289uqt6kkx6zIiIoKgLRReKuMhCcaOIAUEIiCCE4CIPggZ8kBjooPgM0TiYEUUjqBGchZqAQlyYRTA+kJiJQiJGMjN5zYzT3dP1rrr3HBeTjDGTSfc8Dvyruud89Z9z6kIJdBj31763MivsJXKuZYF6dak5++2mh7NOcsXVHq6sHbhOK/24kOJJMO4AE1vKygwZhxlKSHGKiD+RSu09vOXB43OCrHz96y6T2lsh+OmKXzFdlbLne2UopSAupBhjECcZgjDMgiiSxPhcK/nCr1sfOtcWcm/tq9uEsL4rl0vdK67pKVu2jUwTMk0wBBAzpBCQAnAtiZIlwWQwPlHPglZQAFj1Y23VwVkh92zbd59U+Kanp+p2L12mooKQ5AbcpuclS6LiKoRhxOfHzhXMcs3PtVV7Z0DufXH/LSzpSG9vr1/p6kIz0dDUrvx/IYXAsrJCkWc4e/Z0Zpgf+KX26A/TkNtrXziesY9Xq8tvWNZdVfVYg7hzwKVv3O3ZiKMWj46OTrq5fdOh1x5pSADwjdzo2nbv0u6qqkca2jCIMGcZAuqRhu8vEX7ZK2V2WgMAcXdtvyeKbPS662+osCohzMycHVweniNREoShoZO5KYobpciSh23bFq7rIUgNiLFghRkBlg2v7GlpiccsCHrcryzxUk3zmsNskeYGvt/lxVH4hMWEu9xSWaQFYQ7L1B6iGZ5bBoy+zWKiHiltFHpqeIsVhWaosg1iqlgg4wAAEYEXsV3EmNppJmExMFYUxfVSuIs6E0sI5FkBBhLJzH9laQxLSjBj0WQJgSJPweDTkknvS4JGbCuxKOt7UY4lEQfNnAu9TzLxN2nUdAQTLAEw8YIlAVgAkmDCSBL75eCutSeY+GTUqqNkqUVxUbIl4qgJo4vWzecrhyQAMJldYf1MXLLl1EIsYBZgoGwpRI2zMTPtGBhYbSQAlJF9lieRzNMIriVBzPOWawvoIkYaNC0u9IcAIAHgp75NLQl8ENbPZJ6jgAU48RyFqHEuZyE+Pda/vjENAQBD5s209Y+kPJlyM4+r3lUS0AWSyVEhpHnjYu1pyO+7N4ywwPvhxHDiuwo8j1b5rkQwMZIziYHBXetPzIAAgIV8exZOSMoieI6aU5vKtgR0jqw1JtiYbZfW/R/kSN+mcWbxdtwYjn1XTd9B7cQAfNdCWB/OhBR7jvWv/3tWCAAoO3ktjyZZJ0HHbsq2AooERVQXzPKly2vOgPz29jNNBr+e1IcSz5YAM4hmFzPDtyWS+lDK4N2DfU+dbgsBAFHyd+oszE3agt/GjWcrUBEjj5sQBb96pXpXhAzueDJi4u1p41TsuQpCiFln4bkKeXMoJeadg++tG+sYAgBBXOo3RRrruAnfkWDmGfIdCeQhiiQgQbxjtlqzQk59vCZlNluL5lDiORLyMjcA4DsKeXM4AfDKxa97ThAAqPaMfaR1Nq6jOiqOAhOm5TsKJg1QZGGRedY7V6tzVcjBWk1D0JZ8cigt2RJSimkXnqOgW8MxQLUTb6wN5g0BgGPV0c9BekTH41xx5YXrQ8FkTRgdpxU7ea9djbYQ1GokmJ43wUhWtgRcS04tQjAcw9CWw29tThYOAXD03XVfMps/TTTOy30blDZgiqxFK6p7OsnvCDJ1UD9LyUjORoPDkUQyPfdHbXW+qJCjfRsOwOAoNY4z6Xz01rHq3k5zO4ZMHTabYSIhJD87MLB64f8Ys8WdG/tfBljMJedfwY+s/2P4Pv8AAAAASUVORK5CYII="
-
 
 	function getFeatureStyle(text) {
 		var defaultStyle = new ol.style.Style({
@@ -650,10 +249,6 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 			padding: [3, 5, 3, 5]
 		})
 	});
-
-
-
-
 
 	var routeStyle = new ol.style.Style({stroke: new ol.style.Stroke({width: 3, color: [40, 40, 40, 0.8], }), });
 
@@ -711,7 +306,6 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 		})
 	}
 
-
 	function simpleReverseGeocodingByWaypoint(waypoint) {
 
 		var lngLat = waypoint.lngLat;
@@ -730,514 +324,9 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 
 		})
 	}
-
-	//RouteControl------------------------------------------------	  
-
-	class RouteControl extends ol.control.Control {
-
-		constructor( opt_options) {
-			const options = opt_options || {};
-
-		
-			var container = RouteControl.createContainer(options);
-			super({element: container, target: options.target, });
-		}
-
-		init() {
-			const cWaypoint = document.getElementById('Waypoint');
-			var LonLat = [0, 0];
-			var feature = RouteControl._createFeature(LonLat);
-			var node_11 = RouteControl.autoCompleteBtn(feature, 'Start');
-			cWaypoint.appendChild(node_11);
-
-			var feature1 = RouteControl._createFeature(LonLat);
-			var node_111 = RouteControl.autoCompleteBtn(feature1, 'End');
-			cWaypoint.appendChild(node_111);
-
-		}
-
-
-
-		static updateFeature(featureId, coordinates, value) {
-			var bntEl = document.getElementById("bnt" + featureId);
-
-			if (value == "")
-				reverseGeocoding(coordinates[0], coordinates[1], bntEl, callbackSetInputElVal)
-			else
-				bntEl.value = value;
-
-			var feature = vectorSource.getFeatureById(featureId);
-			var coord = getPointFromLongLat(coordinates[0], coordinates[1]);
-
-			feature.getGeometry().setCoordinates(coord);
-
-			RouteControl.showFeature(featureId);
-			RouteControl.refresh()
-		}
-
-		static getCont() {
-			var inputGroupfeatureIdEl = document.getElementById("Waypoint");
-		}
-
 	
-		
-		static getPath() {
-				let txt = "";
-				let length = this.waypoints.length;
-
-				for (let i = 0; i < length; i++) {
-					var val = this.waypoints[i].lngLat;
-					txt += val;
-					if (i < (length - 1))
-						txt += ";";
-				}
-				return txt
-			}
-
-		static	createRoute(path) {
-				var extraparams = "?overview=full&alternatives=true&steps=true";  //&hints=;"
-				var urll = 'https://' + hostname + ':8443/route/v1/driving/'
-				const url = urll + path + extraparams;
-
-				log("createRoute url " + url)
-				fetch(url).then(function (r) {
-					return r.json();
-				}).then(function (json) {
-					if (json.code !== 'Ok') {
-						console.log('No route found.');
-						return;
-					}
-					console.log('Route added');
-					//points.length = 0;
-					var r = utils.createRoute(json.routes[0].geometry);
-					var r = RouteControl.updateRouteInfo(json.routes[0]);
-					// r.setId("ff");
-
-					// 		let feature = vectorSource.getFeatureById('ff');
-					//		console.log('Route added'+feature);
-				});
-			}
-		
-			//			
-			//kilometers: "km"
-			//meters: "m"
-			//
-			
-			static updateRouteInfo(json)
-			{
-			const	un= {
-				   meters: 'm',
-				   kilometers: 'km'}
-				
-				
-				
-				var duration=	json.duration;
-				var distance=json.distance;
-				
-				var v =distance; //roundFn(d, sensitivity);
-				var  data = {
-				    value: v >= 1000 ? (v / 1000) : v,
-				    unit: v >= 1000 ? un.kilometers : un.meters
-				  };
-				
-				var refDistance = document.getElementById("refDistance");
-				refDistance.innerHTML=data.value.toFixed(1) +' '+data.unit +' '+(duration/60).toFixed(1)+' min';
-				
-			}	
-			
-			static loadOrder(){
-				log('loadOrder');
-			var json=' {"coord":[{"lon":27.990425599999995,"lat":43.23737599999998,"name":"Васил Стоилов, Дълбокото дере, кв. Виница, Варна, Приморски, Варна, 9006, България"},{"lon":27.96982623476562,"lat":43.23512489505694,"name":"Горна Трака, кв. Виница, Варна, Приморски, Варна, 9022, България"}]}';
-			             
-			const cWaypoint = document.getElementById('Waypoint');
-			
-			cWaypoint.innerText="";
-			vectorSource.clear();
-			const obj = JSON.parse(json);
-			
-
-			for (let item of obj.coord) {
-				log(item);
-				var LonLat = [item.lon, item.lat];
-							var feature = RouteControl._createFeature(LonLat);
-							var node_11 = RouteControl.autoCompleteBtn(feature, item.name);
-							cWaypoint.appendChild(node_11);
-
-			}						
-			
-			RouteControl.refresh();
-
-			
-			}
-			static createOrder()
-			{
-				var order = {};
-				var coord = []
-				order.coord = coord;
-
-				
-				var inputGroupfeatureIdEl = document.getElementById("Waypoint");
-				var features=utils.elementChildren(inputGroupfeatureIdEl);
-						
-							let path = "";	
-							var count=0;
-							var featuresLength=features.length;
-								for (let i = 0; i < featuresLength; i++) {
-												
-								
-									var feature =features[i];
-									
-									var f=feature.feature;
-									var featureId=	f.getId();	 
-									
-									var bntEl = document.getElementById("bnt" + featureId);
-									var waypointName=utils.getWaypointName(i,featuresLength);
-									bntEl.placeholder=waypointName;
-									
-									var st = getFeatureStyle(waypointName);
-										f.setStyle(st);
-									
-									
-									var geometry =f.getGeometry().clone().transform(map.getView().getProjection(), 'EPSG:4326');
-									var coordinates = geometry.flatCoordinates;
-									
-									var coord = {  "lon": coordinates[0],  "lat": coordinates[1],  "name":bntEl.value }
-									order.coord.push(coord);
-					
-									}
-				log('order json '+JSON.stringify(order));	
-				
-		
-			}
-			
-		static refresh()//delete update add move
-		{
-			var inputGroupfeatureIdEl = document.getElementById("Waypoint");
-			var features=utils.elementChildren(inputGroupfeatureIdEl);
-		
-			let path = "";	
-			var count=0;
-			var featuresLength=features.length;
-			
-			const ca = [];
-			
-				for (let i = 0; i < featuresLength; i++) {
-								
-				
-					var feature =features[i];
-					
-					var f=feature.feature;
-					var featureId=	f.getId();	 
-					
-					var bntEl = document.getElementById("bnt" + featureId);
-					var waypointName=utils.getWaypointName(i,featuresLength);
-					bntEl.placeholder=waypointName;
-					
-					var st = getFeatureStyle(waypointName);
-						f.setStyle(st);
-					
-					
-					var geometry =f.getGeometry().clone().transform(map.getView().getProjection(), 'EPSG:4326');
-					var coordinates = geometry.flatCoordinates;
-					
-					/** todo
-					var st=f.style;
-										if(st!=null)
-										*/
-					if(coordinates[0]!=0)
-					{
-						if(path != "")
-						path+=";";
-						
-						var lngLat = coordinates[0]+','+ coordinates[1];
-						count++;
-						path += lngLat;
-						ca.push([coordinates[0], coordinates[1]])
-					}
-					
-					
-					log(coordinates[0]+' '+ coordinates[1] );
-                    log(feature);								
-					}
-				
-			if(count>=2)
-			{
-				
-			
-				var d= window._allTheFns;
-				var  length = ol.Sphere.getLength_([ca[0], ca[1]],6371008.8);
-				var distance=utils.distanceBetweenPoints (ca[0], ca[1]);
-				log(distance);
-					RouteControl.createRoute(path);
-					var refDistance = document.getElementById("refDistance").innerHTML='';
-					}
-					else {
-						var refDistance = document.getElementById("refDistance").innerHTML='';
-						//dublicate
-						var routeFeature = vectorSource.getFeatureById('routeFeature');
-														if (routeFeature)
-															vectorSource.removeFeature(routeFeature);	
-					}
-								
-			log("refresh");
-			
-		}
-		
-		
-		
-		
-		
-		
-		static delete(featureId) {
-			log("delete featureId " + featureId);
-			var bntEl = document.getElementById("bnt" + featureId);
-
-			if (bntEl.value != "") {
-				bntEl.value = "";
-				RouteControl.hideFeature(featureId);
-				RouteControl.refresh();
-				return;
-			}
-
-			try {
-				//0
-				var inputGroupfeatureIdEl = document.getElementById("Waypoint");
-				if (utils.elementChildren(inputGroupfeatureIdEl).length <= 2)
-					return
-				//1
-				var inputGroupfeatureIdEl = document.getElementById("inputGroupfeatureId" + featureId);
-				inputGroupfeatureIdEl.parentNode.removeChild(inputGroupfeatureIdEl);
-
-				var feature = vectorSource.getFeatureById(featureId);
-				vectorSource.removeFeature(feature);
 
 
-			}
-			catch (err) {
-				document.getElementById("demo").innerHTML = err.message;
-			}
-		RouteControl.refresh();
-		}
-
-		static add() {
-			const cWaypoint = document.getElementById('Waypoint');
-			var LonLat = [0, 0];
-			var feature = RouteControl._createFeature(LonLat);
-			var node_11 = RouteControl.autoCompleteBtn(feature, '');
-			cWaypoint.appendChild(node_11);
-			RouteControl.refresh();
-		}
-
-		static _createFeature(coord) {
-			var g = new ol.geom.Point(ol.proj.fromLonLat(coord));
-			var feature = new ol.Feature({type: 'place', geometry: g});
-			feature.setStyle(new ol.style.Style(null));
-			vectorSource.addFeature(feature);
-			var translate1 = new app.Drag({features: new ol.Collection([feature])});
-			map.addInteraction(translate1);
-
-			var ol_uid = feature.ol_uid;
-			feature.setId(ol_uid);
-			return feature;
-		}
-
-		static createFeature() {
-			log("createFeature");
-			var LonLat = [27.9797311, 43.2388141];
-			var feature = RouteControl._createFeature(LonLat);
-
-
-			RouteControl.fid = feature.getId();
-			vectorSource.getFeatureById(featureId);
-			log("createFeature");
-
-		}
-
-		static showFeature(featureId) {
-			log("showFeature");
-			var feature = vectorSource.getFeatureById(featureId);
-
-			var bntEl = document.getElementById("bnt" + featureId);
-								
-				var fn=bntEl.placeholder;
-			
-			var st = getFeatureStyle(fn);
-
-			feature.setStyle(st);
-		}
-
-		static hideFeature(featureId) {
-			log("hideFeature");
-			var feature = vectorSource.getFeatureById(featureId);
-			feature.setStyle(new ol.style.Style(null));
-			
-			var coord = getPointFromLongLat(0, 0);
-					feature.getGeometry().setCoordinates(coord);
-			
-		}
-
-		static createContainer(options) {
-
-			var node_1 = document.createElement('DIV');
-			node_1.setAttribute('name', 'RouteControl');
-			node_1.setAttribute('id', 'control');
-			node_1.setAttribute('class', '     border w3-border-red  ');
-			node_1.setAttribute('style', ' background-color: lightblue; min-width: 400;position: absolute; right : 0em; top : 0em ');
-
-			var node_2 = document.createElement('DIV');
-			node_2.setAttribute('name', 'header');
-			node_2.setAttribute('class', 'container ');
-			node_2.setAttribute('style', ' ');
-			node_1.appendChild(node_2);
-
-			var node_3 = document.createElement('DIV');
-			node_3.setAttribute('class', 'd-flex justify-content-between ');
-			node_2.appendChild(node_3);
-
-			var node_4 = document.createElement('DIV');
-			node_4.setAttribute('class', '');
-			node_3.appendChild(node_4);
-
-			var node_5 = document.createElement('SPAN');
-			node_5.setAttribute('class', 'ref1');
-			node_4.appendChild(node_5);
-
-			var node_6 = document.createElement('DIV');
-			node_6.setAttribute('class', '');
-			node_3.appendChild(node_6);
-
-			var node_7 = document.createElement('SPAN');
-			node_7.setAttribute('class', 'ref2');
-			node_6.appendChild(node_7);
-
-			var node_8 = document.createElement('DIV');
-			node_8.setAttribute('class', '');
-			node_3.appendChild(node_8);
-
-			var node_9 = document.createElement('SPAN');
-			node_9.setAttribute('class', 'refX');
-			node_8.appendChild(node_9);
-
-			var node_10 = document.createElement('DIV');
-			node_10.setAttribute('name', 'Waypoint');
-			node_10.setAttribute('id', 'Waypoint');
-			node_1.appendChild(node_10);
-
-			var node_19 = document.createElement('DIV');
-			node_19.setAttribute('name', 'footer');
-			node_19.setAttribute('class', 'd-flex justify-content-between ');
-			node_1.appendChild(node_19);
-
-			var node_20 = document.createElement('DIV');
-			node_20.setAttribute('class', '');
-			node_19.appendChild(node_20);
-
-			var node_21 = document.createElement('BUTTON');
-			node_21.setAttribute('type', 'button');
-			node_21.setAttribute('class', 'btn btn-primary btn-sm');
-			node_21.setAttribute('onclick', 'RouteControl.add()');
-
-
-			node_20.appendChild(node_21);
-
-			
-			
-			var createOrder = document.createElement('BUTTON');
-			createOrder.setAttribute('type', 'button');
-			createOrder.setAttribute('class', 'btn btn-primary btn-sm');
-			createOrder.setAttribute('onclick', 'RouteControl.createOrder()');
-			createOrder.innerHTML = 'CreateOrder';
-			node_20.appendChild(createOrder);
-
-
-			var loadOrder = document.createElement('BUTTON');
-						loadOrder.setAttribute('type', 'button');
-						loadOrder.setAttribute('class', 'btn btn-primary btn-sm');
-						loadOrder.setAttribute('onclick', 'RouteControl.loadOrder()');
-						loadOrder.innerHTML = 'loadOrder';
-						node_20.appendChild(loadOrder);
-			
-			
-			var node_22 = document.createElement('SPAN');
-			node_22.setAttribute('class', 'refAdd');
-			node_21.appendChild(node_22);
-
-			var node_23 = document.createElement('DIV');
-			node_23.setAttribute('class', '');
-			node_19.appendChild(node_23);
-
-			var node_24 = document.createElement('SPAN');
-			node_24.id='refDistance';
-			//node_14.setAttribute('id', "refDistance");
-			
-			node_24.setAttribute('class', 'f_refDistance');
-			node_23.appendChild(node_24);
-
-			return node_1;
-		}
-
-		static autoCompleteBtn(feature, value) {
-
-			var featureId = feature.getId();
-
-			var node_11 = document.createElement('DIV');
-
-			node_11.reature
-			node_11.setAttribute('class', 'input-group mb-1 mt-1');
-
-			node_11.setAttribute('id', "inputGroupfeatureId" + featureId);
-			node_11.feature = feature;
-			node_11.featureId = featureId;
-			
-			var node_12 = document.createElement('SPAN');
-			node_12.setAttribute('class', 'input-group-text');
-			node_12.setAttribute('style', 'display:none1');
-			node_11.appendChild(node_12);
-
-			var node_13 = document.createElement('IMG');
-			node_13.setAttribute('src', 'data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==');
-			node_13.setAttribute('alt', 'Red dot');
-			node_12.appendChild(node_13);
-
-			var node_14 = document.createElement('INPUT');
-			node_14.setAttribute('type', 'text');
-			node_14.setAttribute('class', 'form-control');
-
-			node_14.setAttribute('id', "bnt" + featureId);
-			node_14.setAttribute('featureId', featureId);
-
-			node_14.value=value;
-
-			node_11.appendChild(node_14);
-
-			autocomplete(node_14);
-
-			var node_15 = document.createElement('BUTTON');
-			node_15.setAttribute('type', 'button');
-			node_15.setAttribute('class', ' btn btn-primary btn-sm');
-			node_11.appendChild(node_15);
-
-			var node_16 = document.createElement('IMG');
-			node_16.setAttribute('class', 'geolocation_marker');
-			node_15.appendChild(node_16);
-
-			var node_17 = document.createElement('BUTTON');
-			node_17.setAttribute('type', 'button');
-			node_17.setAttribute('class', 'btn btn-primary btn-sm');
-			node_17.setAttribute('onclick', 'RouteControl.delete(' + featureId + ')');
-			node_11.appendChild(node_17);
-
-			var node_18 = document.createElement('I');
-			node_18.setAttribute('class', 'fa fa-trash');
-			node_17.appendChild(node_18);
-			return node_11;
-		}
-	}
-
-	var rc = new RouteControl();
-
-	map.addControl(rc);
-	rc.init();
 	//rc.handleRotateNorth();
 	
 	class LoginControl extends ol.control.Control {
@@ -1316,78 +405,11 @@ k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin
 	//var lc = new LoginControl();
 		//map.addControl(lc);
 	//import {Control, defaults as defaultControls} from './ol/control.js';
-	class SuperCookie extends ol.control.Control {
-	  /**
-	   * @param {Object} [opt_options] Control options.
-	   */
-	  constructor(opt_options) {
-	    const options = opt_options || {};
-
-	    const button = document.createElement('button');
-		button.setAttribute("id", "b1");
-	    button.innerHTML ='<i class="fa fa-sign-in"></i>';// 'Login';
-		////button.innerHTML ='<i class="fa fa-sign-out"></i>';// 'Loginout';
-		//button.style.width="3.875em";
-	    
-		//button.style.backgroundColor ="#4CAF50";
-		
-		
-		const element = document.createElement('div');
-		element.setAttribute("id", "d1");
-	    element.className = 'rotate-north ol-unselectable ol-control';
-		
-		//element.style.backgroundColor = " rgba(0,0,136,0.5)";
-		//element.style.backgroundColor ="#4CAF50";
-		
-		
-		element.style.top = "95px"; 
-	    element.appendChild(button);
-
-	    super({
-	      element: element,
-	      target: options.target,
-	    });
-
-	    button.addEventListener('click', this.handleRotateNorth.bind(this), false);
-	  }
-
-	  
-	  setState(state) {
-
-	  }
-	  
-	  handleRotateNorth(e) {
-		wsPing();
-		//{"lon":27.91940200827637,"lat":43.22019301099303, //105   001293523373954321
-		//"lon":27.920689468603523,"lat":43.22006791652882,
-		
-		//"lon":27.931085710745243,"lat":43.21074765713317,
-		//"lon":27.92988408110657,"lat":43.210763296345306,
-		
-
-		//"lon":27.7548645784668,"lat":43.15861553537073,"name":"Константиново, Варна, България"},{"lon":27.766880874853527,"lat":43.15861553537073,"name":"Припек, Константиново, Варна, 9140, България"}]}
-var distance=utils.distanceBetweenPoints ([27.7548645784668, 43.15861553537073], [27.766880874853527,43.21074765713317]);
-
-		const button=document.getElementById("b1");
-		button.innerHTML="W";
-		
-		
-		
-	    //this.getMap().getView().setRotation(0);
-	  }
-	}
-
 	
-	var sc = new SuperCookie();
-		map.addControl(sc);
 	// export default RotateNorthControl;
-
-
 	//var lc = new LoginControl();
 	//map.addControl(lc);
 	// export default RotateNorthControl;
-
-
 
 	//search?q=Тодор Хаджистанчев&limit=20&format=json&addressdetails=1&city=Варна&accept-language=bg-BG&limit=2
 	// https://localhost:8443/api?&q=%D0%92%D0%B8%D0%BD%D0%B8%D1%86%D0%B0&limit=2
@@ -1400,12 +422,10 @@ var distance=utils.distanceBetweenPoints ([27.7548645784668, 43.15861553537073],
 		const json = await response.json();
 
 		var df = await JSON.stringify(json);
-		log(df);
 		return df;
 	}
 	var res = fetchMAddress('Тодор Хаджистанчев');
 	log(res);
-
 
 	function fetchMAddresscb(q) {
 
@@ -1419,106 +439,8 @@ var distance=utils.distanceBetweenPoints ([27.7548645784668, 43.15861553537073],
 	}
 </script>
 
-<script name="GeoLocation">
 
-	var count = 0;
-		var lastGeoLocationEvent;
-	var geoPositionOverlay;
-	function geoPosition() {
-			var markerEl = document.createElement('IMG');
-			markerEl.setAttribute('id', 'geolocation_marker_heading');
-			markerEl.setAttribute('src', '/resources/openlayers/geolocation_marker_heading.png');
-			markerEl.setAttribute('alt', 'geolocation_marker_heading');
 
-			geoPositionOverlay = new ol.Overlay({positioning: 'center-center', element: markerEl, stopEvent: false, });
-			map.addOverlay(geoPositionOverlay);
-
-	}
-	geoPosition();
-	function updatePositionMarker(ev) {
-			var coordss = ev.coords;
-			//log(coordss);
-			const projectedPosition = ol.proj.fromLonLat([coordss.longitude, coordss.latitude]);
-			var heading = coordss.heading;
-			geoPositionOverlay.setPosition(projectedPosition);
-			map.render();
-		}
-
-	
-	var markerOverlay
-
-	function updateGeoMarker() {
-		var coordss = lastGeoLocationEvent.coords;
-		//log(coordss);
-		const projectedPosition = ol.proj.fromLonLat([coordss.longitude, coordss.latitude]);
-		var heading = coordss.heading;
-		markerOverlay.setPosition(projectedPosition);
-		map.render();
-	}
-
-	
-
-	function geosuccess(event) {
-		if(lastGeoLocationEvent===undefined)
-		   lastGeoLocationEvent = event;
-		
-		var curentCoord = event.coords;
-		
-		var lastCoord=lastGeoLocationEvent.coords;
-		
-		var distance=utils.distanceBetweenPoints ([curentCoord.longitude, curentCoord.latitude], [lastCoord.longitude, lastCoord.latitude]);
-		//log([curentCoord.longitude, curentCoord.latitude], [lastCoord.longitude, lastCoord.latitude]);
-	
-		
-		const button=document.getElementById("b1");
-				button.innerHTML=""+distance ;
-		
-		if(distance>0)
-			{
-			wsUpdatePostion(event);
-	        }	
-		 lastGeoLocationEvent = event;
-		updateGeoMarker();
-		//log("geo: " + count++ + " : " + event.coords.heading + " speed:" + event.coords.speed);
-		var heading = event.coords.heading;
-		var speed = event.coords.speed;
-
-		var sp = Math.round(speed * 3.6)
-		var ss = '<svg width="32" height="32"  viewBox="0 0 32 32"  xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="blue" stroke-width="4" fill="white"></circle><text x="16" y="20" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" font-weight="bold" text-anchor="middle" fill="black">' + sp + '</text></svg>';
-		if (sp >= 10) {
-			ss = '<svg width="32" height="32"  viewBox="0 0 32 32"  xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="red" stroke-width="4" fill="white"></circle><text x="16" y="20" alignment-baseline="middle" font-size="12" stroke-width="0" stroke="#000" font-weight="bold" text-anchor="middle" fill="black">' + sp + '</text></svg>';
-		}
-		//const speedctr = document.getElementById('speedctr');
-		//speedctr.innerHTML= ss;
-		/*
-		if (heading != null) {
-		   moveCompassNeedle(heading);
-			}
-		if (speed != null) {
-			// update the speed
-			moveSpeed(speed);
-		}
-					*/
-	}
-	function geofailure(event) {
-		log("geofailure:  : " + event);
-	}
-	
-	function initGeo() {
-		var markerEl = document.createElement('IMG');
-		markerEl.setAttribute('id', 'geolocation_marker');
-		markerEl.setAttribute('src', '/resources/openlayers/geolocation_marker.png');
-		markerEl.setAttribute('alt', 'geolocation_marker');
-
-		markerOverlay = new ol.Overlay({positioning: 'center-center', element: markerEl, stopEvent: false, });
-		map.addOverlay(markerOverlay);
-
-		navigator.geolocation.watchPosition(geosuccess, geofailure, {enableHighAccuracy: true, maximumAge: 30000, timeout: 20000}
-		); 			//moveSpeed(30);			//moveCompassNeedle(56);
-	}
-
-	initGeo();
-</script>
 </body>
 
 </html>

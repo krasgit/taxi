@@ -37,7 +37,7 @@ function init() {
 
 function processWsMessage(message) {
     var signal = JSON.parse(message.data);
-    logMessage("processWsMessage"+  signal);
+    //logMessage("processWsMessage"+  signal);
     // you have logged in
     switch (signal.type) {
 		
@@ -57,7 +57,7 @@ function processWsMessage(message) {
 
 function handleUpdatePostion(signal) {
 	
-	log("handleUpdatePostion" +signal);
+//	log("handleUpdatePostion" +signal);
 	//const obj = JSON.parse(signal.data);
 	updatePositionMarker(signal.data)
 	
@@ -232,7 +232,8 @@ function sendMessage(payload) {
 }
 
 function logMessage(message) {
-    console.log(message);
+	//solent
+    //console.log(message);
 }
 
 function disconnect() {
@@ -265,6 +266,15 @@ try{
 
 }
 
+function send(msg) {
+try {
+	ws.send( msg);
+	}
+	 catch (error) {
+	  console.error(error);
+	 
+	}
+}
 
 function getWSSesionID()
 {
@@ -284,8 +294,8 @@ function wsUpdatePostion(data) {
 	
 	type="updatePostion";
 	msg=JSON.stringify({type:type, sender: sesionID, receiver: sesionID,data:data});
-	console.log("msg "+msg);
-	ws.send( msg);
+	//console.log("msg "+msg);
+	send( msg);
 }
 
 
