@@ -5,13 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportRuntimeHints;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import proxy.HttpProxyServer;
 
-import java.util.Locale;
-
-import lombok.extern.slf4j.Slf4j;
 
 @SpringBootApplication
 @ImportRuntimeHints(TaxiRuntimeHints.class)

@@ -27,7 +27,7 @@
 	<script src="webSocketClient.js"           th:src="@{/resources/openlayers/webSocketClient.js}" ></script>
 	<script src="autoComplete.js"           th:src="@{/resources/openlayers/autoComplete.js}" ></script>
 	<script src="autoComplete.js"           th:src="@{/resources/openlayers/autoComplete.js}" ></script>
-	c	
+		
 	<script src="interaction.js"           th:src="@{/resources/openlayers/interaction.js}" ></script>
 	<script src="routeControl.js"           th:src="@{/resources/openlayers/routeControl.js}" ></script>
 	<script src="route.js"           th:src="@{/resources/openlayers/route.js}" ></script>
@@ -81,11 +81,84 @@
 	.refAdd::before { content: " + "; }
 </style>
 
+
+<script name="auto complete ">
+	
+	class Cookie {
+		constructor( ) {	}
+		
+		static updateRouteInfo(json){
+			
+		}
+		
+		static setCookie(cname, cvalue, exdays) {
+		  const d = new Date();
+		  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+		  let expires = "expires="+d.toUTCString();
+		  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+		}
+
+		static getCookie(cname) {
+		  let name = cname + "=";
+		  let ca = document.cookie.split(';');
+		  for(let i = 0; i < ca.length; i++) {
+		    let c = ca[i];
+		    while (c.charAt(0) == ' ') {
+		      c = c.substring(1);
+		    }
+		    if (c.indexOf(name) == 0) {
+		      return c.substring(name.length, c.length);
+		    }
+		  }
+		  return "";
+		}
+
+		
+	}
+	
+	</script>	
+	
+	
+	<script type="text/javascript">
+		
+		console.clear();
+		/*
+		console.time();
+		for (let i = 0; i < 100000; i++) {
+		  // some code
+		}
+		console.timeEnd();
+		
+		console.table({param1:"1n", param2:"hello"});
+            var msg='fgdfg';
+			console.log(	"%c"+msg,		"color: fuchsia");
+			
+			// The same CSS styling can be used with many of the other console methods, like the .group() method.
+			console.group(		"%cGrouped Output",		"background-color: #e0005a ; color: #ffffff ; font-weight: bold ; padding: 4px ;"	);
+			console.log( "Groups are cool for grouped stuff." );
+			console.log( "Totes magotes" );
+			
+			console.groupCollapsed(		"%cGrouped Output1",		"background-color: #e0005a ; color: #ffffff ; font-weight: bold ; padding: 4px ;"	);
+						console.log( "Groups are cool for grouped stuff.1" );
+						console.log( "Totes magotes1" );
+						console.groupEnd();
+			
+			console.groupEnd();
+			
+			console.log("Hello world!");
+			console.groupCollapsed();
+			console.log("Hello again, this time inside a collapsed group!");
+			console.clear();
+			*/
+		</script>
+		
+
+</script>	
 <script name="auto complete ">
 	const log = console.log;
 
 	const locationOrigin = location.origin;
-	log(locationOrigin);
+	 log(locationOrigin);
 
 	var url = new URL(location.origin);
 
@@ -177,6 +250,59 @@
 </span>
 </div>
 
+
+<style>
+.ol-popupdbl {
+  position: absolute;
+  background-color: white;
+  -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #cccccc;
+  bottom: 12px;
+  left: -50px;
+  min-width: 250px;
+}
+
+.ol-popup1 {
+  position: absolute;
+  left: 50%;    
+  top:50%;   
+
+  width: 250px;  
+  height:100px;  
+
+
+  margin-left:-125px; 
+  margin-top:-50px; 
+
+  background-color:#000000;  
+}
+
+.ol-popup {
+position: absolute;
+ left: 50%;     
+ top:50%;   
+
+ width: 250px; 
+ height:100px;  
+
+
+ margin-left:-125px; 
+ margin-top:-50px;  
+
+ background-color:#000000;  
+}
+.center1 {
+  margin: auto;
+  width: 50%;
+  border: 3px solid green;
+  padding: 10px;
+}
+
+</style>
+
 <script>
 		
 	//--------
@@ -223,9 +349,66 @@
 	
 	initGeo(); //depends of map
 	
+	
+	function create()
+	{
+		var node_1 = document.createElement('DIV');
+			  node_1.setAttribute('id', 'popupdbl');
+			  node_1.setAttribute('class', 'ol-popup center'); //ol-popupdbl
+
+			  var node_2 = document.createElement('A');
+			  node_2.setAttribute('href', '#');
+			  node_2.setAttribute('id', 'popupdbl-closer');
+			  node_2.setAttribute('class', 'ol-popupdbl-closer');
+			  node_1.appendChild(node_2);
+
+			  var node_3 = document.createElement('DIV');
+			  node_3.setAttribute('id', 'popupdbl-content');
+			  node_1.appendChild(node_3);
+			  
+			  node_3.innerHTML = '<p>Original popup (Double click)</p><code>' + "hdms" +
+			       '</code>';
+			  
+    return node_1;
 	}
 	
-//	initMap ();
+	
+	var dblcontainer =create();
+	
+	var dbloverlay = new ol.Overlay(/** @type {olx.OverlayOptions} */ ({
+	  element: dblcontainer,
+	  autoPan: true,
+	  autoPanAnimation: {
+	    duration: 250
+	  }
+	}));	
+	
+	map.addOverlay(dbloverlay);
+
+	dbloverlay.on('change:position', function(evt) {
+	  var width=document.getElementsByClassName('ol-popup')[0].offsetWidth;
+	  var centerX=-width/2;
+	  var position=[centerX,0];
+	  this.setOffset(position);
+	});
+	
+	map.on('dblclick', function(evt) {
+	  var coordinate = evt.coordinate;
+	  
+	  var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(
+	      coordinate, 'EPSG:3857', 'EPSG:4326'));
+
+
+		
+		  
+		  
+	  //node_1.innerHTML = '<p>Original popup (Double click)</p><code>' + hdms +	      '</code>';
+	  dbloverlay.setPosition(coordinate);
+	});
+		
+	}
+	
+	initMap ();
 //-----------------------------------------------------------------------------
 	var markerImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAApCAYAAADAk4LOAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAUlSURBVFjDrZdLiBxVFIb/e289uqt6kkx6zIiIoKgLRReKuMhCcaOIAUEIiCCE4CIPggZ8kBjooPgM0TiYEUUjqBGchZqAQlyYRTA+kJiJQiJGMjN5zYzT3dP1rrr3HBeTjDGTSfc8Dvyruud89Z9z6kIJdBj31763MivsJXKuZYF6dak5++2mh7NOcsXVHq6sHbhOK/24kOJJMO4AE1vKygwZhxlKSHGKiD+RSu09vOXB43OCrHz96y6T2lsh+OmKXzFdlbLne2UopSAupBhjECcZgjDMgiiSxPhcK/nCr1sfOtcWcm/tq9uEsL4rl0vdK67pKVu2jUwTMk0wBBAzpBCQAnAtiZIlwWQwPlHPglZQAFj1Y23VwVkh92zbd59U+Kanp+p2L12mooKQ5AbcpuclS6LiKoRhxOfHzhXMcs3PtVV7Z0DufXH/LSzpSG9vr1/p6kIz0dDUrvx/IYXAsrJCkWc4e/Z0Zpgf+KX26A/TkNtrXziesY9Xq8tvWNZdVfVYg7hzwKVv3O3ZiKMWj46OTrq5fdOh1x5pSADwjdzo2nbv0u6qqkca2jCIMGcZAuqRhu8vEX7ZK2V2WgMAcXdtvyeKbPS662+osCohzMycHVweniNREoShoZO5KYobpciSh23bFq7rIUgNiLFghRkBlg2v7GlpiccsCHrcryzxUk3zmsNskeYGvt/lxVH4hMWEu9xSWaQFYQ7L1B6iGZ5bBoy+zWKiHiltFHpqeIsVhWaosg1iqlgg4wAAEYEXsV3EmNppJmExMFYUxfVSuIs6E0sI5FkBBhLJzH9laQxLSjBj0WQJgSJPweDTkknvS4JGbCuxKOt7UY4lEQfNnAu9TzLxN2nUdAQTLAEw8YIlAVgAkmDCSBL75eCutSeY+GTUqqNkqUVxUbIl4qgJo4vWzecrhyQAMJldYf1MXLLl1EIsYBZgoGwpRI2zMTPtGBhYbSQAlJF9lieRzNMIriVBzPOWawvoIkYaNC0u9IcAIAHgp75NLQl8ENbPZJ6jgAU48RyFqHEuZyE+Pda/vjENAQBD5s209Y+kPJlyM4+r3lUS0AWSyVEhpHnjYu1pyO+7N4ywwPvhxHDiuwo8j1b5rkQwMZIziYHBXetPzIAAgIV8exZOSMoieI6aU5vKtgR0jqw1JtiYbZfW/R/kSN+mcWbxdtwYjn1XTd9B7cQAfNdCWB/OhBR7jvWv/3tWCAAoO3ktjyZZJ0HHbsq2AooERVQXzPKly2vOgPz29jNNBr+e1IcSz5YAM4hmFzPDtyWS+lDK4N2DfU+dbgsBAFHyd+oszE3agt/GjWcrUBEjj5sQBb96pXpXhAzueDJi4u1p41TsuQpCiFln4bkKeXMoJeadg++tG+sYAgBBXOo3RRrruAnfkWDmGfIdCeQhiiQgQbxjtlqzQk59vCZlNluL5lDiORLyMjcA4DsKeXM4AfDKxa97ThAAqPaMfaR1Nq6jOiqOAhOm5TsKJg1QZGGRedY7V6tzVcjBWk1D0JZ8cigt2RJSimkXnqOgW8MxQLUTb6wN5g0BgGPV0c9BekTH41xx5YXrQ8FkTRgdpxU7ea9djbYQ1GokmJ43wUhWtgRcS04tQjAcw9CWw29tThYOAXD03XVfMps/TTTOy30blDZgiqxFK6p7OsnvCDJ1UD9LyUjORoPDkUQyPfdHbXW+qJCjfRsOwOAoNY4z6Xz01rHq3k5zO4ZMHTabYSIhJD87MLB64f8Ys8WdG/tfBljMJedfwY+s/2P4Pv8AAAAASUVORK5CYII="
 
@@ -284,25 +467,27 @@
 	function reverseGeocoding(lon, lat, el, callbackFN) {
 
 		var url = 'https://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
-		log("ReverseGeocoding " + url)
+		
+		console.groupCollapsed(		"%c"+"ReverseGeocoding callbackFN " + url,		"background-color: #e0005a ; color: #ffffff ; font-weight: bold ; padding: 4px ;"	);
 		fetch(url).then(function (response) {
 			return response.json();
 		}).then(function (json) {
 			//          alert(json.display_name);
 			callbackFN(el, json.display_name);
-			console.log(json.display_name);
+		console.log( json.display_name );
+		console.groupEnd();	
 		})
 	}
 
 	function simpleReverseGeocoding(lon, lat) {
 
 		var url = 'https://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
-		log("ReverseGeocoding " + url)
+		console.groupCollapsed(		"%c"+"ReverseGeocoding lon lat " + url,		"background-color: #e0005a ; color: #ffffff ; font-weight: bold ; padding: 4px ;"	);
 		fetch(url).then(function (response) {
 			return response.json();
 		}).then(function (json) {
-			//          alert(json.display_name);
-			console.log(json.display_name);
+			console.log( json.display_name );
+					console.groupEnd();	
 		})
 	}
 
