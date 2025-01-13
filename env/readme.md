@@ -1,3 +1,4 @@
+--spring.profiles.active=postgres
 
 1)docker volume create postgres_taxi
 
