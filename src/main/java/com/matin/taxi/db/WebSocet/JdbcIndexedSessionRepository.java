@@ -23,7 +23,7 @@ public class JdbcIndexedSessionRepository {
 
 	public JdbcIndexedSessionRepository(JdbcTemplate jdbcTemplate) {
 		super();
-		this.jdbcTemplate=jdbcTemplate;
+	//	this.jdbcTemplate=jdbcTemplate;
 		prepareQueries();
 	}
 
@@ -32,37 +32,21 @@ public class JdbcIndexedSessionRepository {
 	private static final Log logger = LogFactory.getLog(JdbcIndexedSessionRepository.class);
 	
 	
-	@Autowired
-    private JdbcTemplate jdbcTemplate;
 	
 	
 	
 	
-	public Session findByCustomerId(Long id) {
-
-       // String sql = "SELECT * FROM CUSTOMER WHERE ID = ?";
-
-        Session ret = (Session) jdbcTemplate.queryForObject(getSessionQuery, new Object[]{id}, new BeanPropertyRowMapper(Session.class));
-        return ret;
-
-    }
+	
 	
 	int insert(){
-	 return jdbcTemplate.update(createSessionQuery   ,    "var1", "var2"	);
+	// return jdbcTemplate.update(createSessionQuery   ,    "var1", "var2"	);
+		return -1;
 	}
 	
 	int delete(){
-		 return jdbcTemplate.update(createSessionQuery   ,    "var1", "var2"	);
+//		 return jdbcTemplate.update(createSessionQuery   ,    "var1", "var2"	);
+		return -1;
 		}
-	
-	public List<Session> findAll() {
-
-        String sql = "SELECT * FROM CUSTOMER";
-
-        List<Session> customers = jdbcTemplate.query(  sql,    new BeanPropertyRowMapper(Session.class));
-
-        return customers;
-    }
 
 	
 	

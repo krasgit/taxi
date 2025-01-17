@@ -1,23 +1,23 @@
 //RouteControl------------------------------------------------	  
-	class RouteControl extends ol.control.Control {
+	class RouteControlTaxi extends ol.control.Control {
 
 		constructor( opt_options) {
 			const options = opt_options || {};
 
 		
-			var container = RouteControl.createContainer(options);
+			var container = RouteControlTaxi.createContainer(options);
 			super({element: container, target: options.target, });
 		}
 
 		init() {
 			const cWaypoint = document.getElementById('Waypoint');
 			var LonLat = [0, 0];
-			var feature = RouteControl._createFeature(LonLat);
-			var node_11 = RouteControl.autoCompleteBtn(feature, 'Start');
+			var feature = RouteControlTaxi._createFeature(LonLat);
+			var node_11 = RouteControlTaxi.autoCompleteBtn(feature, 'Start');
 			cWaypoint.appendChild(node_11);
 
-			var feature1 = RouteControl._createFeature(LonLat);
-			var node_111 = RouteControl.autoCompleteBtn(feature1, 'End');
+			var feature1 = RouteControlTaxi._createFeature(LonLat);
+			var node_111 = RouteControlTaxi.autoCompleteBtn(feature1, 'End');
 			cWaypoint.appendChild(node_111);
 		}
 
@@ -34,8 +34,8 @@
 
 			feature.getGeometry().setCoordinates(coord);
 
-			RouteControl.showFeature(featureId);
-			RouteControl.refresh()
+			RouteControlTaxi.showFeature(featureId);
+			RouteControlTaxi.refresh()
 		}
 		//kilometers: "km",meters: "m"
 		static updateRouteInfo(json)
@@ -69,15 +69,42 @@
 			for (let item of obj.coord) {
 				log(item);
 				var LonLat = [item.lon, item.lat];
-				var feature = RouteControl._createFeature(LonLat);
-				var node_11 = RouteControl.autoCompleteBtn(feature, item.name);
+				var feature = RouteControlTaxi._createFeature(LonLat);
+				var node_11 = RouteControlTaxi.autoCompleteBtn(feature, item.name);
 				cWaypoint.appendChild(node_11);
-			}						
-			RouteControl.refresh();
+			}	
+			
+			
+			var json1=' {"coord":[{"lon":27.990425599999985,"lat":43.23737599999998,"name":"Васил Стоилов, Дълбокото дере, кв. Виница, Варна, Приморски, Варна, 9006, България"},{"lon":27.96982623476562,"lat":43.23512489505694,"name":"Горна Трака, кв. Виница, Варна, Приморски, Варна, 9022, България"}]}';
+						             
+						const cWaypoint1 = document.getElementById('Waypoint');
+						
+						cWaypoint.innerText="";
+						vectorSource.clear();
+						const obj1 = JSON.parse(json1);
+						
+
+						for (let item of obj1.coord) {
+							log(item);
+							var LonLat = [item.lon, item.lat];
+							var feature = RouteControlTaxi._createFeature(LonLat);
+							var node_11 = RouteControlTaxi.autoCompleteBtn(feature, item.name);
+							cWaypoint.appendChild(node_11);
+						}	
+
+						
+						Route.createRouteCB(this,"27.990425599999995,43.23737599999998;27.96982623476562,43.23512489505694",'routeFeature');
+						Route.createRouteCB(this,"27.98390246767578,43.25088088328201;27.909058107324217,43.22461863910661",'routeFeature1');
+						
+								
+			//RouteControlTaxi.refresh();
 			}
 			
 			static createOrder()
 			{
+				//s://localhost:8443/route/v1/driving/27.98390246767578,43.25088088328201;27.909058107324217,43.22461863910661?overview=full&alternatives=true&steps=true
+				Route.createRouteCB(this,"27.98390246767578,43.25088088328201;27.909058107324217,43.22461863910661",'routeFeature1');
+				return;
 				var order = {};
 				var coord = []
 				order.coord = coord;
@@ -113,7 +140,6 @@
 									}
 				log('order json '+JSON.stringify(order));	
 				
-				wsCreateOrder(JSON.stringify(order));
 		
 			}
 			
@@ -194,8 +220,8 @@
 
 			if (bntEl.value != "") {
 				bntEl.value = "";
-				RouteControl.hideFeature(featureId);
-				RouteControl.refresh();
+				RouteControlTaxi.hideFeature(featureId);
+				RouteControlTaxi.refresh();
 				return;
 			}
 
@@ -216,16 +242,16 @@
 			catch (err) {
 				document.getElementById("demo").innerHTML = err.message;
 			}
-		RouteControl.refresh();
+		RouteControlTaxi.refresh();
 		}
 
 		static add() {
 			const cWaypoint = document.getElementById('Waypoint');
 			var LonLat = [0, 0];
-			var feature = RouteControl._createFeature(LonLat);
-			var node_11 = RouteControl.autoCompleteBtn(feature, '');
+			var feature = RouteControlTaxi._createFeature(LonLat);
+			var node_11 = RouteControlTaxi.autoCompleteBtn(feature, '');
 			cWaypoint.appendChild(node_11);
-			RouteControl.refresh();
+			RouteControlTaxi.refresh();
 		}
 
 		static _createFeature(coord) {
@@ -233,8 +259,8 @@
 			var feature = new ol.Feature({type: 'place', geometry: g});
 			feature.setStyle(new ol.style.Style(null));
 			vectorSource.addFeature(feature);
-			var translate1 = new app.Drag({features: new ol.Collection([feature])});
-			map.addInteraction(translate1);
+			//var translate1 = new app.Drag({features: new ol.Collection([feature])});
+			//map.addInteraction(translate1);
 
 			var ol_uid = feature.ol_uid;
 			feature.setId(ol_uid);
@@ -244,10 +270,10 @@
 		static createFeature() {
 			log("createFeature");
 			var LonLat = [27.9797311, 43.2388141];
-			var feature = RouteControl._createFeature(LonLat);
+			var feature = RouteControlTaxi._createFeature(LonLat);
 
 
-			RouteControl.fid = feature.getId();
+			RouteControlTaxi.fid = feature.getId();
 			vectorSource.getFeatureById(featureId);
 			log("createFeature");
 
@@ -335,21 +361,21 @@
 			var node_21 = document.createElement('BUTTON');
 			node_21.setAttribute('type', 'button');
 			node_21.setAttribute('class', 'btn btn-primary btn-sm');
-			node_21.setAttribute('onclick', 'RouteControl.add()');
+			node_21.setAttribute('onclick', 'RouteControlTaxi.add()');
 			node_20.appendChild(node_21);
 
 			var createOrder = document.createElement('BUTTON');
 			createOrder.setAttribute('type', 'button');
 			createOrder.setAttribute('class', 'btn btn-primary btn-sm');
-			createOrder.setAttribute('onclick', 'RouteControl.createOrder()');
+			createOrder.setAttribute('onclick', 'RouteControlTaxi.createOrder()');
 			createOrder.innerHTML = 'CreateOrder';
 			node_20.appendChild(createOrder);
 
 			var loadOrder = document.createElement('BUTTON');
 				loadOrder.setAttribute('type', 'button');
 				loadOrder.setAttribute('class', 'btn btn-primary btn-sm');
-				loadOrder.setAttribute('onclick', 'RouteControl.loadOrder()');
-				loadOrder.innerHTML = 'loadOrder';
+				loadOrder.setAttribute('onclick', 'RouteControlTaxi.loadOrder()');
+				loadOrder.innerHTML = 'loadOrders';
 				node_20.appendChild(loadOrder);
 			
 			var node_22 = document.createElement('SPAN');
@@ -417,7 +443,7 @@
 			var node_17 = document.createElement('BUTTON');
 			node_17.setAttribute('type', 'button');
 			node_17.setAttribute('class', 'btn btn-primary btn-sm');
-			node_17.setAttribute('onclick', 'RouteControl.delete(' + featureId + ')');
+			node_17.setAttribute('onclick', 'RouteControlTaxi.delete(' + featureId + ')');
 			node_11.appendChild(node_17);
 
 			var node_18 = document.createElement('I');

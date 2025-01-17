@@ -298,7 +298,13 @@ function wsUpdatePostion(data) {
 	send( msg);
 }
 
-
+function wsCreateOrder(data) {
+	
+	type="createOrder";
+	msg=JSON.stringify({type:type, sender: sesionID, receiver: sesionID,data:data});
+	//console.log("msg "+msg);
+	send( msg);
+}
 
 function wsSend(msg) {
 	

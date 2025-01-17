@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 
-@SpringBootApplication
+//@SpringBootApplication
 
 public class StartApplication implements CommandLineRunner {
 
@@ -19,7 +19,7 @@ public class StartApplication implements CommandLineRunner {
     JdbcTemplate jdbcTemplate;
 
 
-    public static void main(String[] args) {
+    public static void mmain(String[] args) {
         SpringApplication.run(StartApplication.class, args);
     }
 

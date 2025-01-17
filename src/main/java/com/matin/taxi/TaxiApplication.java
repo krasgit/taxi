@@ -3,8 +3,13 @@ package com.matin.taxi;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportRuntimeHints;
+
+
+import com.matin.taxi.db.model.*;
+
 
 
 
@@ -22,7 +27,13 @@ public class TaxiApplication {
 			System.err.print(e.getMessage());
 		}
 		SpringApplication.run(TaxiApplication.class, args);
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+		PersonDAO personDAO = context.getBean(PersonDAO.class);
+		System.out.println("List of person is:");
 
+		for (Person p : personDAO.getAllPersons()) {
+			System.out.println(p);
+		}
 	}
 
 	@Bean

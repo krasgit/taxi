@@ -72,4 +72,6 @@ class WebIndexController {
 		return "last/index";
 	}
 
+	
+	
 }

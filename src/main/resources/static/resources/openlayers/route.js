@@ -26,7 +26,35 @@ class Route{
 		   
 		   return new ol.style.Style({stroke: new ol.style.Stroke({width: 3, color: [30, 255, 30, 0.8], }), });
 		}			
+		
+		
+		static	createRouteCB(sender,path ,routeFeatureId) {
 				
+				var stule=Route.getStule(routeFeatureId);
+						var extraparams = "?overview=full&alternatives=true&steps=true";  //&hints=;"
+						var urll = 'https://' + hostname + ':8443/route/v1/driving/'
+						const url = urll + path + extraparams;
+
+						log("createRoute url " + url)
+						fetch(url).then(function (r) {
+							return r.json();
+						}).then(function (json) {
+							if (json.code !== 'Ok') {
+								console.log('No route found.');
+								return;
+							}
+							console.log('then createRouteCBRoute added1'+routeFeatureId);
+							//points.length = 0;
+							var r = Route.createRouteFeatureCB(json.routes[0].geometry,routeFeatureId,stule);
+						//TODO	sender.updateRouteInfo(json.routes[0]);
+							
+							console.log('after createRouteCBRoute added1'+routeFeatureId);
+							// r.setId("ff");
+
+							// 		let feature = vectorSource.getFeatureById('ff');
+							//		console.log('Route added'+feature);
+						});
+					}		
 	static	createRoute(path ,routeFeatureId) {
 		
 		var stule=Route.getStule(routeFeatureId);
@@ -34,7 +62,7 @@ class Route{
 				var urll = 'https://' + hostname + ':8443/route/v1/driving/'
 				const url = urll + path + extraparams;
 
-				log("createRoute url " + url)
+				log("createRoute url " + url);
 				fetch(url).then(function (r) {
 					return r.json();
 				}).then(function (json) {
@@ -52,8 +80,27 @@ class Route{
 					//		console.log('Route added'+feature);
 				});
 			}
-			
 			static createRouteFeature (polyline,routeFeatureId,routeStyle) {
+							// route is ol.geom.LineString
+							var route = new ol.format.Polyline({
+								factor: 1e5
+							}).readGeometry(polyline, {
+								dataProjection: 'EPSG:4326',
+								featureProjection: 'EPSG:3857'
+							});
+
+							var routeFeature = vectorSource.getFeatureById(routeFeatureId);
+							if (routeFeature)
+								vectorSource.removeFeature(routeFeature);
+							var feature = new ol.Feature({type: 'route', geometry: route});
+							feature.setId(routeFeatureId)
+							feature.setStyle(routeStyle);
+							vectorSource.addFeature(feature);
+							//	 map.render();
+							return feature;
+						}
+			
+			static createRouteFeatureCB (polyline,routeFeatureId,routeStyle) {
 					// route is ol.geom.LineString
 					var route = new ol.format.Polyline({
 						factor: 1e5
@@ -62,10 +109,9 @@ class Route{
 						featureProjection: 'EPSG:3857'
 					});
 
-					var routeFeature = vectorSource.getFeatureById(routeFeatureId);
-					if (routeFeature)
-						vectorSource.removeFeature(routeFeature);
-
+				//	var routeFeature = vectorSource.getFeatureById(routeFeatureId);
+				//	if (routeFeature)
+				//		vectorSource.removeFeature(routeFeature);
 					var feature = new ol.Feature({type: 'route', geometry: route});
 					feature.setId(routeFeatureId)
 					feature.setStyle(routeStyle);

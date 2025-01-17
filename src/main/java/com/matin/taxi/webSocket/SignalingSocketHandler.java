@@ -100,7 +100,12 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
         
         SignalMessage signalMessage = Utils.getObject(payload);
 
-
+        if(signalMessage.getType().equals("createOrder"))
+        {
+        	handleCreateOrder(session,signalMessage);
+        	return ;
+        }
+        
         if(signalMessage.getType().equals("updatePostion"))
         {
         	handleUpdatePostion(session,signalMessage);
@@ -200,4 +205,10 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
       		}
       	}
  	}
+	 
+	 
+	 
+	 private void handleCreateOrder(WebSocketSession session, SignalMessage signalMessage) throws Exception{
+	
+	 }
 }
