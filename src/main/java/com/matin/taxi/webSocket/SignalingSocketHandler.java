@@ -207,8 +207,11 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
  	}
 	 
 	 
-	 
 	 private void handleCreateOrder(WebSocketSession session, SignalMessage signalMessage) throws Exception{
-	
+		 
+		 String sender = signalMessage.getSender();
+		 String order= (String)signalMessage.getData();
+		 
+		 System.err.println(signalMessage.getSender());
 	 }
 }
