@@ -20,9 +20,12 @@ public class PersonDAOImpl implements PersonDAO {
 	private final String SQL_FIND_PERSON = "select * from people where id = ?";
 	private final String SQL_DELETE_PERSON = "delete from people where id = ?";
 	private final String SQL_UPDATE_PERSON = "update people set first_name = ?, last_name = ?, age  = ? where id = ?";
-	private final String SQL_GET_ALL = "select * from taxi.people";
+	private final String SQL_GET_ALL = "select * from people";
 	private final String SQL_INSERT_PERSON = "insert into people(id, first_name, last_name, age) values(?,?,?,?)";
 
+	
+	private final String SQL_FIND_PRINCIPAL="select * from people where firstName = ?";
+	
 	@Autowired
 	public PersonDAOImpl(DataSource dataSource) {
 		jdbcTemplate = new JdbcTemplate(dataSource);
@@ -48,5 +51,10 @@ public class PersonDAOImpl implements PersonDAO {
 	public boolean createPerson(Person person) {
 		return jdbcTemplate.update(SQL_INSERT_PERSON, person.getId(), person.getFirstName(), person.getLastName(),
 				person.getAge()) > 0;
+	}
+
+	@Override
+	public Person getPersonByPrincipal(String principal) {
+		return jdbcTemplate.queryForObject(SQL_FIND_PRINCIPAL, new Object[] { principal }, new PersonMapper());
 	}
 }

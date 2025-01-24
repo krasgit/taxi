@@ -35,6 +35,8 @@
 	<script src="geoLocation.js"           th:src="@{/resources/openlayers/geoLocation.js}" ></script>
 	<script src="superCookie.js"           th:src="@{/resources/openlayers/superCookie.js}" ></script>
 	
+	<script src="cookie.js"           th:src="@{/resources/openlayers/cookie.js}" ></script>
+	
 	<link rel="stylesheet" href="/resources/openlayers/bulma.css" type="text/css" />	
 	
 </head>
@@ -84,38 +86,7 @@
 
 <script name="auto complete ">
 	
-	class Cookie {
-		constructor( ) {	}
 		
-		static updateRouteInfo(json){
-			
-		}
-		
-		static setCookie(cname, cvalue, exdays) {
-		  const d = new Date();
-		  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-		  let expires = "expires="+d.toUTCString();
-		  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-		}
-
-		static getCookie(cname) {
-		  let name = cname + "=";
-		  let ca = document.cookie.split(';');
-		  for(let i = 0; i < ca.length; i++) {
-		    let c = ca[i];
-		    while (c.charAt(0) == ' ') {
-		      c = c.substring(1);
-		    }
-		    if (c.indexOf(name) == 0) {
-		      return c.substring(name.length, c.length);
-		    }
-		  }
-		  return "";
-		}
-
-		
-	}
-	
 	</script>	
 	
 	
@@ -180,6 +151,40 @@
 
 </script>
 
+<script>
+	
+	
+	function isLognned()
+	{
+	var user =Cookie.getCookie("user") ;
+	
+	log("isLognned  " + user);
+	}
+	
+	function logIn() {
+		
+		var username=document.getElementById('username').value;
+		var password=document.getElementById('password').value;
+		
+		wsLogin(username,password);
+		
+	Cookie.setCookie("user",username)
+	log("logIn ");
+	}
+/*	
+	function logOut(long, lat) {
+		Cookie.setCookie("user","krasi")
+			
+					
+		}
+
+	
+	function register(long, lat) {
+		Cookie.setCookie("user","krasi")
+	}
+	*/
+</script>
+
 <section id='loginsection' class="section" style="display:qaz ">
   <div class="container">
 
@@ -212,7 +217,10 @@
         </div>
       </div>
       <footer class="card-footer">
-        <div class="card-footer-item"><a href="#" onclick='initMap();' class="button is-primary" id="log-in-button">Log In</a></div>
+        <div class="card-footer-item">
+			<a href="#" onclick='logIn();' class="button is-primary" id="log-in-button">Log In</a>
+			<a href="#" onclick='isLognned();' class="button is-primary" id="log-in-button">reg</a>
+		</div>
       </footer>
     </div>
 
@@ -310,7 +318,9 @@ position: absolute;
 	var map;
 	function initMap (){
 	
-		document.getElementById('loginsection').style.display='none';
+		document.getElementById('loginsection').style.display='vnone';
+		
+		return;
 		
 	const source = new ol.source.XYZ({url: 'https://' + hostname + ':8443/tile/{z}/{x}/{y}.png'});
 	const tileLayer = new ol.layer.Tile({source: source});

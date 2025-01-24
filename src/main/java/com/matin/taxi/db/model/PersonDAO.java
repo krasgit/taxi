@@ -7,6 +7,8 @@ import com.matin.taxi.db.model.Person;
 
 
 public interface PersonDAO {
+	Person getPersonByPrincipal(String  principal);
+	
 	Person getPersonById(Long id);
 
 	List<Person> getAllPersons();

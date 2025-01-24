@@ -2,6 +2,7 @@ package com.matin.taxi.webSocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -10,10 +11,15 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.matin.taxi.owner.OwnerRepository;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.matin.taxi.AppConfig;
 import com.matin.taxi.db.*;
+import com.matin.taxi.db.model.Person;
+import com.matin.taxi.db.model.PersonDAO;
 public class SignalingSocketHandler extends TextWebSocketHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(SignalingSocketHandler.class);
@@ -164,18 +170,34 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
 		 	System.err.println(signalMessage.getSender());
 	       WebSocketSession destSocket = connectedUsers.get(signalMessage.getSender());
 	       
+	       
+	       LinkedHashMap<String, String>  map =(LinkedHashMap) signalMessage.getData();
+	       
+	       String user=map.get("user");
+	       String passw=map.get("passw");
+	       
+	       
 	       SignalMessage responceMessage=new SignalMessage();
 	       responceMessage.setType("login");
-	       /*
-	       HashMap<?, ?> map = signalMessage.getMap();
-	       Object u = map.get("username");
-	       String username = (String) u;
-	       */
-	       if(signalMessage.getMap().get("username").equals(""))
-	         responceMessage.setData(SignalMessage.logned);
-	       else 
-	    	 responceMessage.setData(SignalMessage.notlogned);
-	       //
+	       
+	       
+			AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+			PersonDAO personDAO = context.getBean(PersonDAO.class);
+			Person p = personDAO.getPersonByPrincipal(user);
+	       
+			if(p==null)
+				 responceMessage.setData(SignalMessage.notlogned);
+			
+			if(p.getLastName().equals(passw))
+			{
+			    responceMessage.setData(SignalMessage.logned);				
+			}
+			else
+			{
+				 responceMessage.setData(SignalMessage.notlogned);
+			}
+				
+			
 	       
 	       //
 	       SendMessage(destSocket,responceMessage);

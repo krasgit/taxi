@@ -93,6 +93,13 @@
 						}	
 
 						
+						var kLonLat = [27.990425599999995, 43.23737599999998];
+						var feature = RouteControlTaxi._createFeature(kLonLat);
+						
+						var st = getFeatureStyle("waypointName");
+																feature.setStyle(st);
+						
+						
 						Route.createRouteCB(this,"27.990425599999995,43.23737599999998;27.96982623476562,43.23512489505694",'routeFeature');
 						Route.createRouteCB(this,"27.98390246767578,43.25088088328201;27.909058107324217,43.22461863910661",'routeFeature1');
 						

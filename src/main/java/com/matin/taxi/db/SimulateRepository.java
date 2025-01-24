@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
@@ -25,8 +26,28 @@ public interface SimulateRepository extends Repository<Simulate, Integer> {
 	@Transactional(readOnly = true)
 	Simulate findById(@Param("id") Integer id);
 
-	void save(Simulate owner);
+	
+	
+	@Query("SELECT p FROM Principal p WHERE p.id =:id")
+	@Transactional(readOnly = true)
+	Principal getPrincipalById(@Param("id") Integer id);
 
+	
+	void save(Simulate simulate);
+	void save(Principal principal);
+
+	void save(Session session);
+
+	void save(SessionAttributes sessionAttributes); 
+	
+
+    
+	@Modifying
+    @Query("DELETE SessionAttributes c WHERE c.id = ?1")
+    void deleteByCustomerId(int customerId);
+
+	
+	
 	@Query("SELECT owner FROM Owner owner")
 	@Transactional(readOnly = true)
 	Page<Simulate> findAll(Pageable pageable);

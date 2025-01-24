@@ -318,12 +318,14 @@ function wsSend(msg) {
 
 
 
-function wsLogin() {
+function wsLogin(user,passw) {
 	
-	type="ping";
-	msg=JSON.stringify({type:type, sender: "sender", receiver: sesionID,data:"data"});
-	console.log("msg "+msg);
-	ws.send( msg);
+	var data = {  "user": user,  "passw": passw};
+	
+	type="login";
+	msg=JSON.stringify({type:type, sender: sesionID, receiver: sesionID,data:data});
+	//console.log("msg "+msg);
+	send( msg);
 }
 
 

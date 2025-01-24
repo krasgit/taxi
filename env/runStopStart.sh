@@ -7,10 +7,10 @@ sudo zerotier-cli join a0cbf4b62ac3c44d
 
 echo "stop "
 
-docker stop musing_ardinghelli
-docker start musing_ardinghelli
-docker stop compassionate_meninsky
-docker start compassionate_meninsky
+docker stop tile-server
+docker start tile-server
+docker stop osrm
+docker start osrm
 
 docker stop nominatim
 docker start  nominatim

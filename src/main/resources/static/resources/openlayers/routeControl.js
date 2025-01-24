@@ -107,7 +107,7 @@
 									var geometry =f.getGeometry().clone().transform(map.getView().getProjection(), 'EPSG:4326');
 									var coordinates = geometry.flatCoordinates;
 									
-									var coord = {  "lon": coordinates[0],  "lat": coordinates[1],  "name":bntEl.value }
+									var coord = {  "lon": coordinates[0],  "lat": coordinates[1],  "name":bntEl.value ,"waypointName":waypointName }
 									order.coord.push(coord);
 					
 									}
@@ -219,6 +219,17 @@
 		RouteControl.refresh();
 		}
 
+		
+		static logIn(){
+			
+		}
+		
+		static logOut(){
+					
+				}
+		
+		
+		
 		static add() {
 			const cWaypoint = document.getElementById('Waypoint');
 			var LonLat = [0, 0];
