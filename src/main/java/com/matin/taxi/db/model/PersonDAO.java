@@ -16,6 +16,18 @@ public interface PersonDAO {
 	boolean deletePerson(Person person);
 
 	boolean updatePerson(Person person);
+	
+	boolean updatePersonToken(Person person);
 
 	boolean createPerson(Person person);
+
+	boolean isLognned(String user, String token);
+	
+	boolean createOrders(Orders person);
+
+	Long getPersonIdByUserToken(String user, String token);
+	Orders getOrdersByClientIdState(Long clientId,int state);
+	
+	//
+	
 }

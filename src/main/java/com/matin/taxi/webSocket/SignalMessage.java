@@ -1,6 +1,7 @@
 package com.matin.taxi.webSocket;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -23,9 +24,26 @@ public class SignalMessage {
 	public String toString() {
 		return "SignalMessage [type=" + type + ", sender=" + sender + ", receiver=" + receiver + ", data=" + data + "]";
 	}
+    private String id;
+    
+    private String procedure;
+	public String getProcedure() {
+		return procedure;
+	}
+	public void setProcedure(String procedure) {
+		this.procedure = procedure;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
 	private String type;
     private String sender;
     private String receiver;
+
+    
     private Object data;
     
     
@@ -66,5 +84,19 @@ public class SignalMessage {
 	}
 	
 	
+    public String getUser() {
+		return user;
+	}
+	public void setArg(String arg) {
+		this.user = user;
+	}
+	public String getToken() {
+		return token;
+	}
+	public void setToken(String token) {
+		this.token = token;
+	}
+	private String user;
+    private String token;
 
 }

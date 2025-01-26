@@ -7,9 +7,28 @@ public class Person {
 		private String firstName;
 		private String lastName;
 
+		private String token;
+		
+		public String getToken() {
+			return token;
+		}
+
+
+		public void setToken(String token) {
+			this.token = token;
+		}
+
+
 		public Person() {
 		}
 
+		
+		public Person( String firstName, String lastName,Integer age) {
+			this.age = age;
+			this.firstName = firstName;
+			this.lastName = lastName;
+		}
+		
 		public Person(Long id, Integer age, String firstName, String lastName) {
 			this.id = id;
 			this.age = age;

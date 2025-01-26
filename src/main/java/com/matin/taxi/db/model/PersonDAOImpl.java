@@ -19,9 +19,9 @@ public class PersonDAOImpl implements PersonDAO {
 
 	private final String SQL_FIND_PERSON = "select * from people where id = ?";
 	private final String SQL_DELETE_PERSON = "delete from people where id = ?";
-	private final String SQL_UPDATE_PERSON = "update people set first_name = ?, last_name = ?, age  = ? where id = ?";
+	private final String SQL_UPDATE_PERSON = "update people set firstname = ?, lastname = ?, age  = ? where id = ?";
 	private final String SQL_GET_ALL = "select * from people";
-	private final String SQL_INSERT_PERSON = "insert into people(id, first_name, last_name, age) values(?,?,?,?)";
+	private final String SQL_INSERT_PERSON = "insert into people( firstname, lastname, age) values(?,?,?)";
 
 	
 	private final String SQL_FIND_PRINCIPAL="select * from people where firstName = ?";
@@ -49,12 +49,58 @@ public class PersonDAOImpl implements PersonDAO {
 	}
 
 	public boolean createPerson(Person person) {
-		return jdbcTemplate.update(SQL_INSERT_PERSON, person.getId(), person.getFirstName(), person.getLastName(),
+		return jdbcTemplate.update(SQL_INSERT_PERSON,  person.getFirstName(), person.getLastName(),
 				person.getAge()) > 0;
 	}
 
-	@Override
+	
 	public Person getPersonByPrincipal(String principal) {
 		return jdbcTemplate.queryForObject(SQL_FIND_PRINCIPAL, new Object[] { principal }, new PersonMapper());
 	}
+
+	//
+	private final String SQL_UPDATE_PERSON_TOKEN = "update people set token  = ?  where id = ?";
+	public boolean updatePersonToken(Person person) {
+		return jdbcTemplate.update(SQL_UPDATE_PERSON_TOKEN, person.getToken(),person.getId()) > 0;
+	}
+
+	@Override
+	public boolean isLognned(String user, String token) {
+	String sql="SELECT count(*) FROM people WHERE firstname = ? AND token = ?";
+		
+		Integer cnt = jdbcTemplate.queryForObject(sql, Integer.class, user,token);
+			
+		
+		return cnt != null && cnt > 0;
+		
+		
+		//this.jdbcTemplate.queryForObject(sql, Integer.class,                     user, token);
+        //this.jdbcTemplate.queryForObject( sql, Integer.class, new Object[] { user,token });
+	}
+
+	private final String SQL_INSERT_ORDERS = "insert into Orders( clientId, taxiId, state,route) values(?,?,?,?)";
+	public boolean createOrders(Orders orders) {
+		return jdbcTemplate.update(SQL_INSERT_ORDERS,  orders.getClientId(), orders.getTaxiId(), orders.getState(),orders.getRoute()) > 0;
+	}
+
+	@Override
+	public Long getPersonIdByUserToken(String user, String token) {
+		
+		String sql="SELECT id FROM people WHERE firstname = ? AND token = ?";
+			
+		Long id = jdbcTemplate.queryForObject(sql, Long.class, user,token);
+				
+			
+			return id;
+			
+			
+			//this.jdbcTemplate.queryForObject(sql, Integer.class,                     user, token);
+	        //this.jdbcTemplate.queryForObject( sql, Integer.class, new Object[] { user,token });
+		}
+
+	private final String SQL_FIND_ORDERS_CLIENTID_STATE="select * Orders people where clientId = ? and state=? ";
+	public Orders getOrdersByClientIdState(Long clientId, int state) {
+		return jdbcTemplate.queryForObject(SQL_FIND_ORDERS_CLIENTID_STATE, new Object[] { clientId, state}, new OrdersMapper());
+	}
+
 }

@@ -41,7 +41,10 @@ function processWsMessage(message) {
     // you have logged in
     switch (signal.type) {
 		
-		case 'session':handleSession(signal);break;
+		case 'session':
+			handleSession(signal);
+			isLognned();
+						break;
 		case 'init':   handleInit(signal);   break;
         case 'logout': handleLogout(signal); break;
         case 'offer':  handleOffer(signal);  break;
@@ -50,10 +53,23 @@ function processWsMessage(message) {
 		case 'pong':   handlePong(signal);   break;
      	case 'login':  handleLogin(signal);   break;	
      	case 'UpdatePostion': handleUpdatePostion(signal);      break;				
+		
+		case 'isLognned': handleIsLognned(signal);      break;	
 						
     }
 
 }
+
+function handleIsLognned(signal) {
+	
+//	log("handleUpdatePostion" +signal);
+	//const obj = JSON.parse(signal.data);
+	initMap(signal.data==true);
+	
+	
+	}
+
+
 
 function handleUpdatePostion(signal) {
 	
@@ -65,27 +81,13 @@ function handleUpdatePostion(signal) {
 
 function handleLogin(signal) {
 	var res=signal.data;
-	if(res==='logned')
-	{
-		document.getElementById('loginCont').style.display='none';
-		
-		button = document.getElementById("b1");
-		button.style.backgroundColor ="rgba(0, 60, 136, 0.83);";
-		button.innerHTML ='<i class="fa fa-sign-out"></i>';
-		
-		d1 = document.getElementById("d1");
-		d1.style.backgroundColor ="rgba(0, 60, 136, 0.83);";
-		
-		return ;
-	}
 	
-	if(signal.data==='notlogned')
-	{
-			
-	}
+	
+	Cookie.setCookie("token",res);
 
 	
 console.log("pong "+signal);
+initMap(true);
 }
 
 
@@ -233,7 +235,7 @@ function sendMessage(payload) {
 
 function logMessage(message) {
 	//solent
-    //console.log(message);
+    console.log(message);
 }
 
 function disconnect() {
@@ -245,13 +247,13 @@ function disconnect() {
 
 var ws=null;
 
-function conect() {
+function wsconect() {
 try{
     // get a local stream, show it in a self-view and add it to be sent
         ws = new WebSocket('wss://' + window.location.hostname + ':' + PORT + MAPPING);
-        ws.onmessage = processWsMessage;
+	        ws.onmessage = processWsMessage;
         ws.onopen = logMessage;
-        ws.onclose = logMessage;
+	    ws.onclose = logMessage;
         ws.onerror = logMessage;
 		
 		
@@ -300,11 +302,34 @@ function wsUpdatePostion(data) {
 
 function wsCreateOrder(data) {
 	
+	var user =Cookie.getCookie("user") ;
+		var token =Cookie.getCookie("token") ;
+	
+	
 	type="createOrder";
-	msg=JSON.stringify({type:type, sender: sesionID, receiver: sesionID,data:data});
+	msg=JSON.stringify({type:type, sender: sesionID, receiver: sesionID,data:data
+		, user: user
+		, token: token
+	});
 	//console.log("msg "+msg);
 	send( msg);
 }
+
+function wsLoadOrder() {
+	
+	var user =Cookie.getCookie("user") ;
+		var token =Cookie.getCookie("token") ;
+	
+	
+	type="loadOrder";
+	msg=JSON.stringify({type:type, sender: sesionID, receiver: sesionID,data:'data'
+		, user: user
+		, token: token
+	});
+	//console.log("msg "+msg);
+	send( msg);
+}
+
 
 function wsSend(msg) {
 	
@@ -328,7 +353,26 @@ function wsLogin(user,passw) {
 	send( msg);
 }
 
+function wsIsLognned(user,token) {
+	
+	var data = {  "user": user,  "token": token};
+	
+	type="isLognned";
+	msg=JSON.stringify({type:type, sender: sesionID, receiver: sesionID,data:data});
+	//console.log("msg "+msg);
+	send( msg);
+}
 
+
+function wsPrincipalRegistration(user,passw) {
+	
+	var data = {  "user": user,  "passw": passw};
+	
+	type="PrincipalRegistration";
+	msg=JSON.stringify({type:type, sender: sesionID, receiver: sesionID,data:data});
+	//console.log("msg "+msg);
+	send( msg);
+}
 
 function wssendmsg(type,sender,receiver,data) {
 	
@@ -338,5 +382,20 @@ function wssendmsg(type,sender,receiver,data) {
 }
 
 
+function init(){
+	wsconect();
+	
+}
+
 // start
-window.onload = conect;
+window.onload = init;
+
+
+
+
+
+
+
+
+
+

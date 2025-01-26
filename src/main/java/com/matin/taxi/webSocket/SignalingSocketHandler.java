@@ -10,14 +10,17 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.matin.taxi.owner.OwnerRepository;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matin.taxi.AppConfig;
 import com.matin.taxi.db.*;
+import com.matin.taxi.db.model.Orders;
 import com.matin.taxi.db.model.Person;
 import com.matin.taxi.db.model.PersonDAO;
 public class SignalingSocketHandler extends TextWebSocketHandler {
@@ -97,56 +100,9 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
     }
     }
      
-    @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        LOG.info("handleTextMessage : {}", message.getPayload());
+   
 
-        String payload = message.getPayload();
-        
-        
-        SignalMessage signalMessage = Utils.getObject(payload);
-
-        if(signalMessage.getType().equals("createOrder"))
-        {
-        	handleCreateOrder(session,signalMessage);
-        	return ;
-        }
-        
-        if(signalMessage.getType().equals("updatePostion"))
-        {
-        	handleUpdatePostion(session,signalMessage);
-        	return ;
-        }
-        
-        
-        if(signalMessage.getType().equals("login"))
-        {
-        	handleLogin(session,signalMessage);
-        	return ;
-        }
-        
-        if(signalMessage.getType().equals("ping"))
-        	signalMessage.setType("pong");
-        
-        if(signalMessage.getType().equals("logPosition"))
-        {
-        	handleLogPosition(signalMessage,session.getId());
-        	return;
-        }
-        
-        // with the destinationUser find the targeted socket, if any
-        String destinationUser = signalMessage.getReceiver();
-        WebSocketSession destSocket = connectedUsers.get(destinationUser);
-        // if the socket exists and is open, we go on
-        if (destSocket != null && destSocket.isOpen()) {
-            // set the sender as current sessionId.
-            signalMessage.setSender(session.getId());
-            final String resendingMessage = Utils.getString(signalMessage);
-            LOG.info("send message {} to {}", resendingMessage, destinationUser);
-            destSocket.sendMessage(new TextMessage(resendingMessage));
-        }
-    }
-
+	
 	private void removeUserAndSendLogout(final String sessionId) {
 
         connectedUsers.remove(sessionId);
@@ -165,6 +121,75 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
         });
     }
 	
+	
+	
+	 void handlePrincipalRegistration(WebSocketSession session, SignalMessage signalMessage) throws Exception
+	    {
+		 	System.err.println(signalMessage.getSender());
+	       WebSocketSession destSocket = connectedUsers.get(signalMessage.getSender());
+	       
+	       
+	       LinkedHashMap<String, String>  map =(LinkedHashMap) signalMessage.getData();
+	       
+	       String user=map.get("user");
+	       String passw=map.get("passw");
+	       
+	       
+	       SignalMessage responceMessage=new SignalMessage();
+	       responceMessage.setType("PrincipalRegistration");
+	       
+	       
+			AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+			PersonDAO personDAO = context.getBean(PersonDAO.class);
+			
+			Person p= new Person(user,passw,11);
+			if(personDAO.createPerson(p))
+	    		 responceMessage.setData("true");
+			else 
+				responceMessage.setData("false");
+			
+	       
+	       //
+	       SendMessage(destSocket,responceMessage);
+	    }
+	
+	
+	 private void handleIsLognned(WebSocketSession session, SignalMessage signalMessage)throws Exception {
+		 	System.err.println(signalMessage.getSender());
+		       WebSocketSession destSocket = connectedUsers.get(signalMessage.getSender());
+		       
+		       
+		       LinkedHashMap<String, String>  map =(LinkedHashMap) signalMessage.getData();
+		       
+		       String user=map.get("user");
+		       String token=map.get("token");
+		       
+		       
+		       SignalMessage responceMessage=new SignalMessage();
+		       responceMessage.setType("isLognned");
+		       
+		       
+				AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+				PersonDAO personDAO = context.getBean(PersonDAO.class);
+				
+				try {
+					
+					boolean  ret = personDAO.isLognned(user,token);
+					 responceMessage.setData(ret);
+
+				}
+				catch (Exception e)
+				{     responceMessage.setType("errot");
+					 responceMessage.setData(SignalMessage.notlogned);
+				}
+				
+		   SendMessage(destSocket,responceMessage);
+			
+		}
+
+	 
+	 
+	 
 	 void handleLogin(WebSocketSession session, SignalMessage signalMessage) throws Exception
 	    {
 		 	System.err.println(signalMessage.getSender());
@@ -183,22 +208,31 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
 	       
 			AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
 			PersonDAO personDAO = context.getBean(PersonDAO.class);
-			Person p = personDAO.getPersonByPrincipal(user);
-	       
-			if(p==null)
-				 responceMessage.setData(SignalMessage.notlogned);
 			
-			if(p.getLastName().equals(passw))
-			{
-			    responceMessage.setData(SignalMessage.logned);				
-			}
-			else
-			{
-				 responceMessage.setData(SignalMessage.notlogned);
-			}
+			try {
+				Person p = personDAO.getPersonByPrincipal(user);
+		       
+		        if(p.getLastName().equals(passw))
+				{
+		        	 UUID uuid = UUID.randomUUID();
+				        String uuidAsString = uuid.toString();
+				        p.setToken(uuidAsString);
+				        personDAO.updatePersonToken(p); 
+				        
+				    responceMessage.setData(uuid);				
+				    
+				}
+				else
+				{
+					 responceMessage.setData(SignalMessage.notlogned);
+				}
+					
 				
-			
-	       
+			}catch (Exception e)
+			{
+				 responceMessage.setData(SignalMessage.notlogned);
+			}
+  
 	       //
 	       SendMessage(destSocket,responceMessage);
 	    }
@@ -209,11 +243,7 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
          
          SignalMessage responceMessage=new SignalMessage();
          responceMessage.setType("UpdatePostion");
-         /*
-         HashMap<?, ?> map = signalMessage.getMap();
-         Object u = map.get("username");
-         String username = (String) u;
-         */
+  
          
       	 responceMessage.setData(signalMessage.getData());
          //
@@ -228,12 +258,142 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
       	}
  	}
 	 
-	 
-	 private void handleCreateOrder(WebSocketSession session, SignalMessage signalMessage) throws Exception{
-		 
+ private void handleCreateOrder(WebSocketSession session, SignalMessage signalMessage) throws Exception{
+	   SignalMessage responceMessage=new SignalMessage();
 		 String sender = signalMessage.getSender();
+		 String receiver = signalMessage.getReceiver();
 		 String order= (String)signalMessage.getData();
+	
+			AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+			PersonDAO personDAO = context.getBean(PersonDAO.class);
+			
+		       String user=signalMessage.getUser();
+		       String token=signalMessage.getToken();
+			
+			//clientid
+			Long clientId = personDAO.getPersonIdByUserToken(user,token);
+
+			Orders o= new Orders(  clientId,  (long) 0,  0,  order);
+			if(personDAO.createOrders(o))
+	    		 responceMessage.setData("true");
+			else 
+				responceMessage.setData("false");
+		 
 		 
 		 System.err.println(signalMessage.getSender());
 	 }
+	
+ private void handleLoadOrder(WebSocketSession session, SignalMessage signalMessage) throws Exception{
+	   SignalMessage responceMessage=new SignalMessage();
+		 String sender = signalMessage.getSender();
+		 String receiver = signalMessage.getReceiver();
+		 String order= (String)signalMessage.getData();
+	
+			AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+			PersonDAO personDAO = context.getBean(PersonDAO.class);
+			
+		       String user=signalMessage.getUser();
+		       String token=signalMessage.getToken();
+			
+			//clientid
+			Long clientId = personDAO.getPersonIdByUserToken(user,token);
+
+		
+			
+			Orders o=personDAO.getOrdersByClientIdState(clientId, 0);
+			
+			
+			if(o==null)
+	    		 responceMessage.setData("");
+			else 
+				responceMessage.setData(o.getRoute());
+		 
+		 
+		 System.err.println(signalMessage.getSender());
+	 }
+ 
+ @Override
+ protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+     LOG.info("handleTextMessage : {}", message.getPayload());
+
+     String payload = message.getPayload();
+     
+     
+     SignalMessage signalMessage = Utils.getObject(payload);
+
+     String type = signalMessage.getType();
+     
+     if(type.equals("loadOrder"))
+     {
+     	handleLoadOrder(session,signalMessage);
+     	return ;
+     }
+     
+     if(type.equals("isLognned"))
+     {
+     	handleIsLognned(session,signalMessage);
+     	return ;
+     }
+     
+   //  if(type.equals("createOrder"))
+   //  {
+   //  	handleIsLognned(session,signalMessage);
+   //  	return ;
+  //   }
+     
+     
+     
+     
+     
+     if(signalMessage.getType().equals("createOrder"))
+     {
+     	handleCreateOrder(session,signalMessage);
+     	return ;
+     }
+     
+     if(signalMessage.getType().equals("updatePostion"))
+     {
+     	handleUpdatePostion(session,signalMessage);
+     	return ;
+     }
+     
+     
+     if(signalMessage.getType().equals("login"))
+     {
+     	handleLogin(session,signalMessage);
+     	return ;
+     }
+     
+     if(signalMessage.getType().equals("PrincipalRegistration"))
+     {
+     	handlePrincipalRegistration(session,signalMessage);
+     	return ;
+     }
+     
+     
+     if(signalMessage.getType().equals("ping"))
+     	signalMessage.setType("pong");
+     
+     if(signalMessage.getType().equals("logPosition"))
+     {
+     	handleLogPosition(signalMessage,session.getId());
+     	return;
+     }
+     
+   
+     
+     
+     // with the destinationUser find the targeted socket, if any
+     String destinationUser = signalMessage.getReceiver();
+     WebSocketSession destSocket = connectedUsers.get(destinationUser);
+     // if the socket exists and is open, we go on
+     if (destSocket != null && destSocket.isOpen()) {
+         // set the sender as current sessionId.
+         signalMessage.setSender(session.getId());
+         final String resendingMessage = Utils.getString(signalMessage);
+         LOG.info("send message {} to {}", resendingMessage, destinationUser);
+         destSocket.sendMessage(new TextMessage(resendingMessage));
+     }
+ }
+ 
 }

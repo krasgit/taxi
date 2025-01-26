@@ -11,9 +11,11 @@ public class PersonMapper implements RowMapper<Person> {
 
 		Person person = new Person();
 		person.setId(resultSet.getLong("id"));
-		person.setFirstName(resultSet.getString("first_name"));
-		person.setLastName(resultSet.getString("last_name"));
+		person.setFirstName(resultSet.getString("firstname"));
+		person.setLastName(resultSet.getString("lastname"));
 		person.setAge(resultSet.getInt("age"));
+		
+		person.setToken(resultSet.getString("token"));
 		return person;
 	}
 }
