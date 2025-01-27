@@ -98,9 +98,18 @@ public class PersonDAOImpl implements PersonDAO {
 	        //this.jdbcTemplate.queryForObject( sql, Integer.class, new Object[] { user,token });
 		}
 
-	private final String SQL_FIND_ORDERS_CLIENTID_STATE="select * Orders people where clientId = ? and state=? ";
+	private final String SQL_FIND_ORDERS_CLIENTID_STATE="select * from Orders  where clientId = ? and state=? "
+			+ " ORDER BY id DESC LIMIT 1 ";
 	public Orders getOrdersByClientIdState(Long clientId, int state) {
 		return jdbcTemplate.queryForObject(SQL_FIND_ORDERS_CLIENTID_STATE, new Object[] { clientId, state}, new OrdersMapper());
+	}
+
+	//clientId, taxiId, state,route
+	private final String SQL_UPDATE_ORDERS = "update people set clientId = ?, taxiId = ?, state  = ? ,route=? where id = ?";
+	public boolean updateOrders(Orders orders) {
+		return jdbcTemplate.update(SQL_UPDATE_PERSON, orders.getClientId(), orders.getTaxiId(), orders.getState(),orders.getRoute(),
+				orders.getId()) > 0;
+		
 	}
 
 }

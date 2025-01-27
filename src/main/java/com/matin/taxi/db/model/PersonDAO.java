@@ -28,6 +28,8 @@ public interface PersonDAO {
 	Long getPersonIdByUserToken(String user, String token);
 	Orders getOrdersByClientIdState(Long clientId,int state);
 	
+	boolean updateOrders(Orders person);
+	
 	//
 	
 }

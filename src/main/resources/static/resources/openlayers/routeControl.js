@@ -55,7 +55,57 @@
 				
 			}	
 			
+			
+			static loadOrderCB(json){
+				
+				const cWaypoint = document.getElementById('Waypoint');
+							
+							cWaypoint.innerText="";
+							vectorSource.clear();
+							const obj = JSON.parse(json);
+							
+
+							for (let item of obj.coord) {
+								log(item);
+								var LonLat = [item.lon, item.lat];
+								var feature = RouteControl._createFeature(LonLat);
+								var node_11 = RouteControl.autoCompleteBtn(feature, item.name);
+								cWaypoint.appendChild(node_11);
+							}						
+							RouteControl.refresh();
+			}
+			
 			static loadOrder(){
+							
+				var user =Cookie.getCookie("user") ;
+				var token =Cookie.getCookie("token") ;
+							
+				callRPC("loadOrder",user,token).then((result) => {
+									
+										  log( result);
+										  RouteControl.loadOrderCB(result);
+									   });
+				}	 
+						
+									   
+									   
+			
+			static oldloadOrder(){
+				
+				log( "Before");
+				
+				var user =Cookie.getCookie("user") ;
+						var token =Cookie.getCookie("token") ;
+				
+					callRPC("loadOrder",user,token).then((result) => {
+						
+							  log( result);
+						   
+						   });
+						   log( "After");	 
+				
+				
+				
 				log('loadOrder');
 			var json=' {"coord":[{"lon":27.990425599999995,"lat":43.23737599999998,"name":"Васил Стоилов, Дълбокото дере, кв. Виница, Варна, Приморски, Варна, 9006, България"},{"lon":27.96982623476562,"lat":43.23512489505694,"name":"Горна Трака, кв. Виница, Варна, Приморски, Варна, 9022, България"}]}';
 			             

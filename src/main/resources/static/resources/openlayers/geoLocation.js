@@ -64,12 +64,12 @@
 		
 		var distance=utils.distanceBetweenPoints ([curentCoord.longitude, curentCoord.latitude], [lastCoord.longitude, lastCoord.latitude]);
 		
-		const button=document.getElementById("b1");
+		
 		
 		
 		if(distance>1)
 			{
-				button.innerHTML=""+distance ;
+			//	document.getElementById("b1").innerHTML=""+distance ;
 			wsUpdatePostion(event);
 	        }	
 		 lastGeoLocationEvent = event;
