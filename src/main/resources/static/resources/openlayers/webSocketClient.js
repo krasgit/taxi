@@ -55,10 +55,30 @@ function processWsMessage(message) {
      	case 'UpdatePostion': handleUpdatePostion(signal);      break;				
 		
 		case 'isLognned': handleIsLognned(signal);      break;	
+		
+		
+		case 'UpdateInfo': handleUpdateInfo(signal);      break;
 						
     }
 
 }
+
+
+function handleUpdateInfo(signal) {
+	
+	
+	
+	
+	const routeUpdateInfo = document.getElementById('routeUpdateInfo');
+	
+	routeUpdateInfo.innerHTML = signal.data;
+
+	//const obj = JSON.parse(signal.data);
+	
+	
+	
+	}
+
 
 function handleIsLognned(signal) {
 	
@@ -82,7 +102,7 @@ function handleUpdatePostion(signal) {
 function handleLogin(signal) {
 	var res=signal.data;
 	
-	
+	//alert("token"+res);
 	Cookie.setCookie("token",res);
 
 	

@@ -11,13 +11,13 @@ const MAPPING = "/rpc";
 
 
 await remoteProcedures.open('wss://' + window.location.hostname + ':' + PORT + MAPPING);
-
+/*
 const input = document.querySelector("#input");
 const multiplyButton = document.querySelector("#multiply-button");
 const sqrtButton = document.querySelector("#sqrt-button");
+*/
 
-
-
+/*
 multiplyButton.onclick = async () => {
   const result = await remoteProcedures.multiplyByOneThousand(
     Number(input.value)
@@ -25,7 +25,8 @@ multiplyButton.onclick = async () => {
   input.value = result;
     
 };
-
+*/
+/*
 const sumButton = document.querySelector("#sum-button");
 
 sumButton.onclick = async () => {
@@ -37,7 +38,12 @@ sumButton.onclick = async () => {
     
   
 };
+sqrtButton.onclick = async () => {
+  const result = await remoteProcedures.doSquareRoot(Number(input.value));
+  input.value = result;
+};
 
+*/
 
 export async function  calll(){
 	 const result =  await remoteProcedures.sum( 1, 2  );
@@ -46,10 +52,6 @@ export async function  calll(){
 }
 
 
-sqrtButton.onclick = async () => {
-  const result = await remoteProcedures.doSquareRoot(Number(input.value));
-  input.value = result;
-};
 
 
 export async function  printAddressols(qaz,wsx)   {

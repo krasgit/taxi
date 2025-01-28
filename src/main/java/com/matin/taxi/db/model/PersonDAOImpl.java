@@ -112,4 +112,17 @@ public class PersonDAOImpl implements PersonDAO {
 		
 	}
 
+	
+
+
+	@Override
+	public boolean getPersonLogOutIdByUserToken(String user, String token) {
+		 final String SQL_UPDATE_PERSON_TOKEN = "update people set token=null where    firstname = ? and token  = ?";
+		
+			return jdbcTemplate.update(SQL_UPDATE_PERSON_TOKEN, user,token) > 0;
+		}
+			
+			
+	
+	
 }

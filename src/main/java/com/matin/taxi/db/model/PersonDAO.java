@@ -29,6 +29,8 @@ public interface PersonDAO {
 	Orders getOrdersByClientIdState(Long clientId,int state);
 	
 	boolean updateOrders(Orders person);
+
+	boolean getPersonLogOutIdByUserToken(String user, String token);
 	
 	//
 	

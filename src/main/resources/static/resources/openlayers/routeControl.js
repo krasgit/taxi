@@ -275,7 +275,14 @@
 		}
 		
 		static logOut(){
-					
+			var user =Cookie.getCookie("user") ;
+			var token =Cookie.getCookie("token") ;
+			callRPC("logOut",user,token).then((result) => {
+				
+				location.reload();
+				   
+				   });
+			
 				}
 		
 		
@@ -360,17 +367,37 @@
 			node_3.appendChild(node_4);
 
 			var node_5 = document.createElement('SPAN');
-			node_5.setAttribute('class', 'ref1');
+			//node_5.setAttribute('class', 'ref1');
 			node_4.appendChild(node_5);
 
+			var logoutButton = document.createElement('A');
+					logoutButton.setAttribute('href', '#');
+					logoutButton.setAttribute('onclick', 'RouteControl.logOut();');
+					logoutButton.setAttribute('class', 'is-primary');
+					logoutButton.setAttribute('id', 'log-out-button');		
+					logoutButton.innerHTML = 'logout';
+					node_5.appendChild(logoutButton);	
+			
+			
 			var node_6 = document.createElement('DIV');
 			node_6.setAttribute('class', '');
 			node_3.appendChild(node_6);
 
 			var node_7 = document.createElement('SPAN');
-			node_7.setAttribute('class', 'ref2');
+			node_7.setAttribute('id', 'routeUpdateInfo');	
 			node_6.appendChild(node_7);
 
+			/*
+			var logoutButton = document.createElement('BUTTON');
+						logoutButton.setAttribute('type', 'button');
+						logoutButton.setAttribute('class', 'btn btn-primary btn-sm');
+						logoutButton.setAttribute('onclick', 'RouteControl.logOut()');
+						logoutButton.innerHTML = 'logout';
+						node_7.appendChild(logoutButton);
+			*/
+			
+						
+			
 			var node_8 = document.createElement('DIV');
 			node_8.setAttribute('class', '');
 			node_3.appendChild(node_8);

@@ -11,10 +11,15 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.matin.taxi.owner.OwnerRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,7 +40,46 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
      * Cache of sessions by users.
      */
     private final Map<String, WebSocketSession> connectedUsers = new HashMap<>();
+    
+    
+   private String  getCurrentDateTime() {
+    LocalDateTime myDateObj = LocalDateTime.now();
+    
+    DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
+    String formattedDate = myDateObj.format(myFormatObj);
+    return  formattedDate;
+    }
+    public SignalingSocketHandler() {
+    	
+    	ScheduledExecutorService executor =
+    		    Executors.newSingleThreadScheduledExecutor();
+
+    		Runnable periodicTask = new Runnable() {
+    		    public void run() {
+    		    	
+    		    	 connectedUsers.values().forEach(webSocketSession -> {
+    		             try {
+    		            	 
+    		            	 
+    		            	 final SignalMessage updateInfo = new SignalMessage();
+    		            	 updateInfo.setType("UpdateInfo");
+    		            	 updateInfo.setSender("app");
+    		            	 
+    		            	 updateInfo.setData(getCurrentDateTime());
+    		            	 LOG.info(updateInfo.toString())  ;  	 
+    		                 webSocketSession.sendMessage(new TextMessage(Utils.getString(updateInfo)));
+    		             } catch (Exception e) {
+    		                 LOG.warn("Error while message sending.", e);
+    		             }
+    		         });
+    		    	
+    		    }
+    		};
+
+    		executor.scheduleAtFixedRate(periodicTask, 0, 10, TimeUnit.SECONDS);    
+        	
+	}
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         LOG.info("[" + session.getId() + "] Connection established " + session.getId());
@@ -214,12 +258,15 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
 		       
 		        if(p.getLastName().equals(passw))
 				{
-		        	 UUID uuid = UUID.randomUUID();
-				        String uuidAsString = uuid.toString();
-				        p.setToken(uuidAsString);
+		        	 //UUID uuid = UUID.randomUUID();
+				        //String uuidAsString = uuid.toString();
+				        //p.setToken(uuidAsString);
+		        	 
+		        	String getId=session.getId();
+		        	 p.setToken(session.getId());
 				        personDAO.updatePersonToken(p); 
 				        
-				    responceMessage.setData(uuid);				
+				    responceMessage.setData(getId);				
 				    
 				}
 				else

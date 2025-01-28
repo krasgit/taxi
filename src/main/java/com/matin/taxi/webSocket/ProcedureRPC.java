@@ -11,6 +11,24 @@ import com.matin.taxi.db.model.PersonDAO;
 
 public class ProcedureRPC {
 	
+	
+	public boolean logOut(ArrayList arg)
+	{
+		String user=(String)arg.get(0);
+		String token=(String)arg.get(1);
+		
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+		PersonDAO personDAO = context.getBean(PersonDAO.class);
+		
+	    
+		
+		//clientid
+		return  personDAO.getPersonLogOutIdByUserToken(user,token);
+
+		
+		
+	}
+	
 	public String loadOrder(ArrayList arg)
 	{
 		
