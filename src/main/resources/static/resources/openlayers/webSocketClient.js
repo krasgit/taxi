@@ -71,8 +71,10 @@ function handleUpdateInfo(signal) {
 	
 	const routeUpdateInfo = document.getElementById('routeUpdateInfo');
 	
-	routeUpdateInfo.innerHTML = signal.data;
-
+	if(routeUpdateInfo!=null)
+		routeUpdateInfo.innerHTML = signal.data;
+		else 
+		console.log("handleUpdateInfo data" + signal.data); 
 	//const obj = JSON.parse(signal.data);
 	
 	

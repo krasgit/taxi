@@ -223,8 +223,11 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
 
 				}
 				catch (Exception e)
-				{     responceMessage.setType("errot");
-					 responceMessage.setData(SignalMessage.notlogned);
+				{     
+					
+					LOG.error(e.getMessage(), e);
+					responceMessage.setType("errot");
+					responceMessage.setData(SignalMessage.notlogned);
 				}
 				
 		   SendMessage(destSocket,responceMessage);
@@ -256,7 +259,7 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
 			try {
 				Person p = personDAO.getPersonByPrincipal(user);
 		       
-		        if(p.getLastName().equals(passw))
+		        if(p.getPassw().equals(passw))
 				{
 		        	 //UUID uuid = UUID.randomUUID();
 				        //String uuidAsString = uuid.toString();
