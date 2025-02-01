@@ -23,7 +23,7 @@ public class ReverceProxyFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		
-		System.out.println("Procces UrlPatterns "+urlPatterns);
+		//System.out.println("Procces UrlPatterns "+urlPatterns);
 		doFilter((HttpServletRequest) request, (HttpServletResponse) response);
 		
 	}

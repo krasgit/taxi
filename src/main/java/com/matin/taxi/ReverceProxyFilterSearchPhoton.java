@@ -34,7 +34,7 @@ public class ReverceProxyFilterSearchPhoton implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		System.out.println("Procces UrlPatterns "+urlPatterns);
+		//System.out.println("Procces UrlPatterns "+urlPatterns);
 
 		HttpServletRequest dd = (HttpServletRequest) request;
 		String queryString = dd.getQueryString();

@@ -33,7 +33,7 @@ public class ReverceProxyFilterReverse implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		
-		System.out.println("Procces UrlPatterns "+urlPatterns);
+		//System.out.println("Procces UrlPatterns "+urlPatterns);
 
 		HttpServletRequest dd = (HttpServletRequest) request;
 

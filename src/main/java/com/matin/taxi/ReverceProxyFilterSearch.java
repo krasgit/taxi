@@ -34,7 +34,7 @@ public class ReverceProxyFilterSearch implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		System.out.println("Procces UrlPatterns "+urlPatterns);
+		//System.out.println("Procces UrlPatterns "+urlPatterns);
 
 		HttpServletRequest dd = (HttpServletRequest) request;
 
@@ -42,9 +42,9 @@ public class ReverceProxyFilterSearch implements Filter {
 		String queryString = dd.getQueryString();
 		String url = "http://localhost:8181/search?" + queryString;
 
-		System.out.println("getRequestURL : " + dd.getRequestURL());
-		System.out.println("Remote Host : " + request.getRemoteHost());
-		System.out.println("Remote Address : " + request.getRemoteAddr());
+		//System.out.println("getRequestURL : " + dd.getRequestURL());
+		//System.out.println("Remote Host : " + request.getRemoteHost());
+		//System.out.println("Remote Address : " + request.getRemoteAddr());
 
 		connectRelayqaz(url, (HttpServletResponse) response);
 
