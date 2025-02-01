@@ -133,8 +133,9 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 	
  @Override
  protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-     LOG.info("handleTextMessage : {}", message.getPayload());
+     LOG.info("SignalingSocketHandlerRPC::handleTextMessage sessionID "+session.getId()+" : {}", message.getPayload());
 
+     
      String payload = message.getPayload();
      
     // {"id":"9cb8392625585","procedure":"multiplyByOneThousand","args":[3]}

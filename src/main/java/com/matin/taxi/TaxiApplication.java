@@ -1,12 +1,14 @@
 package com.matin.taxi;
 
+import java.time.LocalDate;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportRuntimeHints;
-
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import com.matin.taxi.db.model.*;
 
@@ -26,14 +28,42 @@ public class TaxiApplication {
 		} catch (Exception e) {
 			System.err.print(e.getMessage());
 		}
+		
+		
 		SpringApplication.run(TaxiApplication.class, args);
+		
+		
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+		PersonDAO personDAO = context.getBean(PersonDAO.class);
+		//Long id, Long clientId, Long taxiId, int state, String route, LocalDate createTime
+		Orders order=new Orders(null, new Long(1), new Long(2), 3, "route", LocalDate.now());
+		personDAO.createOrders(order);
+		
+		order.setRoute("sssss");
+		
+		//Orders order=new Orders(null, new Long(1), new Long(2), 3, "route", LocalDate.now());
+		personDAO.updateOrders(order);
+		
+		
+		/**
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
 		PersonDAO personDAO = context.getBean(PersonDAO.class);
 		System.out.println("List of person is:");
-
 		for (Person p : personDAO.getAllPersons()) {
 			System.out.println(p);
 		}
+		*/
+/*
+		try {
+		Long a=new Long(5);
+		Person ff=personDAO.getPersonById(a);
+		}
+		catch (EmptyResultDataAccessException e )
+		{
+			
+		}
+		*/
+	
 	}
 
 	@Bean
