@@ -226,11 +226,11 @@ public boolean createOrders(Orders orders) {
 
 	    final Map<String, Object> parameters = new HashMap<>();
        // parameters.put("name", u.getName());
-	    parameters.put("clientId", 1);
-	    parameters.put("taxiId", 1);
-	    parameters.put("state", 0);
-	    parameters.put("route", "u.getName()");
-	//    parameters.put("createTime",LocalDateTime.now());
+	    parameters.put("clientId", orders.getClientId());
+	    parameters.put("taxiId", orders.getTaxiId());
+	    parameters.put("state", orders.getState());
+	    parameters.put("route",orders.getRoute());
+	    parameters.put("createTime",LocalDateTime.now());
 
          Number id = insertIntoUser.executeAndReturnKey(parameters);
          orders.setId(id.longValue());
