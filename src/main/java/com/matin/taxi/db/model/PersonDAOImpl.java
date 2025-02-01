@@ -230,7 +230,7 @@ public boolean createOrders(Orders orders) {
 	    parameters.put("taxiId", orders.getTaxiId());
 	    parameters.put("state", orders.getState());
 	    parameters.put("route",orders.getRoute());
-	    parameters.put("createTime",LocalDateTime.now());
+	    //parameters.put("createTime",LocalDateTime.now());
 
          Number id = insertIntoUser.executeAndReturnKey(parameters);
          orders.setId(id.longValue());
