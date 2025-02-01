@@ -31,6 +31,8 @@ public interface PersonDAO {
 	boolean updateOrders(Orders person);
 
 	boolean getPersonLogOutIdByUserToken(String user, String token);
+
+	Person getLognned(String user, String token);
 	
 	//
 	

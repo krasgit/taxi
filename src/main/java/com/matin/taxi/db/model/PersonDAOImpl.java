@@ -1,21 +1,32 @@
 package com.matin.taxi.db.model;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
-
-import com.matin.taxi.db.model.*;
-
-
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Component
 public class PersonDAOImpl implements PersonDAO {
 
-	JdbcTemplate jdbcTemplate;
+	 JdbcTemplate jdbcTemplate;
+	 DataSourceTransactionManager transactionManager;
 
 	private final String SQL_FIND_PERSON = "select * from person where id = ?";
 	private final String SQL_DELETE_PERSON = "delete from person where id = ?";
@@ -29,6 +40,7 @@ public class PersonDAOImpl implements PersonDAO {
 	@Autowired
 	public PersonDAOImpl(DataSource dataSource) {
 		jdbcTemplate = new JdbcTemplate(dataSource);
+	    transactionManager = new DataSourceTransactionManager(dataSource);
 	}
 
 	public Person getPersonById(Long id) {
@@ -78,11 +90,28 @@ public class PersonDAOImpl implements PersonDAO {
         //this.jdbcTemplate.queryForObject( sql, Integer.class, new Object[] { user,token });
 	}
 
-	private final String SQL_INSERT_ORDERS = "insert into Orders( clientId, taxiId, state,route) values(?,?,?,?)";
-	public boolean createOrders(Orders orders) {
-		return jdbcTemplate.update(SQL_INSERT_ORDERS,  orders.getClientId(), orders.getTaxiId(), orders.getState(),orders.getRoute()) > 0;
+	
+	
+	public Person getLognned(String name, String token) {
+	String sql="SELECT * FROM person WHERE name = ? AND token = ?";
+		try {
+			return jdbcTemplate.queryForObject(sql, new Object[] { name,token }, new PersonMapper());
+			}
+		catch (EmptyResultDataAccessException e )
+		{
+		return null;	
+		}
+	//(sql, Integer.class, name,token);
+	//
+		
+		
+		
+		//this.jdbcTemplate.queryForObject(sql, Integer.class,                     user, token);
+        //this.jdbcTemplate.queryForObject( sql, Integer.class, new Object[] { user,token });
 	}
-
+	
+	
+	
 	@Override
 	public Long getPersonIdByUserToken(String name, String token) {
 		
@@ -105,9 +134,14 @@ public class PersonDAOImpl implements PersonDAO {
 	}
 
 	//clientId, taxiId, state,route
-	private final String SQL_UPDATE_ORDERS = "update person set clientId = ?, taxiId = ?, state  = ? ,route=? where id = ?";
+	private final String SQL_UPDATE_ORDERS = "update orders set clientId = ?, taxiId = ?, state  = ? ,route=? ,createTime=? where id = ?";
 	public boolean updateOrders(Orders orders) {
-		return jdbcTemplate.update(SQL_UPDATE_PERSON, orders.getClientId(), orders.getTaxiId(), orders.getState(),orders.getRoute(),
+		return jdbcTemplate.update(SQL_UPDATE_ORDERS
+				, orders.getClientId()
+				, orders.getTaxiId()
+				, orders.getState()
+				,orders.getRoute()
+				,orders.getCreateTime(),
 				orders.getId()) > 0;
 		
 	}
@@ -117,7 +151,7 @@ public class PersonDAOImpl implements PersonDAO {
 
 	@Override
 	public boolean getPersonLogOutIdByUserToken(String user, String token) {
-		 final String SQL_UPDATE_PERSON_TOKEN = "update people set token=null where    firstname = ? and token  = ?";
+		 final String SQL_UPDATE_PERSON_TOKEN = "update person set token=null where name = ? and token  = ?";
 		
 			return jdbcTemplate.update(SQL_UPDATE_PERSON_TOKEN, user,token) > 0;
 		}
@@ -137,4 +171,106 @@ public class PersonDAOImpl implements PersonDAO {
 	}
 	
 	
+	
+	
+	
+	private final String SQL_INSERT_ORDERSs = "insert into Orders( clientId, taxiId, state,route,createTime) values(?,?,?,?,?)";
+    //   insert into person( name, passw, age) values(?,?,?)";
+public boolean createOrderss(Orders orders) {
+int r = jdbcTemplate.update(SQL_INSERT_ORDERSs,  orders.getClientId(), orders.getTaxiId(), orders.getState(),orders.getRoute(),orders.getCreateTime());
+return r > 0;
+}
+
+	
+	
+
+//   insert into person( name, passw, age) values(?,?,?)";
+public boolean createOrdersss(Orders orders) {
+	
+	 GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+	 String sql = "insert into Orders( clientId, taxiId, state,route,createTime) values(?,?,?,?,?)";
+	 
+	 
+	 int rowsAffected = jdbcTemplate.update(conn -> {
+         
+         // Pre-compiling SQL
+         PreparedStatement preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+         // Set parameters
+         preparedStatement.setInt(1, 1);
+         preparedStatement.setInt(2, 2);
+         preparedStatement.setInt(3, 3);
+         preparedStatement.setString(4, "JdbcTemplate");
+         preparedStatement.setObject(5, LocalDateTime.now());
+
+         return preparedStatement;
+         
+     }, generatedKeyHolder);
+
+     
+     // Get auto-incremented ID
+     Integer id = generatedKeyHolder.getKey().intValue();
+     return true;
+}
+	
+@Transactional
+public boolean createOrders(Orders orders) {
+	
+	 GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+	 
+	 
+	 String sql = "insert into Orders( clientId, taxiId, state,route,createTime) values(?,?,?,?,?)";
+	 SimpleJdbcInsert insertIntoUser = new SimpleJdbcInsert(jdbcTemplate).withTableName("Orders").usingGeneratedKeyColumns("id");
+	 
+	 
+
+	    final Map<String, Object> parameters = new HashMap<>();
+       // parameters.put("name", u.getName());
+	    parameters.put("clientId", 1);
+	    parameters.put("taxiId", 1);
+	    parameters.put("state", 0);
+	    parameters.put("route", "u.getName()");
+	//    parameters.put("createTime",LocalDateTime.now());
+
+         Number id = insertIntoUser.executeAndReturnKey(parameters);
+         orders.setId(id.longValue());
+    return true;
+}
+	
+	/*
+    public void test(Orders orders) {
+
+       
+
+        // Create GeneratedKeyHolder object
+        GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+
+        String sql = "INSERT INTO `user`(`balance`, `create_at`, `enabled`, `name`, `update_at`) VALUES(?, ?, ?, ?, ?);";
+
+        // To insert data, you need to pre-compile the SQL and set up the data yourself.
+        int rowsAffected = jdbcTemplate.update(conn -> {
+            
+            // Pre-compiling SQL
+            PreparedStatement preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+            // Set parameters
+            preparedStatement.setBigDecimal(1, new BigDecimal("15.88"));
+            preparedStatement.setObject(2, LocalDateTime.now());
+            preparedStatement.setBoolean(3, Boolean.TRUE);
+            preparedStatement.setString(4, "JdbcTemplate");
+            preparedStatement.setObject(5, LocalDateTime.now());
+
+            return preparedStatement;
+            
+        }, generatedKeyHolder);
+
+        
+        // Get auto-incremented ID
+        Integer id = generatedKeyHolder.getKey().intValue();
+
+       // log.info("rowsAffected = {}, id={}", rowsAffected, id);
+    }
+}
+*/
+
 }
