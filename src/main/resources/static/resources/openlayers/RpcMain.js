@@ -1,14 +1,12 @@
-
 import { RemoteProcedures } from "./RpcRemoteProcedures.js";
-
 import {sampleFunction} from './mylib.js';
+
 window.sampleFunction=sampleFunction;
 
 export const remoteProcedures = new RemoteProcedures();
 
 const PORT = 8443;
 const MAPPING = "/rpc";
-
 
 await remoteProcedures.open('wss://' + window.location.hostname + ':' + PORT + MAPPING);
 /*
@@ -51,16 +49,6 @@ export async function  calll(){
 	 return result;
 }
 
-
-
-
-export async function  printAddressols(qaz,wsx)   {
-  
-   
-   return  result;
-  
-};
-
 export async function  printAddress(qaz,wsx)   {
   const result =  await remoteProcedures.sum( qaz,wsx  );
    
@@ -68,17 +56,12 @@ export async function  printAddress(qaz,wsx)   {
   
 };
 
-
-
 export async function  callRPC(name ,qaz,wsx)   {
    const result =  await remoteProcedures.call(name, qaz,wsx,  );
    
    return  result;
   
 };
-
-
-
 
 window.qazFunction=printAddress;
 window.callRPC=callRPC;

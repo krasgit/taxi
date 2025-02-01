@@ -86,6 +86,10 @@ function handleIsLognned(signal) {
 	
 //	log("handleUpdatePostion" +signal);
 	//const obj = JSON.parse(signal.data);
+	
+	if(signal.token)
+		Cookie.setCookie("token",signal.token);
+	
 	initMap(signal.data==true);
 	
 	

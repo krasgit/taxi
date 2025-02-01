@@ -39,13 +39,7 @@ export class RpcClient {
         }
       });
 
-      this.socket.send(
-        JSON.stringify({
-          id,
-          procedure,
-          args: [...args],
-        })
-      );
+      this.socket.send( JSON.stringify({ id, procedure, args: [...args], })  );
     });
   }
 

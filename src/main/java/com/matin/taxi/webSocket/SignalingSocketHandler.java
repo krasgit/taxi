@@ -57,17 +57,14 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
 
     		Runnable periodicTask = new Runnable() {
     		    public void run() {
-    		    	
     		    	 connectedUsers.values().forEach(webSocketSession -> {
     		             try {
-    		            	 
-    		            	 
     		            	 final SignalMessage updateInfo = new SignalMessage();
     		            	 updateInfo.setType("UpdateInfo");
     		            	 updateInfo.setSender("app");
     		            	 
-    		            	 updateInfo.setData(getCurrentDateTime());
-    		            	 LOG.info(updateInfo.toString())  ;  	 
+    		            	 updateInfo.setData(getCurrentDateTime()+" connected Users("+connectedUsers.size()+")");
+    		            	// LOG.info(updateInfo.toString())  ;  	 
     		                 webSocketSession.sendMessage(new TextMessage(Utils.getString(updateInfo)));
     		             } catch (Exception e) {
     		                 LOG.warn("Error while message sending.", e);
@@ -217,10 +214,18 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
 				PersonDAO personDAO = context.getBean(PersonDAO.class);
 				
 				try {
+					Person ret = personDAO.getLognned(user,token);
 					
-					boolean  ret = personDAO.isLognned(user,token);
-					 responceMessage.setData(ret);
-
+					if(ret!=null) {
+						responceMessage.setData(true);
+						String getId=session.getId();
+						if(!token.equals(getId))
+						{
+							ret.setToken(getId);;
+							personDAO.updatePersonToken(ret);
+						 responceMessage.setToken(getId);
+						}
+					  }
 				}
 				catch (Exception e)
 				{     
@@ -239,7 +244,7 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
 	 
 	 void handleLogin(WebSocketSession session, SignalMessage signalMessage) throws Exception
 	    {
-		 	System.err.println(signalMessage.getSender());
+		  System.err.println(signalMessage.getSender());
 	       WebSocketSession destSocket = connectedUsers.get(signalMessage.getSender());
 	       
 	       
