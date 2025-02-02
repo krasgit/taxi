@@ -32,18 +32,18 @@ public class TaxiApplication {
 		
 		SpringApplication.run(TaxiApplication.class, args);
 		
-		
+		/*
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
 		PersonDAO personDAO = context.getBean(PersonDAO.class);
-		//Long id, Long clientId, Long taxiId, int state, String route, LocalDate createTime
+		
 		Orders order=new Orders(null, new Long(1), new Long(2), 3, "route", LocalDate.now());
 		personDAO.createOrders(order);
 		
 		order.setRoute("sssss");
 		
-		//Orders order=new Orders(null, new Long(1), new Long(2), 3, "route", LocalDate.now());
-		personDAO.updateOrders(order);
 		
+		personDAO.updateOrders(order);
+		*/
 		
 		/**
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);

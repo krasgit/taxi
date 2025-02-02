@@ -40,7 +40,12 @@
 	<script src="RpcMain.js"   type="module" defer        th:src="@{/resources/openlayers/RpcMain.js}" ></script>
 	
 	<script src="mylib.js"           th:src="@{/resources/openlayers/mylib.js}" ></script>
+	<!--
+		
+		
+	-->
 	
+	<script src="taxiControl.js"           th:src="@{/resources/openlayers/taxiControl.js}" ></script>
 	<link rel="stylesheet" href="/resources/openlayers/bulma.css" type="text/css" />	
 	
 </head>
@@ -391,6 +396,12 @@ position: absolute;
 	map.addControl(rc);
 	rc.init();
 
+	var tc = new TaxiControl();
+
+	map.addControl(tc);
+	tc.init();
+	
+	
 	var sc = new SuperCookie();
 		map.addControl(sc);
 	

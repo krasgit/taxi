@@ -45,7 +45,7 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
    private String  getCurrentDateTime() {
     LocalDateTime myDateObj = LocalDateTime.now();
     
-    DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     String formattedDate = myDateObj.format(myFormatObj);
     return  formattedDate;

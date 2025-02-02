@@ -20,8 +20,10 @@ public class OrdersMapper implements RowMapper<Orders> {
 		order.setState(resultSet.getInt("state"));
 		order.setRoute(resultSet.getString("route"));
 		Date input = resultSet.getDate("createTime");
+		if(input!=null) {
 		LocalDate date = LocalDate.ofInstant(input.toInstant(), ZoneId.systemDefault());
 		order.setCreateTime(date);
+		}
 		return order;
 	}
 }
