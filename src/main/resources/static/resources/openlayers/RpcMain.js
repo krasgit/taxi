@@ -56,12 +56,26 @@ export async function  printAddress(qaz,wsx)   {
   
 };
 
-export async function  callRPC(name ,qaz,wsx)   {
-   const result =  await remoteProcedures.call(name, qaz,wsx,  );
+export async function  callRPC(args)   {
+	var arg=[...arguments];
+   const result =  await remoteProcedures.call(arg );
    
    return  result;
   
 };
+
+
+var user =Cookie.getCookie("user") ;
+	var token =Cookie.getCookie("token") ;
+	
+	log("isLognned  " + user);
+	
+	callRPC("isLognned",user,token).then((result) => {
+		
+		initMap(result);
+		
+					   });
+
 
 window.qazFunction=printAddress;
 window.callRPC=callRPC;

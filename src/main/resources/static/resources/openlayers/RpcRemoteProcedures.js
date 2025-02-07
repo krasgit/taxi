@@ -14,11 +14,20 @@ export class RemoteProcedures extends RpcClient {
     }
 	
 	
-	async call(name,number1,number2) {
-		var arg=[...arguments];
+	async call(arg) {
+		//var arg=[...arguments];
+		var name =arg[0];
 		arg.shift();
 		
 	      return this.callRemoteProcedure(name, arg);
 	    }
 	
+		
+		
+		async callo(name,number1,number2) {
+				var arg=[...arguments];
+				arg.shift();
+				
+			      return this.callRemoteProcedure(name, arg);
+			    }
 }

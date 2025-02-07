@@ -2,35 +2,20 @@ package com.matin.taxi.webSocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-
-import com.matin.taxi.owner.OwnerRepository;
-
 import java.lang.reflect.Method;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.UUID;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.matin.taxi.AppConfig;
-import com.matin.taxi.db.*;
-import com.matin.taxi.db.model.Orders;
-import com.matin.taxi.db.model.Person;
-import com.matin.taxi.db.model.PersonDAO;
 public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(SignalingSocketHandlerRPC.class);
 
     private static final String TYPE_INIT = "init";
-    
     private static final String TYPE_LOGOUT = "logout";
 
     /**
@@ -73,12 +58,6 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
         LOG.info("[" + session.getId() + "] Connection error " + session.getId() + " with status: " + exception.getLocalizedMessage());
         removeUserAndSendLogout(session.getId());
     }
-
-    
-    
-    
-     
-   
      
     void SendMessage(WebSocketSession destSocket,SignalMessage message ) throws Exception{
     if (destSocket != null && destSocket.isOpen()) {
@@ -90,9 +69,6 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
     }
     }
      
-   
-
-	
 	private void removeUserAndSendLogout(final String sessionId) {
 
         connectedUsers.remove(sessionId);
@@ -111,14 +87,6 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
         });
     }
 	
-	
-	
-	 
-	
-	 
-	 
-		 
-  
 	public void listProcedureArgs(String name, ArrayList args)
 	{
 		System.out.print(name); 
@@ -133,7 +101,9 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 	
  @Override
  protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-     LOG.info("SignalingSocketHandlerRPC::handleTextMessage sessionID "+session.getId()+" : {}", message.getPayload());
+	 
+	 String sessionId=session.getId();
+     LOG.info("SignalingSocketHandlerRPC::handleTextMessage sessionID "+sessionId+" : {}", message.getPayload());
 
      
      String payload = message.getPayload();
@@ -150,7 +120,7 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
     	 
     	 listProcedureArgs(request.getProcedure(), args);
     	 
-    	 result= invokePublicMethod(request.getProcedure(),args);
+    	 result= invokePublicMethod(request.getProcedure(),args,sessionId);
     	 System.out.println("->return "+ result); 
     	 
      } catch (Exception e) {
@@ -163,51 +133,38 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
      final String resendingMessage =Utils.getString(resultMessage);
      
 	session.sendMessage(new TextMessage(resendingMessage));
-     
-   //  String type = signalMessage.getType();
-     
-    /*
-  
-     let request = JSON.parse(msg);
-     let procedure = this[request.procedure];
-     if (!procedure) {
-       console.log(`No such procedure: ${request.procedure}`);
-       return;
-     }
-     let result, error;
-     try {
-       result = procedure(...request.args);
-     } catch (e) {
-       error = e;
-     }
-
-     this.socket.send(
-       JSON.stringify({
-         id: request.id,
-         payload: result,
-         error: error,
-       })
-     );
-     */
-      
-     
-     // with the destinationUser find the targeted socket, if any
-    
+	
+	
+	//postAction(sessionId,request.getProcedure());
+	
  }
  
- public Object invokePublicMethod(String methodName,ArrayList args) throws Exception {
-	    
-	 Method sumInstanceMethod = ProcedureRPC.class.getMethod(methodName, ArrayList.class);
 
-	    ProcedureRPC operationsInstance = new ProcedureRPC();
-	    Object result = (Object) sumInstanceMethod.invoke(operationsInstance, args);
+ private void postAction(String sessionId, String procedure) {
+	 connectedUsers.values().forEach(webSocketSession -> {
+         try {
+        	  ResultMessage resultMessage= new ResultMessage(null,"TaxiControl.loadOrders()",null);
+        	     
+        	     final String resendingMessage =Utils.getString(resultMessage);
+        	     
+        	     webSocketSession.sendMessage(new TextMessage(resendingMessage));
+         } catch (Exception e) {
+             LOG.warn("Error while message sending.", e);
+         }
+     });
+	
+}
+
+ 
+ private final  ProcedureRPC  pro= new ProcedureRPC(this);
+ 
+public Object invokePublicMethod(String methodName,ArrayList args,String sessionId) throws Exception {
+	    
+	 Method sumInstanceMethod = ProcedureRPC.class.getMethod(methodName, args.getClass(),String.class);
+
+	    
+	    Object result = (Object) sumInstanceMethod.invoke(pro, args,sessionId);
 
 	    return result;
 	}
-
-private Object multiplyByOneThousand(Object number) {
-	  return 3 * 1000;
-	
-}
- 
 }

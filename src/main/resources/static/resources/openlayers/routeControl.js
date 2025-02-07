@@ -6,6 +6,9 @@
 
 		
 			var container = RouteControl.createContainer(options);
+			
+			RouteControl.loadOrders();//todo
+			
 			super({element: container, target: options.target, });
 		}
 
@@ -13,12 +16,14 @@
 			const cWaypoint = document.getElementById('Waypoint');
 			var LonLat = [0, 0];
 			var feature = RouteControl._createFeature(LonLat);
-			var node_11 = RouteControl.autoCompleteBtn(feature, 'Start');
+			var node_11 = RouteControl.autoCompleteBtn(feature, '');
 			cWaypoint.appendChild(node_11);
 
 			var feature1 = RouteControl._createFeature(LonLat);
-			var node_111 = RouteControl.autoCompleteBtn(feature1, 'End');
+			var node_111 = RouteControl.autoCompleteBtn(feature1, '');
 			cWaypoint.appendChild(node_111);
+			
+			RouteControl.refresh();
 		}
 
 		static updateFeature(featureId, coordinates, value) {
@@ -86,45 +91,7 @@
 										  RouteControl.loadOrderCB(result);
 									   });
 				}	 
-						
-									   
-									   
-			
-			static oldloadOrder(){
-				
-				log( "Before");
-				
-				var user =Cookie.getCookie("user") ;
-						var token =Cookie.getCookie("token") ;
-				
-					callRPC("loadOrder",user,token).then((result) => {
-						
-							  log( result);
-						   
-						   });
-						   log( "After");	 
-				
-				
-				
-				log('loadOrder');
-			var json=' {"coord":[{"lon":27.990425599999995,"lat":43.23737599999998,"name":"Васил Стоилов, Дълбокото дере, кв. Виница, Варна, Приморски, Варна, 9006, България"},{"lon":27.96982623476562,"lat":43.23512489505694,"name":"Горна Трака, кв. Виница, Варна, Приморски, Варна, 9022, България"}]}';
-			             
-			const cWaypoint = document.getElementById('Waypoint');
-			
-			cWaypoint.innerText="";
-			vectorSource.clear();
-			const obj = JSON.parse(json);
-			
 
-			for (let item of obj.coord) {
-				log(item);
-				var LonLat = [item.lon, item.lat];
-				var feature = RouteControl._createFeature(LonLat);
-				var node_11 = RouteControl.autoCompleteBtn(feature, item.name);
-				cWaypoint.appendChild(node_11);
-			}						
-			RouteControl.refresh();
-			}
 			
 			static createOrder()
 			{
@@ -163,9 +130,73 @@
 									}
 				log('order json '+JSON.stringify(order));	
 				
-				wsCreateOrder(JSON.stringify(order));
-		
+				//wsCreateOrder(JSON.stringify(order));
+				var user =Cookie.getCookie("user") ;
+				var token =Cookie.getCookie("token") ;
+				var orderStr=JSON.stringify(order);
+						callRPC("createOrder",user,token,orderStr).then((result) => {
+							RouteControl.loadOrders()
+						   });
 			}
+			
+			
+			static loadOrders()
+			{
+			var user =Cookie.getCookie("user") ;
+			var token =Cookie.getCookie("token") ;
+				callRPC("loadOrders",user,token).then((result) => 
+					{	
+						RouteControl.render(result); });
+			}
+
+			
+			static deleteOrderById(id){
+				var user =Cookie.getCookie("user") ;
+						var token =Cookie.getCookie("token") ;
+							callRPC("deleteOrderById",user,token,id).then((result) => {	RouteControl.loadOrders(); });
+			}
+			
+			static render(orders)
+			{
+			/*  orders.id, orders.route, orders.clientid, orders.state,	orders.taxiid, orders.createtime */
+			var ordersTable = document.getElementById("tbodyMainRoute");		
+			var tableRuws="";
+			const jsonData = JSON.parse(orders);
+				
+			for (var i = 0; i < jsonData.length; i++) 
+				{
+				var order = jsonData[i];
+				var route=order.route;
+				const jsonRoute = JSON.parse(route);
+
+				var coord=jsonRoute.coord;
+						
+				tableRuws+='<tr> <td><a href="/owners/1">George Franklin</a></td>';
+				tableRuws+='<td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">';
+				for (var ii = 0; ii < coord.length; ii++) 
+					{
+					var jsonRouteRow = coord[ii];
+						tableRuws+=jsonRouteRow.name;
+						tableRuws+='<br/>';
+					}
+				tableRuws+='</td>';
+							
+				tableRuws+='<td> \
+							<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.deleteOrderById('+order.id+')">Delete</button>\
+							<button type="button" class="btn btn-primary btn-sm" onclick=" TaxiControl.loadOrderById('+order.id+')">xdShow</button>\
+							<button type="button" class="btn btn-primary btn-sm" onclick="TaxiControl.AcceptOrder('+order.id+')">Accept</button>\
+							</td>';
+				tableRuws+='</tr>';
+				}
+			ordersTable.innerHTML=tableRuws;
+			}
+					
+			static loadOrder(){
+				var user =Cookie.getCookie("user") ;
+				var token =Cookie.getCookie("token") ;
+								
+				callRPC("loadOrder",user,token).then((result) => {  RouteControl.loadOrderCB(result);   });
+			}	 	
 			
 			
 			static getFeatureByIndex(i)//delete update add move
@@ -271,21 +302,20 @@
 
 		
 		static logIn(){
-			
+			var user =Cookie.getCookie("user") ;
+			const logoutButton = document.getElementById('log-out-button');
+			logoutButton.innerHTML = 'logout:'+user;
+			logoutButton.setAttribute('onclick', 'RouteControl.logOut();');
 		}
 		
 		static logOut(){
 			var user =Cookie.getCookie("user") ;
 			var token =Cookie.getCookie("token") ;
 			callRPC("logOut",user,token).then((result) => {
-				
 				location.reload();
-				   
 				   });
 			
-				}
-		
-		
+       }
 		
 		static add() {
 			const cWaypoint = document.getElementById('Waypoint');
@@ -346,6 +376,8 @@
 
 		static createContainer(options) {
 
+			const mode =options.mode;
+			
 			var node_1 = document.createElement('DIV');
 			node_1.setAttribute('name', 'RouteControl');
 			node_1.setAttribute('id', 'control');
@@ -370,13 +402,25 @@
 			//node_5.setAttribute('class', 'ref1');
 			node_4.appendChild(node_5);
 
+			//mode
+			
+			
 			var logoutButton = document.createElement('A');
 					logoutButton.setAttribute('href', '#');
-					logoutButton.setAttribute('onclick', 'RouteControl.logOut();');
+					logoutButton.setAttribute('id', 'log-out-button');
 					logoutButton.setAttribute('class', 'is-primary');
-					logoutButton.setAttribute('id', 'log-out-button');		
-					logoutButton.innerHTML = 'logout';
-					node_5.appendChild(logoutButton);	
+
+			if(mode)
+				{			
+					var user =Cookie.getCookie("user") ;
+					logoutButton.setAttribute('onclick', 'RouteControl.logOut();');
+					logoutButton.innerHTML = 'logout:'+user;
+				}
+				else
+				{
+				logoutButton.innerHTML = 'guest';
+				}
+			node_5.appendChild(logoutButton);	
 			
 			
 			var node_6 = document.createElement('DIV');
@@ -387,17 +431,6 @@
 			node_7.setAttribute('id', 'routeUpdateInfo');	
 			node_6.appendChild(node_7);
 
-			/*
-			var logoutButton = document.createElement('BUTTON');
-						logoutButton.setAttribute('type', 'button');
-						logoutButton.setAttribute('class', 'btn btn-primary btn-sm');
-						logoutButton.setAttribute('onclick', 'RouteControl.logOut()');
-						logoutButton.innerHTML = 'logout';
-						node_7.appendChild(logoutButton);
-			*/
-			
-						
-			
 			var node_8 = document.createElement('DIV');
 			node_8.setAttribute('class', '');
 			node_3.appendChild(node_8);
@@ -454,6 +487,27 @@
 			
 			node_24.setAttribute('class', 'f_refDistance');
 			node_23.appendChild(node_24);
+			
+			
+			
+			var route = document.createElement('DIV');
+						route.setAttribute('name', 'footer');
+						route.setAttribute('class', 'd-flex justify-content-between ');
+						route.innerHTML="qaz";
+						node_1.appendChild(route);
+			
+			
+			
+						
+						var 	tableSTART='<table id="owners" style="	height: 50px;  overflow-y: auto;  overflow-x: hidden;" class="table table-striped" border="2">'
+										//	var th='<thead><tr><th style="width: 150px;">Name</th><th style="width: 200px;">Address</th><th>City</th></thead>';
+								var b='<tbody id="tbodyMainRoute">';
+								var tableEND='</tbody></table>';
+								var table= tableSTART+b+tableEND;
+								
+								route.innerHTML=table
+			
+			
 		return node_1;
 		}
 
@@ -487,7 +541,10 @@
 			node_14.setAttribute('id', "bnt" + featureId);
 			node_14.setAttribute('featureId', featureId);
 
-			node_14.value=value;
+			//node_14.setAttribute('placeholder', value);
+			
+			if( !(!value || value.length === 0 ))
+				node_14.value=value;
 
 			node_11.appendChild(node_14);
 

@@ -41,24 +41,15 @@ function processWsMessage(message) {
     // you have logged in
     switch (signal.type) {
 		
-		case 'session':
-			handleSession(signal);
-			isLognned();
-						break;
+		case 'session':	handleSession(signal);break;
 		case 'init':   handleInit(signal);   break;
         case 'logout': handleLogout(signal); break;
         case 'offer':  handleOffer(signal);  break;
         case 'answer': handleAnswer(signal); break;
         case 'ice':    handleIce(signal);    break;
 		case 'pong':   handlePong(signal);   break;
-     	case 'login':  handleLogin(signal);   break;	
      	case 'UpdatePostion': handleUpdatePostion(signal);      break;				
-		
-		case 'isLognned': handleIsLognned(signal);      break;	
-		
-		
 		case 'UpdateInfo': handleUpdateInfo(signal);      break;
-						
     }
 
 }
@@ -82,18 +73,7 @@ function handleUpdateInfo(signal) {
 	}
 
 
-function handleIsLognned(signal) {
-	
-//	log("handleUpdatePostion" +signal);
-	//const obj = JSON.parse(signal.data);
-	
-	if(signal.token)
-		Cookie.setCookie("token",signal.token);
-	
-	initMap(signal.data==true);
-	
-	
-	}
+
 
 
 
@@ -105,16 +85,6 @@ function handleUpdatePostion(signal) {
 	
 	}
 
-function handleLogin(signal) {
-	var res=signal.data;
-	
-	//alert("token"+res);
-	Cookie.setCookie("token",res);
-
-	
-console.log("pong "+signal);
-initMap(true);
-}
 
 
 
@@ -326,35 +296,6 @@ function wsUpdatePostion(data) {
 	send( msg);
 }
 
-function wsCreateOrder(data) {
-	
-	var user =Cookie.getCookie("user") ;
-		var token =Cookie.getCookie("token") ;
-	
-	
-	type="createOrder";
-	msg=JSON.stringify({type:type, sender: sesionID, receiver: sesionID,data:data
-		, user: user
-		, token: token
-	});
-	//console.log("msg "+msg);
-	send( msg);
-}
-
-function wsLoadOrder() {
-	
-	var user =Cookie.getCookie("user") ;
-		var token =Cookie.getCookie("token") ;
-	
-	
-	type="loadOrder";
-	msg=JSON.stringify({type:type, sender: sesionID, receiver: sesionID,data:'data'
-		, user: user
-		, token: token
-	});
-	//console.log("msg "+msg);
-	send( msg);
-}
 
 
 function wsSend(msg) {
@@ -363,32 +304,6 @@ function wsSend(msg) {
 	
 	ws.send( json);
 }
-
-
-
-
-
-
-function wsLogin(user,passw) {
-	
-	var data = {  "user": user,  "passw": passw};
-	
-	type="login";
-	msg=JSON.stringify({type:type, sender: sesionID, receiver: sesionID,data:data});
-	//console.log("msg "+msg);
-	send( msg);
-}
-
-function wsIsLognned(user,token) {
-	
-	var data = {  "user": user,  "token": token};
-	
-	type="isLognned";
-	msg=JSON.stringify({type:type, sender: sesionID, receiver: sesionID,data:data});
-	//console.log("msg "+msg);
-	send( msg);
-}
-
 
 function wsPrincipalRegistration(user,passw) {
 	
