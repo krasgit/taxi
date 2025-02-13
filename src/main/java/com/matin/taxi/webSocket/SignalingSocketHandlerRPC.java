@@ -6,6 +6,10 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+import com.matin.taxi.db.model.Orders;
+import com.matin.taxi.db.model.Person;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -167,4 +171,61 @@ public Object invokePublicMethod(String methodName,ArrayList args,String session
 
 	    return result;
 	}
+
+
+
+ 
+
+
+public void acceptOrderClientCB( Person p, Orders o) {
+	
+	String sessionId=p.getToken();
+ 
+		WebSocketSession webSocket = connectedUsers.get(sessionId);
+
+ 	if(webSocket==null)
+ 	{
+ 		LOG.error("Missing Connection  " + sessionId);
+ 		 return;
+ 	}
+		
+ 	ResultMessage resultMessage= new ResultMessage(null,"RouteControl.loadOrders();TaxiControl.loadOrders();",null);
+     
+     String resendingMessage;
+	try {
+		resendingMessage = Utils.getString(resultMessage);
+	     webSocket.sendMessage(new TextMessage(resendingMessage));
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+}
+
+
+	public void acceptOrderCB( Person p, Orders o) {
+	
+	String sessionId=p.getToken();
+	WebSocketSession webSocket = connectedUsers.get(sessionId);
+
+ 	if(webSocket==null)
+ 	{
+ 		LOG.error("Missing Connection  " + sessionId);
+ 		 return;
+ 	}
+		
+ 	ResultMessage resultMessage= new ResultMessage(null,"RouteControl.loadOrders();TaxiControl.loadOrders();",null);
+     
+     String resendingMessage;
+	try {
+		resendingMessage = Utils.getString(resultMessage);
+	     webSocket.sendMessage(new TextMessage(resendingMessage));
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+     
+
+	
+}
+
 }

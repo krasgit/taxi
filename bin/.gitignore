@@ -18,3 +18,5 @@ buildNumber.properties
 .gradle/
 .settings/
 
+/blockedSitesList.txt
+/blockedSitesSource.txt

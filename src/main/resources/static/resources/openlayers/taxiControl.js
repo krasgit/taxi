@@ -14,11 +14,6 @@
 		}
 
 		
-		static loadOrderById(id){
-			callRPC("loadOrderById",id,id).then((result) => {	RouteControl.loadOrderCB(result); });
-		}
-		
-		
 		static acceptOrder(id){
 			
 			callRPC("acceptOrder",id).then((result) => 
@@ -28,11 +23,22 @@
 			
 		}
 		
+		
+		static finishOrder(id){
+					
+					callRPC("finishOrder",id).then((result) => 
+						{	
+					//	TaxiControl.render(result); 
+					});
+					
+				}
+		
+		
 		static loadOrders()
 		{
 		var user =Cookie.getCookie("user") ;
 		var token =Cookie.getCookie("token") ;
-			callRPC("loadOrders",user,token).then((result) => {	TaxiControl.render(result); });
+			callRPC("loadTaxiOrders",user,token).then((result) => {	TaxiControl.render(result); });
 		}
 		
 		static render(orders)
@@ -45,12 +51,13 @@
 		for (var i = 0; i < jsonData.length; i++) 
 			{
 			var order = jsonData[i];
+			var orderState =order.state;
 			var route=order.route;
 			const jsonRoute = JSON.parse(route);
 
 			var coord=jsonRoute.coord;
 					
-			tableRuws+='<tr> <td><a href="/owners/1">George Franklin</a></td>';
+			tableRuws+='<tr> <td><a href="#"> state('+orderState+') orderId('+order.id+')</a></td>';
 			tableRuws+='<td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">';
 			for (var ii = 0; ii < coord.length; ii++) 
 				{
@@ -60,10 +67,18 @@
 				}
 			tableRuws+='</td>';
 						
-			tableRuws+='<td> \
-						<button type="button" class="btn btn-primary btn-sm" onclick=" TaxiControl.loadOrderById('+order.id+')">Show</button>\
-						<button type="button" class="btn btn-primary btn-sm" onclick="TaxiControl.acceptOrder('+order.id+')">Accept</button>\
-						</td>';
+			tableRuws+='<td>'; 
+					
+					tableRuws+='	<button type="button" class="btn btn-primary btn-sm" onclick=" RouteControl.loadOrderById('+order.id+')">Show</button>';
+							
+					if(orderState==1){
+					tableRuws+='	<button type="button" class="btn btn-primary btn-sm" onclick="TaxiControl.acceptOrder('+order.id+')">Accept</button>';
+					}
+					
+					if(orderState==2){
+						tableRuws+='	<button type="button" class="btn btn-primary btn-sm" onclick="TaxiControl.finishOrder('+order.id+')">Finish</button>';
+										}
+			tableRuws+='</td>';
 			tableRuws+='</tr>';
 			}
 		ordersTable.innerHTML=tableRuws;

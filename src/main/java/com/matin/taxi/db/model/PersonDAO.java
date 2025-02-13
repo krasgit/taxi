@@ -2,6 +2,8 @@ package com.matin.taxi.db.model;
 
 import java.util.List;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+
 import com.matin.taxi.db.model.Person;
 
 
@@ -41,6 +43,8 @@ public interface PersonDAO {
 	
 	
 	public Person getPersonByToken(String token);
+
+	JdbcTemplate geJjdbcTemplate();
 	
 	
 	//

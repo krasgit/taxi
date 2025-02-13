@@ -1,7 +1,12 @@
 package com.matin.taxi.db.model;
 
+import java.sql.Array;
+import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +35,7 @@ public class PersonDAOImpl implements PersonDAO {
 
 	private final String SQL_FIND_PERSON = "select * from person where id = ?";
 	private final String SQL_DELETE_PERSON = "delete from person where id = ?";
-	private final String SQL_UPDATE_PERSON = "update person set name = ?, passw = ?, age  = ? where id = ?";
+	
 	private final String SQL_GET_ALL = "select * from person";
 	private final String SQL_INSERT_PERSON = "insert into person( name, passw, age) values(?,?,?)";
 
@@ -55,7 +60,10 @@ public class PersonDAOImpl implements PersonDAO {
 	}
 
 	public boolean updatePerson(Person person) {
-		return jdbcTemplate.update(SQL_UPDATE_PERSON, person.getName(), person.getPassw(), person.getAge(),
+		
+		String SQL_UPDATE_PERSON = "update person set name = ?, passw = ?, age  = ?, token=? where id = ?";
+		
+		return jdbcTemplate.update(SQL_UPDATE_PERSON, person.getName(), person.getPassw(), person.getAge(),person.getToken(),
 				person.getId()) > 0;
 	}
 
@@ -120,8 +128,16 @@ public class PersonDAOImpl implements PersonDAO {
 			+ " ORDER BY id DESC LIMIT 1 ";
 
 	public Orders getOrdersByClientIdState(Long clientId, int state) {
-		return jdbcTemplate.queryForObject(SQL_FIND_ORDERS_CLIENTID_STATE, new Object[] { clientId, state },
-				new OrdersMapper());
+		
+		try {
+			return jdbcTemplate.queryForObject(SQL_FIND_ORDERS_CLIENTID_STATE, new Object[] { clientId, state },
+					new OrdersMapper());
+		}catch (Exception e)
+		{
+			return null;
+		}
+		
+	
 	}
 
 	// clientId, taxiId, state,route
@@ -248,17 +264,8 @@ public class PersonDAOImpl implements PersonDAO {
 
 
 
-	public String  getOrdersByClientId(Long clientId) {
-		String sql = "SELECT json_agg(orders) FROM orders where clientId = ? ";
-
-		String  cnt = jdbcTemplate.queryForObject(sql, String.class, new Object[] { clientId });
-
-		return cnt;
-
-		// this.jdbcTemplate.queryForObject(sql, Integer.class, user, token);
-		// this.jdbcTemplate.queryForObject( sql, Integer.class, new Object[] {
-		// user,token });
-	}
+		
+	
 	
 	
 	public Orders getOrderById(Long id) {
@@ -275,6 +282,69 @@ public class PersonDAOImpl implements PersonDAO {
 	public Person getPersonByToken(String token) {
 		String sql= "select * from person where token = ?";
 		
-		return jdbcTemplate.queryForObject(SQL_FIND_PERSON, new Object[] { token }, new PersonMapper());
+		return jdbcTemplate.queryForObject(sql, new Object[] { token }, new PersonMapper());
+	}
+	
+	
+		
+	public String  getOrdersByClientId(Long clientId) {
+		//String sql = "SELECT json_agg(orders) FROM orders where clientId = ? ";
+		String sql = "SELECT json_agg( json_build_object(\n"
+				+ "'id', orders.id\n"
+				+ ",'person.id',person.id,'person.name',person.name\n"
+				+ ",'taxi.id',person.id,'taxi.name',person.name\n"
+				+ ",'state', orders.state,'create',orders.createtime ,'acepted',orders.createtime \n"
+				+ ",'route', orders.route  \n"
+				+ ")\n"
+				+ "\n"
+				+ ")FROM orders\n"
+				+ "left join person on person.id =orders.clientid \n"
+				+ "where  orders.state not in(4) --NOT temporal ,finish\n"
+				+ "and  orders.clientId=?";
+			//	+ " order by state";		
+
+		String  cnt = jdbcTemplate.queryForObject(sql, String.class, new Object[] { clientId });
+
+		return cnt;
+
+		// this.jdbcTemplate.queryForObject(sql, Integer.class, user, token);
+		// this.jdbcTemplate.queryForObject( sql, Integer.class, new Object[] {
+		// user,token });
+	}
+	
+	
+	public String  getOrdersFn(Long clientId) {
+		
+		
+		try {
+			Connection cn = jdbcTemplate.getDataSource().getConnection();
+		
+		Array sqlArray = cn.createArrayOf("int4", new Integer[] { 47,46 });
+		
+        
+
+        CallableStatement cstmt = cn.prepareCall("{? = call testit(?)}");
+        cstmt.registerOutParameter(1, Types.INTEGER);
+        try {
+            cstmt.setArray(2, sqlArray);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        cstmt.execute();
+        int result = cstmt.getInt(1);
+        System.out.println("Result: "+result);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        return "";
+	
+	}
+
+	@Override
+	public JdbcTemplate geJjdbcTemplate() {
+		// TODO Auto-generated method stub
+		return jdbcTemplate;
 	}
 }

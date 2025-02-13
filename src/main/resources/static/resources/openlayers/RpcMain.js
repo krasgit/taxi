@@ -71,8 +71,13 @@ var user =Cookie.getCookie("user") ;
 	log("isLognned  " + user);
 	
 	callRPC("isLognned",user,token).then((result) => {
+	
+		var isLogned=(result!="");
+		 if(isLogned)
+			Cookie.setCookie("token",result);
 		
-		initMap(result);
+		
+		initMap(isLogned);
 		
 					   });
 

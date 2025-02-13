@@ -150,11 +150,25 @@
 			}
 
 			
+			static loadOrderById(id){
+						callRPC("loadOrderById",id,id).then((result) => {	RouteControl.loadOrderCB(result); });
+					}
+			
 			static deleteOrderById(id){
 				var user =Cookie.getCookie("user") ;
 						var token =Cookie.getCookie("token") ;
 							callRPC("deleteOrderById",user,token,id).then((result) => {	RouteControl.loadOrders(); });
 			}
+			
+			static acceptOrder(id){
+						
+						callRPC("acceptOrderClient",id).then((result) => 
+							{	
+						//	TaxiControl.render(result); 
+						});
+						
+					}
+			
 			
 			static render(orders)
 			{
@@ -166,12 +180,15 @@
 			for (var i = 0; i < jsonData.length; i++) 
 				{
 				var order = jsonData[i];
+				
+				var orderState =order.state;
+				
 				var route=order.route;
 				const jsonRoute = JSON.parse(route);
 
 				var coord=jsonRoute.coord;
 						
-				tableRuws+='<tr> <td><a href="/owners/1">George Franklin</a></td>';
+				tableRuws+='<tr> <td><a href="/owners/1">'+orderState+'</a></td>';
 				tableRuws+='<td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">';
 				for (var ii = 0; ii < coord.length; ii++) 
 					{
@@ -181,11 +198,15 @@
 					}
 				tableRuws+='</td>';
 							
-				tableRuws+='<td> \
-							<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.deleteOrderById('+order.id+')">Delete</button>\
-							<button type="button" class="btn btn-primary btn-sm" onclick=" TaxiControl.loadOrderById('+order.id+')">xdShow</button>\
-							<button type="button" class="btn btn-primary btn-sm" onclick="TaxiControl.AcceptOrder('+order.id+')">Accept</button>\
-							</td>';
+				tableRuws+='<td> ';
+						if(orderState==0){
+							tableRuws+='<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.deleteOrderById('+order.id+')"> Delete </button> ';
+							tableRuws+='<button type="button" class="btn btn-primary btn-sm" onclick=" RouteControl.loadOrderById('+order.id+')"> Show </button> ';
+							tableRuws+='<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.acceptOrder('+order.id+')"> Accept </button>';
+							}
+							
+							
+				tableRuws+=	'</td>';
 				tableRuws+='</tr>';
 				}
 			ordersTable.innerHTML=tableRuws;
@@ -195,7 +216,10 @@
 				var user =Cookie.getCookie("user") ;
 				var token =Cookie.getCookie("token") ;
 								
-				callRPC("loadOrder",user,token).then((result) => {  RouteControl.loadOrderCB(result);   });
+				callRPC("loadOrder",user,token).then((result) => 
+					{  
+						RouteControl.loadOrderCB(result);   
+					});
 			}	 	
 			
 			
