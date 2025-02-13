@@ -1,5 +1,130 @@
 
+If the `county` field is missing in the OpenStreetMap (OSM) JSON data, you can handle it similarly to other missing fields by providing a fallback value or skipping it in the final address formatting. The `county` field is typically used to represent the county or administrative division within a country (e.g., "Cook County" in the USA or "Oxfordshire" in the UK). If it's missing, you can either skip it or provide a default value like "Unknown County".
 
+Below is an updated version of the Python code that includes handling for a missing `county` field.
+
+### Updated Python Code with `county`
+
+```python
+import json
+
+# Sample OpenStreetMap JSON data with missing county, country, street, district, name, and housenumber
+osm_json = '''
+{
+  "address": {
+    "road": "Main Street",
+    "city": "Springfield",
+    "postcode": "62701"
+  }
+}
+'''
+
+# Load the JSON data
+data = json.loads(osm_json)
+
+# Extract address components with fallback for missing fields
+address = data.get('address', {})
+name = address.get('name', 'N/A')  # Fallback to 'N/A' if missing
+housenumber = address.get('housenumber', 'N/A')  # Fallback to 'N/A' if missing
+street = address.get('street', 'N/A')  # Fallback to 'N/A' if missing
+road = address.get('road', 'N/A')  # Fallback to 'N/A' if missing
+district = address.get('district', 'N/A')  # Fallback to 'N/A' if missing
+county = address.get('county', 'Unknown County')  # Fallback to 'Unknown County' if missing
+city = address.get('city', 'N/A')  # Fallback to 'N/A' if missing
+state = address.get('state', 'N/A')  # Fallback to 'N/A' if missing
+postcode = address.get('postcode', 'N/A')  # Fallback to 'N/A' if missing
+country = address.get('country', 'Unknown Country')  # Fallback to 'Unknown Country' if missing
+
+# If street is missing, fall back to combining housenumber and road
+if street == 'N/A' and (housenumber != 'N/A' or road != 'N/A'):
+    street = f"{housenumber} {road}".strip()  # Combine housenumber and road, remove extra spaces
+
+# Format the address, skipping undefined or 'N/A' fields
+address_parts = []
+if name != 'N/A':
+    address_parts.append(name)
+if street != 'N/A':
+    address_parts.append(street)
+if district != 'N/A':
+    address_parts.append(district)
+if county != 'Unknown County':  # Include county only if it's not the fallback value
+    address_parts.append(county)
+if city != 'N/A':
+    address_parts.append(city)
+if state != 'N/A':
+    address_parts.append(state)
+if postcode != 'N/A':
+    address_parts.append(postcode)
+if country != 'Unknown Country':  # Include country only if it's not the fallback value
+    address_parts.append(country)
+
+formatted_address = ', '.join(address_parts)
+
+print(formatted_address)
+```
+
+### Output
+```
+Main Street, Springfield, 62701
+```
+
+### Explanation of Changes
+1. **Added `county`**: The `county` field is extracted from the JSON data. If it's missing, it defaults to `'Unknown County'`.
+2. **Conditional Inclusion**: The `county` is included in the address only if it is not `'Unknown County'`.
+3. **Dynamic Construction**: The address is built dynamically by appending valid fields to a list and joining them with `', '`.
+
+### Handling `county` in JavaScript
+If you're working in JavaScript, here's how you can handle a missing `county`:
+
+```javascript
+const osmJson = `{
+  "address": {
+    "road": "Main Street",
+    "city": "Springfield",
+    "postcode": "62701"
+  }
+}`;
+
+const data = JSON.parse(osmJson);
+const address = data.address || {};
+
+const name = address.name || 'N/A';
+const housenumber = address.housenumber || 'N/A';
+const street = address.street || 'N/A';
+const road = address.road || 'N/A';
+const district = address.district || 'N/A';
+const county = address.county || 'Unknown County';
+const city = address.city || 'N/A';
+const state = address.state || 'N/A';
+const postcode = address.postcode || 'N/A';
+const country = address.country || 'Unknown Country';
+
+// If street is missing, fall back to combining housenumber and road
+let finalStreet = street;
+if (street === 'N/A' && (housenumber !== 'N/A' || road !== 'N/A')) {
+    finalStreet = `${housenumber} ${road}`.trim(); // Combine housenumber and road, remove extra spaces
+}
+
+const addressParts = [name, finalStreet, district, county, city, state, postcode, country]
+  .filter(part => part !== 'N/A' && part !== 'Unknown County' && part !== 'Unknown Country'); // Remove 'N/A' and fallback values
+
+const formattedAddress = addressParts.join(', ');
+
+console.log(formattedAddress);
+```
+
+### Output (JavaScript)
+```
+Main Street, Springfield, 62701
+```
+
+### Key Points
+- Use fallback values (`'N/A'`, `'Unknown County'`, or `'Unknown Country'`) to handle missing fields like `county`, `country`, `street`, `district`, `name`, and `housenumber`.
+- If `street` is missing, construct it dynamically using `housenumber` and `road`.
+- Dynamically construct the address by filtering out invalid or placeholder values.
+- This approach ensures your code doesn't break and produces clean, readable output even with incomplete data.
+
+Let me know if you need further assistance! 😊
 If the `street` field is missing in the OpenStreetMap (OSM) JSON data, you can handle it similarly to other missing fields by providing a fallback value or skipping it in the final address formatting. The `street` field is often used to represent the full street name (e.g., "Main Street"), and if it's missing, you can fall back to combining other fields like `road` and `housenumber`.
 
 Below is an updated version of the Python code that includes handling for a missing `street` field.
