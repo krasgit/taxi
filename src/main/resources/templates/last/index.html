@@ -286,6 +286,58 @@
 		el.value = value;
 	}
 
+	
+	function getAddress(address)
+		{
+			/*https://localhost:8443/reverse?format=json&lon=27.846709105727683&lat=43.25285393579392
+			"display_name": "Тодор Хаджистанчев, Дълбокото дере, кв. Виница, Варна, Приморски, Варна, 9022, България",
+			 "address": {
+			   "road": "Тодор Хаджистанчев",
+			   "neighbourhood": "Дълбокото дере",
+			   "suburb": "кв. Виница",
+			   "city": "Варна",
+			   "county": "Приморски",
+			   "state_district": "Варна",
+			   "state": "Варна",
+			   "ISO3166-2-lvl4": "BG-03",
+			   "postcode": "9022",
+			   "country": "България",
+			   "country_code": "bg"
+			 },
+			
+			*/
+			
+				
+			const building = address.building || 'N/A';
+			
+				
+			
+			
+			const road = address.road || 'N/A';
+			
+			const village = address.village || 'N/A';
+			const town = address.town || 'N/A';
+			
+			
+			const state_district = address.state_district || 'N/A';
+			
+			
+			const neighbourhood = address.neighbourhood || 'N/A';
+			const suburb = address.suburb || 'N/A';
+			       
+			const county = address.county || 'N/A';
+			//const city = address.city || 'N/A';
+			
+			const addressParts = [building, road,village,town,state_district, neighbourhood,suburb, county]
+			  .filter(part => part !== 'N/A' && part !== 'Unknown County' && part !== 'Unknown Country' && part !== 'Варна'); // Remove 'N/A' and fallback values
+
+			const formattedAddress = addressParts.join(', ');
+
+			console.log(formattedAddress);
+			
+			return 	formattedAddress;
+		}
+	
 	function reverseGeocoding(lon, lat, el, callbackFN) {
 
 		var url = 'https://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
@@ -295,12 +347,20 @@
 			return response.json();
 		}).then(function (json) {
 			//          alert(json.display_name);
-			callbackFN(el, json.display_name);
-		console.log( json.display_name );
+			var address=getAddress(json.address);
+			
+			callbackFN(el, address);
+		//console.log( json.display_name );
+		
+		
+		
 		console.groupEnd();	
 		})
 	}
 
+		
+	
+			
 	function simpleReverseGeocoding(lon, lat) {
 
 		var url = 'https://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
@@ -313,23 +373,7 @@
 		})
 	}
 
-	function simpleReverseGeocodingByWaypoint(waypoint) {
-		var lngLat = waypoint.lngLat;
-		var lon = lngLat[0];
-		var lat = lngLat[1];
-		var url = 'https://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
 
-		log("simpleReverseGeocodingByWaypoint" + url);
-		fetch(url).then(function (response) {
-			return response.json();
-		}).then(function (json) {
-			waypoint.name = formatAddress(json);
-			const targetId = "bnt" + waypoint.featureId;
-			const el = document.getElementById(targetId);
-			el.value = waypoint.name + '(' + lon.toFixed(6) + ';' + lat.toFixed(6) + ')';
-
-		})
-	}
 	
 	async function fetchMAddress(q) {
 		//var url='http://127.0.0.1:8181/search?q='+q+'&limit=5&format=json&addressdetails=1&city=varna&accept-language=bg-BG'
