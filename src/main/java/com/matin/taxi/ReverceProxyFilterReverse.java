@@ -40,7 +40,8 @@ public class ReverceProxyFilterReverse implements Filter {
 		String bb = getFullURL((HttpServletRequest) request);
 		String queryString = dd.getQueryString();
 		String url = "http://localhost:8181/reverse?" + queryString;
-
+		//String url = "http://localhost:2322/reverse?" + queryString;
+		
 		//// downloadFile("http://localhost:8080/tile/0/0/0.png",
 		//// "/home/kivanov/Desktop/diff");
 		// System.out.println("getRequestURL : " + dd.getRequestURL());
