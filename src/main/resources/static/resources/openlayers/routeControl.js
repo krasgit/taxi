@@ -29,11 +29,12 @@
 		static updateFeature(featureId, coordinates, value) {
 			var bntEl = document.getElementById("bnt" + featureId);
 
-			if (value == "")
+			if (value == ""){
 				reverseGeocoding(coordinates[0], coordinates[1], bntEl, callbackSetInputElVal)
-			else
+				//reverseGeocodingProton(coordinates[0], coordinates[1], bntEl, callbackSetInputElVal)
+			}else{
 				bntEl.value = value;
-
+}
 			var feature = vectorSource.getFeatureById(featureId);
 			var coord = getPointFromLongLat(coordinates[0], coordinates[1]);
 
@@ -174,6 +175,14 @@
 			{
 			/*  orders.id, orders.route, orders.clientid, orders.state,	orders.taxiid, orders.createtime */
 			var ordersTable = document.getElementById("tbodyMainRoute");		
+			
+			if(orders==null)
+					{
+						ordersTable.innerHTML="No active request";
+						return;
+						
+					}
+			
 			var tableRuws="";
 			const jsonData = JSON.parse(orders);
 				
@@ -330,15 +339,31 @@
 			const logoutButton = document.getElementById('log-out-button');
 			logoutButton.innerHTML = 'logout:'+user;
 			logoutButton.setAttribute('onclick', 'RouteControl.logOut();');
+			
+			RouteControl.loadOrders();
 		}
 		
 		static logOut(){
 			var user =Cookie.getCookie("user") ;
 			var token =Cookie.getCookie("token") ;
+			
+			
+				Cookie.setCookie("user","");
+				Cookie.setCookie("token","");
+			
+			
+			try{ //todo WebSocket is already in CLOSING or CLOSED state.
+			
 			callRPC("logOut",user,token).then((result) => {
 				location.reload();
 				   });
-			
+				  } catch (error) {
+				    console.error(error);
+				    // Expected output: ReferenceError: nonExistentFunction is not defined
+				    // (Note: the exact output may be browser-dependent)
+				  }
+ 
+				  location.reload();
        }
 		
 		static add() {
