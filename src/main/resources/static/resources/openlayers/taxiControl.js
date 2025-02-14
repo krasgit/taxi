@@ -44,7 +44,19 @@
 		static render(orders)
 		{
 		/*  orders.id, orders.route, orders.clientid, orders.state,	orders.taxiid, orders.createtime */
-		var ordersTable = document.getElementById("tbodyRoute");		
+		var ordersTable = document.getElementById("tbodyRoute");	
+		
+		
+		if(orders==null)
+			{
+				
+				ordersTable.innerHTML="No active request";
+				return;
+				
+			}
+		
+		
+			
 		var tableRuws="";
 		const jsonData = JSON.parse(orders);
 			

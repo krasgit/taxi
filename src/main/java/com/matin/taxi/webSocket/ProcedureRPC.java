@@ -4,14 +4,12 @@ import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 
-import java.util.UUID;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.web.socket.WebSocketSession;
-
 import com.matin.taxi.AppConfig;
 import com.matin.taxi.db.model.Orders;
 import com.matin.taxi.db.model.Person;
@@ -21,9 +19,11 @@ public class ProcedureRPC {
 	
 		
 	SignalingSocketHandlerRPC signalingSocketHandlerRPC=null;
+	AnnotationConfigApplicationContext context =null;
 	
 	public ProcedureRPC(SignalingSocketHandlerRPC signalingSocketHandlerRPC) {
 		this.signalingSocketHandlerRPC=signalingSocketHandlerRPC;
+		this.context = new AnnotationConfigApplicationContext(AppConfig.class);
 	}
 
 
@@ -31,8 +31,7 @@ public class ProcedureRPC {
 	{
 		String user=(String)arg.get(0);
 		String token=(String)arg.get(1);
-	       
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+	    
 		PersonDAO personDAO = context.getBean(PersonDAO.class);
 		
 		try {
@@ -67,7 +66,7 @@ public class ProcedureRPC {
 		String passw=(String)arg.get(1);
 	       
 	       
-			AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+			
 			PersonDAO personDAO = context.getBean(PersonDAO.class);
 			
 			try {
@@ -131,7 +130,7 @@ public class ProcedureRPC {
 	
 	
 	//private void handleCreateOrder(WebSocketSession session, SignalMessage signalMessage) throws Exception{
-		public boolean createOrder(ArrayList arg,String sessionId) {
+	public boolean createOrder(ArrayList arg,String sessionId) {
 		
 			String user=(String)arg.get(0);
 			String token=(String)arg.get(1);
@@ -144,15 +143,113 @@ public class ProcedureRPC {
 				//clientid
 				Long clientId = personDAO.getPersonIdByUserToken(user,token);
 
-				Orders o= new Orders(  clientId,  (long) 0,  0,  order);
+				Orders o= new Orders(  clientId,  (long) 0,  Orders.STATE_CREATED,  order);
+				o.setCreateTime(new Timestamp(System.currentTimeMillis()));
+				
+				
 				if(personDAO.createOrders(o))
 		    		 return true;
 				else 
 					return false;
 		 }
 		
+	public boolean acceptOrderClient(ArrayList arg, String sessionId) {
+			
+			Integer id=(Integer)arg.get(0);
+			
+			AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+			PersonDAO personDAO = context.getBean(PersonDAO.class);
+			
+			Person person = personDAO.getPersonByToken(sessionId);
+			
+			Long personId = person.getId();
+			
+			Orders order=personDAO.getOrderById(id.longValue());
+			order.setState(Orders.STATE_CLIENT_START);
+			order.setClientStartTime(new Timestamp(System.currentTimeMillis()));
+			//TODO
+			boolean res=personDAO.updateOrders(order);
+			
+			
+			signalingSocketHandlerRPC.acceptOrderClientCB( person,order);  //notify current and taxis
+			
+			return res;
+		}
+	
+	public boolean acceptOrder(ArrayList arg, String sessionId) {
 		
-		public String loadOrders(ArrayList arg, String sessionId)
+		Integer id=(Integer)arg.get(0);
+		
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+		PersonDAO personDAO = context.getBean(PersonDAO.class);
+		
+		Person person = personDAO.getPersonByToken(sessionId);
+		
+		Long personId = person.getId();
+		
+		Orders order=personDAO.getOrderById(id.longValue());
+
+		order.setState(Orders.STATE_TAXI_ACCEPTED);
+		order.setTaxiId(personId);
+		order.setAcceptedTime(new Timestamp(System.currentTimeMillis()));
+		
+		boolean res=personDAO.updateOrders(order);
+		
+		
+		//signalingSocketHandlerRPC.acceptOrderCB( person,order);  //notify current and taxis
+		signalingSocketHandlerRPC.acceptOrderClientCB( person,order);  //notify current and taxis
+		return res;
+	}
+	
+    public boolean startOrder(ArrayList arg, String sessionId) {
+		
+		Integer id=(Integer)arg.get(0);
+		
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+		PersonDAO personDAO = context.getBean(PersonDAO.class);
+		
+		Person person = personDAO.getPersonByToken(sessionId);
+		
+		Long personId = person.getId();
+		
+		Orders order=personDAO.getOrderById(id.longValue());
+
+		order.setState(Orders.STATE_TAXI_START );
+		order.setTaxiStartTime(new Timestamp(System.currentTimeMillis()));
+		//order.setTaxiId(personId);
+		
+		boolean res=personDAO.updateOrders(order);
+		
+		
+		signalingSocketHandlerRPC.acceptOrderCB( person,order);  //notify current and taxis
+		return res;
+	}
+	
+	public boolean finishOrder(ArrayList arg, String sessionId) {
+		
+		Integer id=(Integer)arg.get(0);
+		
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+		PersonDAO personDAO = context.getBean(PersonDAO.class);
+		
+		Person person = personDAO.getPersonByToken(sessionId);
+		
+		Long personId = person.getId();
+		
+		Orders order=personDAO.getOrderById(id.longValue());
+
+		order.setState(Orders.STATE_TAXI_END );
+		order.setEndTime(new Timestamp(System.currentTimeMillis()));
+		//order.setTaxiId(personId);
+		
+		boolean res=personDAO.updateOrders(order);
+		
+		
+		signalingSocketHandlerRPC.acceptOrderCB( person,order);  //notify current and taxis
+		return res;
+	}
+	
+	public String loadOrders(ArrayList arg, String sessionId)
 		{
 			
 		
@@ -166,12 +263,12 @@ public class ProcedureRPC {
 			Long clientId = personDAO.getPersonIdByUserToken(user,token);
 			String  orders=personDAO.getOrdersByClientId(clientId);
 		
-			getOrdersFn(clientId);
+			//getOrdersFn(clientId);
 			return orders;
 		}
 		
 		
-		public String loadOrderById(ArrayList arg, String sessionId)
+	public String loadOrderById(ArrayList arg, String sessionId)
 		{
 			Integer id=(Integer)arg.get(0);
 				
@@ -185,9 +282,7 @@ public class ProcedureRPC {
 		//	return orders;
 		}
 		
-		
-		
-		public boolean deleteOrderById(ArrayList arg, String sessionId) {
+	public boolean deleteOrderById(ArrayList arg, String sessionId) {
 			
 			Integer id=(Integer)arg.get(2);
 			AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
@@ -198,85 +293,12 @@ public class ProcedureRPC {
 			return res;
 		}
 		
-		
-		
-		public boolean acceptOrderClient(ArrayList arg, String sessionId) {
-			
-			Integer id=(Integer)arg.get(0);
-			
-			AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-			PersonDAO personDAO = context.getBean(PersonDAO.class);
-			
-			Person person = personDAO.getPersonByToken(sessionId);
-			
-			Long personId = person.getId();
-			
-			Orders order=personDAO.getOrderById(id.longValue());
-
-			order.setState(1);
-			//order.setTaxiId(personId);
-			
-			boolean res=personDAO.updateOrders(order);
-			
-			
-			signalingSocketHandlerRPC.acceptOrderClientCB( person,order);  //notify current and taxis
-			
-			return res;
-		}
-		
-		
-		public boolean acceptOrder(ArrayList arg, String sessionId) {
-		
-			Integer id=(Integer)arg.get(0);
-			
-			AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-			PersonDAO personDAO = context.getBean(PersonDAO.class);
-			
-			Person person = personDAO.getPersonByToken(sessionId);
-			
-			Long personId = person.getId();
-			
-			Orders order=personDAO.getOrderById(id.longValue());
-
-			order.setState(2);
-			order.setTaxiId(personId);
-			
-			boolean res=personDAO.updateOrders(order);
-			
-			
-			signalingSocketHandlerRPC.acceptOrderCB( person,order);  //notify current and taxis
-			return res;
-		}
-		
-		
-		public boolean finishOrder(ArrayList arg, String sessionId) {
-			
-			Integer id=(Integer)arg.get(0);
-			
-			AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-			PersonDAO personDAO = context.getBean(PersonDAO.class);
-			
-			Person person = personDAO.getPersonByToken(sessionId);
-			
-			Long personId = person.getId();
-			
-			Orders order=personDAO.getOrderById(id.longValue());
-
-			order.setState(4);
-			//order.setTaxiId(personId);
-			
-			boolean res=personDAO.updateOrders(order);
-			
-			
-			signalingSocketHandlerRPC.acceptOrderCB( person,order);  //notify current and taxis
-			return res;
-		}
-		
-		public String  getOrders(String  where ) 
-		{
+	public String  getOrders(String  where ) 
+	{
 			return "";
-		}
-		public String  getOrdersFn(Long clientId) {
+	}
+	
+	public String  getOrdersFn(Long clientId) {
 			
 
 			
@@ -349,7 +371,7 @@ SELECT getOrders('{85,85}')
 		 */
 		
 		
-		public String  getTaxuOrdersByClientId(Long clientId) {
+	public String  getTaxuOrdersByClientId(Long clientId) {
 			//String sql = "SELECT json_agg(orders) FROM orders where clientId = ? ";
 			String sql = "SELECT json_agg( json_build_object(\n"
 					+ "'id', orders.id\n"
@@ -366,6 +388,7 @@ SELECT getOrders('{85,85}')
 					+ "\n"
 					+ "where  orders.state not in(0,4,2) --NOT temporal ,finish\n"
 					+ "		or  ( state=1)			--all Active	 \n"
+					+ " or ( persontaxi.id=0 and state=2) "     //not asigned
 					+ " or ( persontaxi.id=? and state=2) ";
 				//	+ " order by state";		
 
@@ -383,7 +406,7 @@ SELECT getOrders('{85,85}')
 			// user,token });
 		}
 		
-		public String loadTaxiOrders(ArrayList arg, String sessionId)
+	public String loadTaxiOrders(ArrayList arg, String sessionId)
 		{
 			
 		
@@ -397,7 +420,7 @@ SELECT getOrders('{85,85}')
 			Long clientId = personDAO.getPersonIdByUserToken(user,token);
 			String  orders=getTaxuOrdersByClientId(clientId);
 		
-			getOrdersFn(clientId);
+			//getOrdersFn(clientId);
 			return orders;
 		}
 		

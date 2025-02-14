@@ -1,6 +1,6 @@
 package com.matin.taxi.db.model;
 
-import java.time.LocalDate;
+import java.sql.Timestamp;
 
 /*
  drop  TABLE orders 
@@ -11,20 +11,40 @@ create  TABLE orders  (
 	taxiId int4   NULL,
 	state int NULL,
 	route text NULL,
-	createTime date NULL,
+	createTime timestamp NULL,
+	
+	clientStartTime timestamp NULL,
+	acceptedTime timestamp NULL,
+	taxiStartTime timestamp NULL,
+	endTime timestamp NULL,
+	
+	
+	
 	CONSTRAINT order_pkey PRIMARY KEY (id)
 );
 
+2025/02/13 13:17:02
  */
 
 public class Orders {
+	public static int STATE_CREATED=0;//TEMPLATE   
+	public static int STATE_CLIENT_START =1;
+	public static int STATE_TAXI_ACCEPTED=2;
+	public static int STATE_TAXI_START=3;
+	public static int STATE_TAXI_END=4;
+	
 
 	Long id;
 	Long clientId; 
 	Long taxiId ;
 	int state ;
 	String route ;
-	java.time.LocalDate createTime  ; 
+	Timestamp createTime  ; 
+	
+	Timestamp clientStartTime;
+	Timestamp acceptedTime;
+	Timestamp taxiStartTime;
+	Timestamp endTime;
 	
 	public Orders() {
 	
@@ -40,7 +60,7 @@ public class Orders {
 	}
 	
 	
-	public Orders(Long id, Long clientId, Long taxiId, int state, String route, LocalDate createTime) {
+	public Orders(Long id, Long clientId, Long taxiId, int state, String route, Timestamp createTime) {
 		super();
 		this.id = id;
 		this.clientId = clientId;
@@ -82,12 +102,38 @@ public class Orders {
 	public void setRoute(String route) {
 		this.route = route;
 	}
-	public java.time.LocalDate getCreateTime() {
+	public Timestamp getCreateTime() {
 		return createTime;
 	}
-	public void setCreateTime(java.time.LocalDate createTime) {
+	public void setCreateTime(Timestamp createTime) {
 		this.createTime = createTime;
 	}
+	
+	public Timestamp getClientStartTime() {
+		return clientStartTime;
+	}
+	public void setClientStartTime(Timestamp clientStartTime) {
+		this.clientStartTime = clientStartTime;
+	}
+	public Timestamp getAcceptedTime() {
+		return acceptedTime;
+	}
+	public void setAcceptedTime(Timestamp acceptedTime) {
+		this.acceptedTime = acceptedTime;
+	}
+	public Timestamp getTaxiStartTime() {
+		return taxiStartTime;
+	}
+	public void setTaxiStartTime(Timestamp taxiStartTime) {
+		this.taxiStartTime = taxiStartTime;
+	}
+	public Timestamp getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(Timestamp endTime) {
+		this.endTime = endTime;
+	}
+	
 	@Override
 	public String toString() {
 		return "Orders [id=" + id + ", clientId=" + clientId + ", taxiId=" + taxiId + ", state=" + state + ", route="

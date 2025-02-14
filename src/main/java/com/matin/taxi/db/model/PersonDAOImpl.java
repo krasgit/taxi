@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -141,11 +142,20 @@ public class PersonDAOImpl implements PersonDAO {
 	}
 
 	// clientId, taxiId, state,route
-	private final String SQL_UPDATE_ORDERS = "update orders set clientId = ?, taxiId = ?, state  = ? ,route=? ,createTime=? where id = ?";
+	private final String SQL_UPDATE_ORDERS = 
+		"update orders set"
+		+ " clientId = ?, taxiId = ?, state  = ? ,route=? "
+		+ ", createTime=?  ,clientStartTime = ?, acceptedTime = ?, taxiStartTime = ?, endTime = ?"
+		+ " where id = ?";
 
+	
+	
 	public boolean updateOrders(Orders orders) {
-		return jdbcTemplate.update(SQL_UPDATE_ORDERS, orders.getClientId(), orders.getTaxiId(), orders.getState(),
-				orders.getRoute(), orders.getCreateTime(), orders.getId()) > 0;
+		return jdbcTemplate.update(SQL_UPDATE_ORDERS, orders.getClientId(), orders.getTaxiId(), orders.getState(),orders.getRoute(), 
+				orders.getCreateTime(),orders.getClientStartTime(),orders.getAcceptedTime(),
+				orders.getTaxiStartTime(),orders.getEndTime()
+				
+				, orders.getId()) > 0;
 
 	}
 
@@ -221,7 +231,7 @@ public class PersonDAOImpl implements PersonDAO {
 		parameters.put("taxiId", orders.getTaxiId());
 		parameters.put("state", orders.getState());
 		parameters.put("route", orders.getRoute());
-		// parameters.put("createTime",LocalDateTime.now());
+		parameters.put("createTime",orders.getCreateTime());
 
 		Number id = insertIntoUser.executeAndReturnKey(parameters);
 		orders.setId(id.longValue());

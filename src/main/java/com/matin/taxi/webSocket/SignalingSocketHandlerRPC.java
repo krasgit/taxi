@@ -181,24 +181,35 @@ public void acceptOrderClientCB( Person p, Orders o) {
 	
 	String sessionId=p.getToken();
  
-		WebSocketSession webSocket = connectedUsers.get(sessionId);
+	//	WebSocketSession webSocket = connectedUsers.get(sessionId);
 
- 	if(webSocket==null)
- 	{
- 		LOG.error("Missing Connection  " + sessionId);
- 		 return;
- 	}
+ 	//if(webSocket==null)
+ 	//{
+ 	//	LOG.error("Missing Connection  " + sessionId);
+ 	//	 return;
+ 	//}
 		
+	//TODO Send To current user and free taxi
+	
  	ResultMessage resultMessage= new ResultMessage(null,"RouteControl.loadOrders();TaxiControl.loadOrders();",null);
      
      String resendingMessage;
-	try {
+     connectedUsers.values().forEach(webSocket -> {
+         try {
+             webSocket.sendMessage(new TextMessage(Utils.getString(resultMessage)));
+         } catch (Exception e) {
+             LOG.warn("Error while message sending.", e);
+         }
+     });
+/*
+     try {
 		resendingMessage = Utils.getString(resultMessage);
 	     webSocket.sendMessage(new TextMessage(resendingMessage));
 	} catch (Exception e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
+	*/
 }
 
 
