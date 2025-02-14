@@ -1,19 +1,6 @@
 
 var br = 2;
 
-function formatAddresss(json, autocompleteList) {
-	//alert("formatAddresss");
-	var root = json.features;
-	const fruits = [];
-	for (let i = 0; i < root.length; i++) {
-		var value = root[i];
-		var pr = value.properties;
-		//  if(pr.state==='Varna')
-		fruits.push(pr.name + pr.state + " [" + pr.osm_id + "] " + value.geometry.coordinates);
-	}
-	return fruits;
-}
-
 function fetchMAddresscbb(inputEl, autocompleteList) {
 	var q = inputEl.value;
 	var url = 'https://' + hostname + ':8443/api?q=Varna ' + q;
@@ -28,15 +15,86 @@ function fetchMAddresscbb(inputEl, autocompleteList) {
 		})
 }
 
+
+function getAddressProton(address)
+	{
+		const name = address.name || 'N/A';
+		const housenumber = address.housenumber || 'N/A';
+		const street = address.street || 'N/A';
+		const road = address.road || '';
+		const district = address.district || 'N/A';
+		const county = address.county || 'Unknown County';
+		const city = address.city || 'N/A';
+		const state = address.state || 'N/A';
+		const postcode = address.postcode || 'N/A';
+		const country = address.country || 'Unknown Country';
+
+		const locality = address.locality || 'N/A';
+			
+		
+		
+		// If street is missing, fall back to combining housenumber and road
+		let finalStreet = street;
+		if (street === 'N/A' && (housenumber !== 'N/A' || road !== 'N/A')) {
+		    finalStreet = `${housenumber} ${road}`.trim(); // Combine housenumber and road, remove extra spaces
+		}
+
+		//const addressParts = [name, finalStreet, district, county, city, state, postcode, country]
+		const addressParts = [name, finalStreet, locality,district, county, city, state]
+		  .filter(part => part !== 'N/A' && part !== 'Unknown County' && part !== 'Unknown Country' && part !== 'Варна'); // Remove 'N/A' and fallback values
+
+		const formattedAddress = addressParts.join(', ');
+
+		console.log(formattedAddress);
+		
+		return 	formattedAddress;
+	}
+	
+	/*
+	Allowed parameters are: [debug, query_string_filter, limit, distance_sort, osm_tag, lon, lang, radius, lat, layer]"
+	*/
+	function reverseGeocodingProton(lon, lat, el, callbackFN) {
+
+			var url = 'https://' + hostname + ':8443/reverse?lon=' + lon + '&lat=' + lat+'&radius=1' ;
+			log("fetchMAddresscbb url" + url)
+			fetch(url)
+				.then(function (response) {
+					return response.json();
+				})
+				.then(function (json) {
+					
+					var root = json.features;
+					var value = root[0];
+							var pr = value.properties;
+					var	display_name=	getAddressProton(pr);
+					callbackFN(el, display_name);
+				})
+		}
+
+
+
+
 function newinitItem(autocompleteList, json, inputEl) {
 
+	
+	log("newinitItem"+json);
 	var root = json.features;
-
+	log("newinitItem"+root);
 	for (i = 0; i < root.length; i++) {
 		var value = root[i];
 		var pr = value.properties;
 
-		var disp = pr.name + pr.state;
+		var disp =getAddressProton(pr);
+		
+	//	var disp = pr.name + pr.state;
+		
+	//var disp =pr.housenumber+', '+pr.district+', '+pr.county
+		
+	// disp+='('+pr.name+','+pr.street+', '+pr.district+', '+pr.county+')';
+	
+		
+		
+		
 
 		b = document.createElement("DIV");
 		b.innerHTML = "<strong>" + disp.substr(0, inputEl.value.length) + "</strong>";
@@ -47,12 +105,19 @@ function newinitItem(autocompleteList, json, inputEl) {
 			var selectesItem = this.getElementsByTagName("input")[0];
 			var featureId = inputEl.getAttribute("featureId");
 			var valueId = selectesItem.getAttribute("valueId");
+			
+		
+			
+			
 			var ff = root[valueId];//var valueId=selectesItem.getAttribute("valueId");
 			//var ff= selectesItem.value;
 
 			var pr = ff.properties;
 			var coordinates = ff.geometry.coordinates;
-			var value = pr.name;
+			//var value = pr.name;
+			var value=selectesItem.value;
+			
+			
 			RouteControl.updateFeature(featureId, coordinates, value);
 			var x = document.getElementsByClassName("autocomplete-items");
 			for (var i = 0; i < x.length; i++) {
