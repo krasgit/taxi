@@ -62,6 +62,7 @@ var app = {};
 			var coordinates = geometry.flatCoordinates;
 
 			reverseGeocoding(coordinates[0], coordinates[1], bntEl, callbackSetInputElVal)
+			//reverseGeocodingProton(coordinates[0], coordinates[1], bntEl, callbackSetInputElVal)
 		};
 
 		/** @param {module:ol/MapBrowserEvent~MapBrowserEvent} evt Event.  */
