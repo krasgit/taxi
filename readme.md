@@ -1,4 +1,121 @@
+To set the **initial (minimum)**, **maximum**, and **idle** connections in a connection pool, you need to configure the respective properties of the connection pool library you're using. Below, I'll explain how to set these values for **HikariCP**, one of the most popular connection pooling libraries for Java.
 
+---
+
+### Key Properties for Connection Pool Configuration:
+1. **Minimum (Initial) Connections**: The number of connections the pool will start with.
+2. **Maximum Connections**: The maximum number of connections the pool will allow.
+3. **Idle Connections**: The number of connections that can remain idle in the pool.
+
+---
+
+### Example: Configuring HikariCP
+
+Here’s how you can configure these properties in HikariCP:
+
+```java
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+public class HikariCPExample {
+
+    private static HikariDataSource ds;
+
+    static {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:mysql://localhost:3306/yourdatabase");
+        config.setUsername("yourusername");
+        config.setPassword("yourpassword");
+
+        // Set minimum (initial) connections
+        config.setMinimumIdle(5); // Default is same as maximumPoolSize
+
+        // Set maximum connections
+        config.setMaximumPoolSize(20); // Default is 10
+
+        // Set idle connections
+        config.setIdleTimeout(30000); // 30 seconds (time before idle connections are closed)
+
+        // Other optional settings
+        config.setConnectionTimeout(30000); // 30 seconds (time to wait for a connection)
+        config.setMaxLifetime(1800000); // 30 minutes (maximum lifetime of a connection)
+
+        ds = new HikariDataSource(config);
+    }
+
+    public static DataSource getDataSource() {
+        return ds;
+    }
+
+    public static Connection getConnection() throws SQLException {
+        return ds.getConnection();
+    }
+
+    public static void main(String[] args) {
+        try (Connection con = getConnection()) {
+            System.out.println("Connection successful!");
+            // Use the connection
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+---
+
+### Explanation of Key Properties:
+1. **`setMinimumIdle(int)`**:
+   - Sets the minimum number of idle connections that the pool will maintain.
+   - Default: Same as `maximumPoolSize`.
+   - Example: `config.setMinimumIdle(5);`
+
+2. **`setMaximumPoolSize(int)`**:
+   - Sets the maximum number of connections that the pool will create.
+   - Default: 10.
+   - Example: `config.setMaximumPoolSize(20);`
+
+3. **`setIdleTimeout(long)`**:
+   - Sets the maximum time (in milliseconds) that a connection can remain idle in the pool before being closed.
+   - Default: 600000 (10 minutes).
+   - Example: `config.setIdleTimeout(30000);` (30 seconds)
+
+4. **`setConnectionTimeout(long)`**:
+   - Sets the maximum time (in milliseconds) that a connection request will wait before timing out.
+   - Default: 30000 (30 seconds).
+   - Example: `config.setConnectionTimeout(30000);`
+
+5. **`setMaxLifetime(long)`**:
+   - Sets the maximum lifetime (in milliseconds) of a connection in the pool.
+   - Default: 1800000 (30 minutes).
+   - Example: `config.setMaxLifetime(1800000);`
+
+---
+
+### Best Practices:
+- **Minimum Idle Connections**: Set this to a value that matches your application's average load. This ensures that connections are readily available when needed.
+- **Maximum Connections**: Set this based on your database's capacity and the expected peak load of your application.
+- **Idle Timeout**: Set this to a reasonable value to avoid holding onto idle connections for too long, which can waste resources.
+- **Connection Timeout**: Ensure this is set high enough to avoid timeouts during peak load but low enough to fail fast in case of issues.
+
+---
+
+### Other Connection Pool Libraries:
+If you're using a different connection pool library (e.g., Apache DBCP, C3P0), the configuration properties will be similar but with different names. For example:
+- **Apache DBCP**:
+  - `setInitialSize(int)` for initial connections.
+  - `setMaxTotal(int)` for maximum connections.
+  - `setMaxIdle(int)` for idle connections.
+- **C3P0**:
+  - `setMinPoolSize(int)` for initial connections.
+  - `setMaxPoolSize(int)` for maximum connections.
+  - `setMaxIdleTime(int)` for idle connections.
+
+Let me know if you need help with a specific library!
 If the `county` field is missing in the OpenStreetMap (OSM) JSON data, you can handle it similarly to other missing fields by providing a fallback value or skipping it in the final address formatting. The `county` field is typically used to represent the county or administrative division within a country (e.g., "Cook County" in the USA or "Oxfordshire" in the UK). If it's missing, you can either skip it or provide a default value like "Unknown County".
 
 Below is an updated version of the Python code that includes handling for a missing `county` field.
