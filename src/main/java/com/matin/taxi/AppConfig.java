@@ -10,8 +10,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-@Configuration
-@ComponentScan("com.matin.taxi.db.model")
+//@Configuration
+//@ComponentScan("com.matin.taxi.db.model")
 //@PropertySource("classpath:database.properties")
 public class AppConfig {
 
@@ -23,7 +23,7 @@ public class AppConfig {
 	private final String DRIVER = "driver";
 	private final String PASSWORD = "spring.datasource.password";
 
-	@Bean
+	//@Bean
 	DataSource dataSource() {
 		
 		//spring.datasource.url=jdbc:postgresql://localhost:5433/nominatim
