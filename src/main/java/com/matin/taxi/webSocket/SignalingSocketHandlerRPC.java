@@ -13,6 +13,7 @@ import com.matin.taxi.db.model.Person;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
@@ -238,5 +239,21 @@ public void acceptOrderClientCB( Person p, Orders o) {
 
 	
 }
+
+public void handleUpdatePostion(Person sendFrom, List<Person> sendTo, Object postion) {
+	
+ 	ResultMessage resultMessage= new ResultMessage("handleUpdatePostion",postion,sendFrom.getName());
+	 	
+ 	for(Person p:sendTo) {
+ 		WebSocketSession webSocket = connectedUsers.get(p.getToken());
+	 	 try {
+	 	     webSocket.sendMessage(new TextMessage(Utils.getString(resultMessage)));
+	 	      } catch (Exception e) {
+	 	           LOG.warn("Error while message sending.", e);
+	 	  }
+		}
+	 	
+		
+	}
 
 }

@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+
 @Component
 public class PersonDAOImpl implements PersonDAO {
 
@@ -42,7 +43,7 @@ public class PersonDAOImpl implements PersonDAO {
 
 	private final String SQL_FIND_PRINCIPAL = "select * from person where name = ?";
 
-	@Autowired
+
 	public PersonDAOImpl(DataSource dataSource) {
 		jdbcTemplate = new JdbcTemplate(dataSource);
 		transactionManager = new DataSourceTransactionManager(dataSource);
@@ -352,6 +353,9 @@ public class PersonDAOImpl implements PersonDAO {
 	
 	}
 
+	
+
+	
 	@Override
 	public JdbcTemplate geJjdbcTemplate() {
 		// TODO Auto-generated method stub

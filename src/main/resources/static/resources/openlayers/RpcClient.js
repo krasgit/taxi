@@ -51,10 +51,20 @@ export class RpcClient {
     console.log(`[message] Data received from server: ${event.data}`);
     let response = JSON.parse(event.data);
 	
+	
+	
 	if(response.id==null){
 		eval(response.result);
 	 return ;
 	 }
+	 
+	 if(response.id=='handleUpdatePostion'){
+		log(response.result);
+		updatePositionMarker(response.result);
+		return ;
+		}
+	 
+	 
     let callback = this.waiting.get(response.id);
     this.waiting.delete(response.id);
     callback(response.error, response.result);

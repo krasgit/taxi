@@ -67,10 +67,18 @@
 		
 		
 		
-		if(distance>1)
+		
+		if(distance>1)// TODO UNCOMMENT
 			{
 			//	document.getElementById("b1").innerHTML=""+distance ;
-			wsUpdatePostion(event);
+			//wsUpdatePostion(event);
+			
+			updatePostion(event);
+			
+			
+			
+			
+			
 	        }	
 		 lastGeoLocationEvent = event;
 		updateGeoMarker();
@@ -95,6 +103,20 @@
 		}
 					*/
 	}
+	
+	function  updatePostion(event){
+						
+			var user =Cookie.getCookie("user") ;
+			var token =Cookie.getCookie("token") ;
+						
+			callRPC("updatePostion",user,token,event).then((result) => {
+			//	RouteControl.loadOrderCB(event); //SELF npls 
+			//	RouteControl.loadOrderCB(result); //OLD
+     		  
+								   });
+			}	
+	
+	
 	function geofailure(event) {
 		log("geofailure:  : " + event);
 	}

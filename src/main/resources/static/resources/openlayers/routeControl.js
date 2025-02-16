@@ -355,7 +355,7 @@
 			try{ //todo WebSocket is already in CLOSING or CLOSED state.
 			
 			callRPC("logOut",user,token).then((result) => {
-				location.reload();
+			//	location.reload();
 				   });
 				  } catch (error) {
 				    console.error(error);
