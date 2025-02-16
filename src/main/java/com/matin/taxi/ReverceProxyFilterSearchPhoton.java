@@ -41,15 +41,13 @@ public class ReverceProxyFilterSearchPhoton implements Filter {
 		String url = "http://localhost:2322/api?" + queryString;
 
 		System.out.println("getRequestURL : " + dd.getRequestURL());
-		System.out.println("Remote Host : " + request.getRemoteHost());
-		System.out.println("Remote Address : " + request.getRemoteAddr());
+		//System.out.println("Remote Host : " + request.getRemoteHost());
+		//System.out.println("Remote Address : " + request.getRemoteAddr());
 
 		connectRelayqaz(url, (HttpServletResponse) response);
-
 	}
 	
 	private void connectRelayqaz(String remoteAddress, HttpServletResponse response) throws IOException {
-		System.out.println("target Address : " + remoteAddress);
 
 		URL url = new URL(remoteAddress);
 		HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
