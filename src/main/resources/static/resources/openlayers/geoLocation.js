@@ -13,7 +13,10 @@
 
 	}
 	
-	function updatePositionMarker(ev) {
+	function updatePositionMarker(evJSON) {
+		
+		let ev=JSON.parse(evJSON);
+		
 			var coordss = ev.coords;
 			//log(coordss);
 			const projectedPosition = ol.proj.fromLonLat([coordss.longitude, coordss.latitude]);
@@ -54,6 +57,19 @@
 		map.render();
 	}
 
+	
+	function getGeolocationPositionJSON(event)
+	{
+		let geoPosition = {
+		  timestamp: event.timestamp,
+		  coords: {accuracy: event.coords.accuracy, latitude: event.coords.latitude,longitude: event.coords.longitude}
+		};
+
+		 
+		return  JSON.stringify(geoPosition); 
+	}
+	
+	
 	function geosuccess(event) {
 		if(lastGeoLocationEvent===undefined)
 		   lastGeoLocationEvent = event;
@@ -68,12 +84,14 @@
 		
 		
 		
-		if(distance>1)// TODO UNCOMMENT
+		// if(distance>1)// TODO UNCOMMENT
 			{
 			//	document.getElementById("b1").innerHTML=""+distance ;
 			//wsUpdatePostion(event);
+		
+			const gp=getGeolocationPositionJSON(event);	
 			
-			updatePostion(event);
+			updatePostion(gp);
 			
 			
 			

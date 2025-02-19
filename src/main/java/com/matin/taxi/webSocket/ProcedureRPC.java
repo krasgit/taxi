@@ -187,7 +187,7 @@ public class ProcedureRPC {
 
 		Person person = personDAO.getPersonByToken(sessionId);
 
-		Long personId = person.getId();
+		Long taxiId = person.getId();
 
 		Orders order = personDAO.getOrderById(id.longValue());
 
@@ -197,10 +197,25 @@ public class ProcedureRPC {
 
 		boolean res = personDAO.updateOrders(order);
 
-		signalingSocketHandlerRPC.acceptOrderCB(person, order); // notify current and taxis
+		List<Person> sendTo = getPersonsClientOrdersId(order.getId());
+		
+		signalingSocketHandlerRPC.handleUpdateOrder(person, sendTo,order);
+		//signalingSocketHandlerRPC.acceptOrderCB(person, order); // notify current and taxis
 		return res;
 	}
 
+	public List<Person> getPersonsClientOrdersId(Long orderId ) {
+		// String sql = "SELECT json_agg(orders) FROM orders where clientId = ? ";
+		String sql = "select person.*  from person\n"
+				+ "inner join  Orders on Orders.clientid=person.id \n"
+				+ "where Orders.id=?";
+		// + " order by state";
+		return personDAO.geJjdbcTemplate().query(sql, new Object[] { orderId }, new PersonMapper());
+
+	}
+	
+	
+	
 	public String loadOrders(ArrayList arg, String sessionId) {
 		String user = (String) arg.get(0);
 		String token = (String) arg.get(1);
@@ -334,7 +349,17 @@ public class ProcedureRPC {
 
 	}
 
-	
+	/**
+	 * timestamp
+    coords accuracy
+            altitude
+            altitudeAccuracy
+            heading
+            latitude
+            longitude
+            speed
+	 * 
+	 */
 	public boolean updatePostion(ArrayList arg, String sessionId) {
 
 		String user = (String) arg.get(0);
