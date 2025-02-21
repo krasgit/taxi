@@ -59,15 +59,20 @@ class LoginControl extends ol.control.Control {
 		var username=document.getElementById('username').value;
 		var password=document.getElementById('password').value;
 
-		callRPC("login",username,username).then((result) => {
+		callRPC("login",username,username).then((resultJson) => {
 	
-			if(result==null){
+			if(resultJson==null){
 
 				   }
 				   else 
 				   {
+					
+					
+					let result=JSON.parse(resultJson);
+					
 					Cookie.setCookie("user",username);
-					Cookie.setCookie("token",result);
+					Cookie.setCookie("token",result.sessionId);
+					Cookie.setCookie("isTaxi",result.isTaxi);
 					LoginControl.visible(false);
 					TaxiControl.visible(true);
 					RouteControl.logIn();

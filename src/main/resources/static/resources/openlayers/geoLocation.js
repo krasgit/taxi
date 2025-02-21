@@ -32,6 +32,15 @@
 			
 				const ca = [];
 			
+				
+				startPos=coordinates[0];
+				
+				if(startPos==0) //no start pozition
+					{
+						Route.removeAllRoute('route2start');
+						return 	
+					}
+				
 				ca.push([coordinates[0], coordinates[1]]);	
 				
 				ca.push([coordss.longitude, coordss.latitude]);
@@ -90,7 +99,7 @@
 			//wsUpdatePostion(event);
 		
 			const gp=getGeolocationPositionJSON(event);	
-			
+			//updatePositionMarker(gp);
 			updatePostion(gp);
 			
 			

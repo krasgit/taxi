@@ -3,7 +3,6 @@ package com.matin.taxi.webSocket;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Array;
@@ -26,10 +25,6 @@ import com.matin.taxi.db.model.Person;
 import com.matin.taxi.db.model.PersonDAO;
 import com.matin.taxi.db.model.PersonDAOImpl;
 import com.matin.taxi.db.model.PersonMapper;
-
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.http.HttpServletResponse;
-
 
 public class ProcedureRPC {
 
@@ -417,7 +412,7 @@ public class ProcedureRPC {
 		return true;
 	}
 	
-	public void calkDitanceTime() {
+	public void getRouteDistanceTime() {
 	//	JSONObject obj = new JSONObject("hfhf");
 	}
 	
