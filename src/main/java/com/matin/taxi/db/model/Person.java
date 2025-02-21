@@ -9,13 +9,17 @@ package com.matin.taxi.db.model;
 	name text NULL,
 	passw text NULL,
 	token text NULL,
+	role text DEFAULT 'user',
 	CONSTRAINT person_pkey PRIMARY KEY (id)
 );
  
- 
- insert into person ( name, passw, age) values
-( 'qaz', 'qaz', 21),
-('wsx', 'wsx', 30)
+
+//users
+ insert into person ( name, passw) values ( 'qaz', 'qaz' ),('wsx', 'wsx')
+ //taxi
+ insert into person ( name, passw,role) values ( 'qaz1', 'qaz1','taxi' ),('wsx1', 'wsx1','taxi')
+select * from person
+
  
  */
 
@@ -30,6 +34,19 @@ public class Person {
 
 		private String token;
 		
+		private String role;
+		
+		
+		public String getRole() {
+			return role;
+		}
+
+
+		public void setRole(String role) {
+			this.role = role;
+		}
+
+
 		public String getToken() {
 			return token;
 		}

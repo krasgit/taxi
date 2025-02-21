@@ -16,6 +16,7 @@ public class PersonMapper implements RowMapper<Person> {
 		person.setAge(resultSet.getInt("age"));
 		
 		person.setToken(resultSet.getString("token"));
+		person.setRole(resultSet.getString("role"));
 		return person;
 	}
 }
