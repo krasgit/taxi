@@ -32,32 +32,18 @@ public class ReverceProxyFilterReverse implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		
 		//System.out.println("Procces UrlPatterns "+urlPatterns);
-
 		HttpServletRequest dd = (HttpServletRequest) request;
 
 		String bb = getFullURL((HttpServletRequest) request);
 		String queryString = dd.getQueryString();
 		String url = "http://localhost:8181/reverse?" + queryString;
 		//String url = "http://localhost:2322/reverse?" + queryString;
-		
-		//System.out.println("Remote Host : " + request.getRemoteHost());
-		//System.out.println("Remote Address : " + request.getRemoteAddr());
-
-
-		connectRelayqaz(url, (HttpServletResponse) response);
-
-		// PrintWriter out = response.getWriter();
-		// response.setContentType("application/json");
-		// response.setCharacterEncoding("UTF-8");
-		// out.print("rterte");
-		// out.flush();
-
+		connectRelay(url, (HttpServletResponse) response);
 	}
 
 
-	private void connectRelayqaz(String remoteAddress, HttpServletResponse response) throws IOException {
+	private void connectRelay(String remoteAddress, HttpServletResponse response) throws IOException {
 		// System.out.println("target Address : " + remoteAddress);
 
 		URL url = new URL(remoteAddress);

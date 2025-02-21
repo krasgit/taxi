@@ -44,10 +44,10 @@ public class ReverceProxyFilterSearchPhoton implements Filter {
 		//System.out.println("Remote Host : " + request.getRemoteHost());
 		//System.out.println("Remote Address : " + request.getRemoteAddr());
 
-		connectRelayqaz(url, (HttpServletResponse) response);
+		connectRelay(url, (HttpServletResponse) response);
 	}
 	
-	private void connectRelayqaz(String remoteAddress, HttpServletResponse response) throws IOException {
+	private void connectRelay(String remoteAddress, HttpServletResponse response) throws IOException {
 
 		URL url = new URL(remoteAddress);
 		HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();

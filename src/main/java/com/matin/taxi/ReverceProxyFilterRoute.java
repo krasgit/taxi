@@ -1,12 +1,8 @@
 package com.matin.taxi;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
@@ -73,10 +69,10 @@ public class ReverceProxyFilterRoute implements Filter {
 		// url=bb.replace("https://localhost:8443", "http://127.0.0.1:5000");
 		System.out.println("url Address : " + url);
 
-		connectRelayqaz(url, (HttpServletResponse) response);
+		connectRelay(url, (HttpServletResponse) response);
 	}
 	
-	private void connectRelayqaz(String remoteAddress, HttpServletResponse response) throws IOException {
+	private void connectRelay(String remoteAddress, HttpServletResponse response) throws IOException {
 		// System.out.println("target Address : " + remoteAddress);
 
 		URL url = new URL(remoteAddress);
