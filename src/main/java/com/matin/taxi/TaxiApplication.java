@@ -1,19 +1,10 @@
 package com.matin.taxi;
 
-import java.time.LocalDate;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportRuntimeHints;
-import org.springframework.dao.EmptyResultDataAccessException;
-
-import com.matin.taxi.db.model.*;
-
-
-
 
 @SpringBootApplication
 @ImportRuntimeHints(TaxiRuntimeHints.class)
