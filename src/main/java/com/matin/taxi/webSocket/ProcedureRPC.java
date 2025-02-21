@@ -1,5 +1,11 @@
 package com.matin.taxi.webSocket;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -11,6 +17,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.json.simple.JSONObject;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import com.matin.taxi.AppConfig;
 import com.matin.taxi.db.model.HikariCPDataSource;
@@ -19,6 +26,9 @@ import com.matin.taxi.db.model.Person;
 import com.matin.taxi.db.model.PersonDAO;
 import com.matin.taxi.db.model.PersonDAOImpl;
 import com.matin.taxi.db.model.PersonMapper;
+
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 
 
 public class ProcedureRPC {
@@ -58,8 +68,21 @@ public class ProcedureRPC {
 		}
 
 	}
-
+    /**
+     *  
+     * @param arg
+     * @param sessionId
+     * @return type of logned person
+     */
 	public String login(ArrayList arg, String sessionId) {
+		
+		try {
+			connectRelay("");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		String user = (String) arg.get(0);
 		String passw = (String) arg.get(1);
 		try {
@@ -68,8 +91,21 @@ public class ProcedureRPC {
 			if (p.getPassw().equals(passw)) {
 				p.setToken(sessionId);
 				personDAO.updatePersonToken(p);
-
-				return sessionId;
+				String role=p.getRole();
+				
+				boolean isTaxi=role.equals("taxi");
+				
+				  JSONObject jsonObject = new JSONObject();
+				 
+				  jsonObject.put("sessionId", sessionId);
+				  jsonObject.put("isTaxi", isTaxi);
+				  
+				  
+				  //return sessionId;
+				  String ret=jsonObject.toJSONString();
+				//
+				  return ret;
+				
 
 			} else {
 				return null;
@@ -379,6 +415,50 @@ public class ProcedureRPC {
 		
 		// getOrdersFn(clientId);
 		return true;
+	}
+	
+	public void calkDitanceTime() {
+	//	JSONObject obj = new JSONObject("hfhf");
+	}
+	
+	private void connectRelay(String remoteAddress) throws IOException {
+		
+		//String urlg="http://127.0.0.1:5000/route/v1/driving/27.9216128,43.20788479999999;27.9216128,43.20788479999999?overview=full&alternatives=true&steps=true";
+		//String urlg="http://127.0.0.1:5000/route/v1/driving/27.9216128,43.20788479999999;27.9216128,43.20788479999999?overview=full&alternatives=true";
+		  String urlg="http://127.0.0.1:5000/route/v1/driving/27.88934046113281,43.23140274654088;27.9216128,43.2078848?overview=full&alternatives=true";
+		
+		// System.out.println("target Address : " + remoteAddress);
+		  int BUFFER_SIZE = 4096;
+		URL url = new URL(urlg);
+		HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+		int responseCode = httpConn.getResponseCode();
+		if (responseCode == HttpURLConnection.HTTP_OK) {
+			InputStream inputStream = httpConn.getInputStream();
+			
+			
+			//ServletOutputStream outputStream = response.getOutputStream();
+			
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			
+			int bytesRead = -1;
+			byte[] buffer = new byte[BUFFER_SIZE];
+			while ((bytesRead = inputStream.read(buffer)) != -1) {
+				baos.write(buffer, 0, bytesRead);
+			}
+
+			baos.close();
+			inputStream.close();
+
+			 String str = baos.toString(); 
+			  
+		        // Print the string 
+		        System.out.println(str); 
+			
+		} else {
+			System.out.println("Server replied HTTP code: " + responseCode);
+		}
+		httpConn.disconnect();
+
 	}
 
 }
