@@ -42,17 +42,14 @@ public class SuperCookieFilter implements Filter {
 		String queryString = dd.getQueryString();
 		String url = "http://localhost:8181/search?" + queryString;
 
-		System.out.println("getRequestURL : " + dd.getRequestURL());
-		System.out.println("Remote Host : " + request.getRemoteHost());
-		System.out.println("Remote Address : " + request.getRemoteAddr());
-
+		
 		
 		//chain.doFilter(request, response);
-		//connectRelayqaz(url, (HttpServletResponse) response);
+		//connectRelay(url, (HttpServletResponse) response);
 
 	}
 	
-	private void connectRelayqaz(String remoteAddress, HttpServletResponse response) throws IOException {
+	private void connectRelay(String remoteAddress, HttpServletResponse response) throws IOException {
 		System.out.println("target Address : " + remoteAddress);
 
 		URL url = new URL(remoteAddress);
