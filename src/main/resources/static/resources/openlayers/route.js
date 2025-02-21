@@ -19,7 +19,26 @@ class Route{
 					return txt;
 				}
 	
+				
+								
 	static	getStule(routeFeatureId) {
+		
+		/*
+		const style = new ol.style.Style({
+							  text: new Text({
+							    font: 'bold 11px "Open Sans", "Arial Unicode MS", "sans-serif"',
+							    placement: 'line',
+							    
+							  }),
+							});
+
+return	style;	
+		*/
+		if(routeFeatureId=='routeFeature0')
+				   	 return new ol.style.Style({stroke: new ol.style.Stroke({width: 3, color: [255, 40, 40, 0.8], }), });
+			
+		if(routeFeatureId=='routeFeature1')
+						   	 return new ol.style.Style({stroke: new ol.style.Stroke({width: 3, color: [128, 40, 40, 0.8], }), });
 		
 		if(routeFeatureId=='routeFeature')
 		   	 return new ol.style.Style({stroke: new ol.style.Stroke({width: 3, color: [255, 40, 40, 0.8], }), });
@@ -55,24 +74,60 @@ class Route{
 							//		console.log('Route added'+feature);
 						});
 					}		
+					
+					
+					
+	static removeAllRoute(routeFeature){
+		var f=vectorSource.getFeatures();
+						
+						for (var i = 0; i < f.length; i++) {
+							var dd=f[i];		
+						
+							var routeFeatureId=''+dd.getId(); //cast to string
+							
+							log("fuond rute "+routeFeature)
+							if(routeFeatureId.startsWith(routeFeature)){
+								var routeFeature = vectorSource.getFeatureById(routeFeatureId);
+									if (routeFeature){}
+													vectorSource.removeFeature(routeFeature);
+													log("delete rute "+routeFeature)
+													}
+									}			
+						}
+					
+					
+					
 	static	createRoute(path ,routeFeatureId) {
 		
-		var stule=Route.getStule(routeFeatureId);
+		
 				var extraparams = "?overview=full&alternatives=true&steps=true";  //&hints=;"
 				var urll = 'https://' + hostname + ':8443/route/v1/driving/'
 				const url = urll + path + extraparams;
-
+				
 				log("createRoute url " + url);
 				fetch(url).then(function (r) {
 					return r.json();
 				}).then(function (json) {
 					if (json.code !== 'Ok') {
 						console.log('No route found.');
+						Route.removeAllRoute(routeFeatureId);
 						return;
 					}
 					console.log('Route added');
 					//points.length = 0;
-					var r = Route.createRouteFeature(json.routes[0].geometry,routeFeatureId,stule);
+					
+					Route.removeAllRoute(routeFeatureId);
+					
+			
+					for (var i = 0; i < json.routes.length; i++) {
+						log('json.routes[0].'+json.routes[i].geometry);
+						var stule=Route.getStule(routeFeatureId+i);				
+						var r = Route.createRouteFeaturemt(json.routes[i].geometry,routeFeatureId+i,stule);
+						}
+					
+					
+					
+					//var r = Route.createRouteFeature(json.routes[0].geometry,routeFeatureId,stule);
 					RouteControl.updateRouteInfo(json.routes[0]);
 					// r.setId("ff");
 
@@ -80,6 +135,28 @@ class Route{
 					//		console.log('Route added'+feature);
 				});
 			}
+			
+			static createRouteFeaturemt (polyline,routeFeatureId,routeStyle) {
+									// route is ol.geom.LineString
+									var route = new ol.format.Polyline({
+										factor: 1e5
+									}).readGeometry(polyline, {
+										dataProjection: 'EPSG:4326',
+										featureProjection: 'EPSG:3857'
+									});
+
+									//var routeFeature = vectorSource.getFeatureById(routeFeatureId);
+									//if (routeFeature)
+									//	vectorSource.removeFeature(routeFeature);
+									var feature = new ol.Feature({type: 'route', geometry: route});
+									feature.setId(routeFeatureId)
+									feature.setStyle(routeStyle);
+									vectorSource.addFeature(feature);
+									//	 map.render();
+									return feature;
+								}
+			
+			
 			static createRouteFeature (polyline,routeFeatureId,routeStyle) {
 							// route is ol.geom.LineString
 							var route = new ol.format.Polyline({

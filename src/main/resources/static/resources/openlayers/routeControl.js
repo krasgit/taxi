@@ -197,22 +197,54 @@
 
 				var coord=jsonRoute.coord;
 						
-				tableRuws+='<tr> <td><a href="/owners/1">'+orderState+'</a></td>';
+				
+			
+				
+				
+				var icon
+				
+				switch (orderState) {
+			  			
+					case 0: icon='<i class="fa fa-book" aria-hidden="true"></i>';  break;
+					case 1: icon='<i class="fa fa-hourglass-start" aria-hidden="true"></i>';  break;
+				  case 2: icon='<i class="fa fa-check" aria-hidden="true"></i>';break;
+				  case 3: icon="";break;
+				  default:
+				    
+				}
+
+				
+				
+				
+				tableRuws+='<tr> <td><a href="/owners/1">'+orderState+'</a>'+icon+'</td>';
 				tableRuws+='<td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">';
+				
+				onclick=" RouteControl.loadOrderById('+order.id+')"
+				tableRuws+='<a href="#Foo" onclick="RouteControl.loadOrderById('+order.id+')">';
 				for (var ii = 0; ii < coord.length; ii++) 
 					{
+						
+											
 					var jsonRouteRow = coord[ii];
 						tableRuws+=jsonRouteRow.name;
 						tableRuws+='<br/>';
 					}
+					tableRuws+='</a>'
+					
 				tableRuws+='</td>';
 							
 				tableRuws+='<td> ';
 						if(orderState==0){
-							tableRuws+='<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.deleteOrderById('+order.id+')"> Delete </button> ';
-							tableRuws+='<button type="button" class="btn btn-primary btn-sm" onclick=" RouteControl.loadOrderById('+order.id+')"> Show </button> ';
-							tableRuws+='<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.acceptOrder('+order.id+')"> Accept </button>';
+							tableRuws+='<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.deleteOrderById('+order.id+')"> 							<i class="fa fa-trash" aria-hidden="true"></i> </button> ';//Delete
+							//tableRuws+='<button type="button" class="btn btn-primary btn-sm" onclick=" RouteControl.loadOrderById('+order.id+')"> Show </button> ';
+							tableRuws+='<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.acceptOrder('+order.id+')"> 							<i class="fa fa-sign-in" aria-hidden="true"></i> </button>';//Accept
 							}
+							if(orderState==1){
+								//eval(" RouteControl.loadOrderById('"+order.id+"')");
+								//tableRuws+='<button type="button" class="btn btn-primary btn-sm" onclick=" RouteControl.loadOrderById('+order.id+')"> Show </button> ';
+							}
+
+					
 							
 							
 				tableRuws+=	'</td>';
@@ -285,7 +317,7 @@
 					log(coordinates[0]+' '+ coordinates[1] );
                     log(feature);								
 					}
-				
+					Route.removeAllRoute('routeFeature');	
 			if(count>=2)
 			{
 				Route.createRoute(path,'routeFeature');
@@ -337,7 +369,12 @@
 		static logIn(){
 			var user =Cookie.getCookie("user") ;
 			const logoutButton = document.getElementById('log-out-button');
-			logoutButton.innerHTML = 'logout:'+user;
+			var buttonContent="logout:"+user;
+			
+			if(Cookie.getCookie("isTaxi")=='true')
+			 buttonContent+='<i class="fa fa-taxi" style="font-size:12px"></i>';
+			
+			logoutButton.innerHTML = buttonContent;
 			logoutButton.setAttribute('onclick', 'RouteControl.logOut();');
 			
 			RouteControl.loadOrders();
@@ -423,6 +460,20 @@
 			
 		}
 
+		
+		static test(){
+			var f=vectorSource.getFeatures();
+								
+								for (var i = 0; i < f.length; i++) {
+									var dd=f[i];		
+								
+									var routeFeatureId=''+dd.getId(); //cast to string
+									
+									log("fuond rute "+routeFeatureId)
+										
+						}	 
+}
+		
 		static createContainer(options) {
 
 			const mode =options.mode;
@@ -463,7 +514,14 @@
 				{			
 					var user =Cookie.getCookie("user") ;
 					logoutButton.setAttribute('onclick', 'RouteControl.logOut();');
-					logoutButton.innerHTML = 'logout:'+user;
+					
+					var buttonContent="logout:"+user;
+					const isTaxi=Cookie.getCookie("isTaxi");
+						if(isTaxi=='true')
+								 buttonContent+='<i class="fa fa-taxi" style="font-size:12px"></i>';
+					
+					
+					logoutButton.innerHTML = buttonContent;
 				}
 				else
 				{
@@ -515,13 +573,18 @@
 			createOrder.innerHTML = 'CreateOrder';
 			node_20.appendChild(createOrder);
 
+			
+			
+			
 			var loadOrder = document.createElement('BUTTON');
 				loadOrder.setAttribute('type', 'button');
 				loadOrder.setAttribute('class', 'btn btn-primary btn-sm');
-				loadOrder.setAttribute('onclick', 'RouteControl.loadOrder()');
-				loadOrder.innerHTML = 'loadOrder';
+				loadOrder.setAttribute('onclick', 'RouteControl.test()');
+				loadOrder.innerHTML = 'test';
 				node_20.appendChild(loadOrder);
 			
+			
+				
 			var node_22 = document.createElement('SPAN');
 			node_22.setAttribute('class', 'refAdd');
 			node_21.appendChild(node_22);
