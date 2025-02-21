@@ -228,15 +228,36 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 	 * @param sendFrom
 	 * @param sendTo
 	 * @param postion
+	 * @throws Exception 
 	 */
-	public void handleUpdatePostion(Person sendFrom, List<Person> sendTo, Object postion) {
+	public void handleUpdatePostion(Person sendFrom, List<Person> sendTo, Object postion)  {
 
 		ResultMessage resultMessage = new ResultMessage("handleUpdatePostion", postion, sendFrom.getName());
+		TextMessage message = null;
+		try {
+			message = new TextMessage(Utils.getString(resultMessage));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
+		//self
+		
+		try {
+			WebSocketSession webSocket = connectedUsers.get(sendFrom.getToken());
+			webSocket.sendMessage(message);
+		} catch (Exception e) {
+			LOG.warn("Error while message sending.", e);
+		}
+		
+		
 		for (Person p : sendTo) {
 			WebSocketSession webSocket = connectedUsers.get(p.getToken());
 			try {
-				webSocket.sendMessage(new TextMessage(Utils.getString(resultMessage)));
+				if(webSocket!=null)
+				   webSocket.sendMessage(message);
+				else 
+					LOG.error("null webSocket");
 			} catch (Exception e) {
 				LOG.warn("Error while message sending.", e);
 			}
