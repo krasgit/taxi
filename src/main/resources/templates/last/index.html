@@ -15,8 +15,10 @@
 	<!--
 	<link rel="stylesheet" href="/resources/openlayers/w3.css"    />
 				 
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	
 	-->
+	
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<script src="/resources/openlayers/ol-debug.js"></script>
 
 	
@@ -180,7 +182,7 @@
 	
 	initGeo(); //depends of map
 	
-	
+	/*
 	function create()
 	{
 		var node_1 = document.createElement('DIV');
@@ -204,14 +206,15 @@
 	
 	var dblcontainer =create();
 	
-	var dbloverlay = new ol.Overlay(/** @type {olx.OverlayOptions} */ ({
+	var dbloverlay = new ol.Overlay( ({
 	  element: dblcontainer,
 	  autoPan: true,
 	  autoPanAnimation: {
 	    duration: 250
 	  }
 	}));	
-	
+	*/
+	/*
 	map.addOverlay(dbloverlay);
 
 	dbloverlay.on('change:position', function(evt) {
@@ -220,16 +223,17 @@
 	  var position=[centerX,0];
 	  this.setOffset(position);
 	});
-	
+	*/
+	/*
 	map.on('dblclick', function(evt) {
 	  var coordinate = evt.coordinate;
 	  
 	  var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(
 	      coordinate, 'EPSG:3857', 'EPSG:4326'));
-	  //node_1.innerHTML = '<p>Original popup (Double click)</p><code>' + hdms +	      '</code>';
+	  node_1.innerHTML = '<p>Original popup (Double click)</p><code>' + hdms +	      '</code>';
 	  dbloverlay.setPosition(coordinate);
 	});
-		
+		*/
 	}
 	
 //-----------------------------------------------------------------------------
@@ -283,6 +287,13 @@
 	}
 
 	function callbackSetInputElVal(el, value) {
+		
+		if(value === undefined){
+			log("value is undefined ");
+			return ;
+		}
+		
+		
 		el.value = value;
 	}
 
@@ -307,8 +318,11 @@
 			
 			*/
 			
-				
-			const building = address.building || 'N/A';
+			if(address === undefined)
+			 return "";		
+			
+			 
+			 const building = address.building || 'N/A';
 			
 				
 			
