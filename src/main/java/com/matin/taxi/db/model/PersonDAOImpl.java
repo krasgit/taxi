@@ -293,7 +293,16 @@ public class PersonDAOImpl implements PersonDAO {
 	public Person getPersonByToken(String token) {
 		String sql= "select * from person where token = ?";
 		
-		return jdbcTemplate.queryForObject(sql, new Object[] { token }, new PersonMapper());
+		
+		
+		try {
+			return jdbcTemplate.queryForObject(sql, new Object[] { token }, new PersonMapper());
+		}catch (Exception e)
+		{
+			return null;
+		}
+		
+		
 	}
 	
 	

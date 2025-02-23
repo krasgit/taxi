@@ -84,13 +84,11 @@ return	style;
 							var dd=f[i];		
 						
 							var routeFeatureId=''+dd.getId(); //cast to string
-							
-							log("fuond rute "+routeFeature)
 							if(routeFeatureId.startsWith(routeFeature)){
 								var routeFeature = vectorSource.getFeatureById(routeFeatureId);
 									if (routeFeature){}
 													vectorSource.removeFeature(routeFeature);
-													log("delete rute "+routeFeature)
+													//log("delete rute "+routeFeature)
 													}
 									}			
 						}

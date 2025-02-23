@@ -41,6 +41,26 @@ public class ProcedureRPC {
 		this.context = new AnnotationConfigApplicationContext(AppConfig.class);
 	}
 
+	
+	public boolean reconnect(String user ,String token,String sessionId) {
+		try {
+			Person ret = personDAO.getLognned(user, token);
+
+			if (ret == null) {
+				return false;
+			} else {
+				if (!sessionId.equals(token)) {
+					ret.setToken(sessionId);
+					personDAO.updatePerson(ret);
+
+				}
+				return true;
+			}
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
 	public String isLognned(ArrayList arg, String sessionId) {
 		String user = (String) arg.get(0);
 		String token = (String) arg.get(1);
@@ -156,7 +176,7 @@ public class ProcedureRPC {
 		Integer id = (Integer) arg.get(0);
 
 		Person person = personDAO.getPersonByToken(sessionId);
-
+        
 		Long personId = person.getId();
 
 		Orders order = personDAO.getOrderById(id.longValue());

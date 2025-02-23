@@ -59,7 +59,7 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
     		            	 updateInfo.setType("UpdateInfo");
     		            	 updateInfo.setSender("app");
     		            	 
-    		            	 updateInfo.setData(getCurrentDateTime()+" connected Users("+connectedUsers.size()+")");
+    		            	 updateInfo.setData(getCurrentDateTime()+" online "+connectedUsers.size());
     		            	// LOG.info(updateInfo.toString())  ;  	 
     		                 webSocketSession.sendMessage(new TextMessage(Utils.getString(updateInfo)));
     		             } catch (Exception e) {

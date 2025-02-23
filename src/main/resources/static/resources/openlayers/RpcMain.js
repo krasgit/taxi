@@ -8,7 +8,11 @@ export const remoteProcedures = new RemoteProcedures();
 const PORT = 8443;
 const MAPPING = "/rpc";
 
-await remoteProcedures.open('wss://' + window.location.hostname + ':' + PORT + MAPPING);
+const url='wss://' + window.location.hostname + ':' + PORT + MAPPING;
+
+remoteProcedures.reconnectURL=url;
+
+await remoteProcedures.open(url);
 /*
 const input = document.querySelector("#input");
 const multiplyButton = document.querySelector("#multiply-button");

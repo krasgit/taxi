@@ -10,9 +10,13 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.matin.taxi.db.model.Orders;
 import com.matin.taxi.db.model.Person;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,15 +32,42 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 	 */
 	private final Map<String, WebSocketSession> connectedUsers = new HashMap<>();
 
+	public static Map<String, String> splitQuery(String query) throws UnsupportedEncodingException {
+	    Map<String, String> query_pairs = new LinkedHashMap<String, String>();
+	    
+	    String[] pairs = query.split("&");
+	    for (String pair : pairs) {
+	        int idx = pair.indexOf("=");
+	        query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+	    }
+	    return query_pairs;
+	}
+	
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		LOG.info("[" + session.getId() + "] Connection established " + session.getId());
-
+		String query = session.getUri().getQuery();
+		
+		boolean update=false;
+		if(query!=null) {
+		Map<String, String> s = splitQuery(query);
+		
+		
+		update=pro.reconnect(s.get("user"), s.get("token"), session.getId());
+		
+		
+		}
 		// send the message to all other peers, that new men its being registered
 		final SignalMessage newMenOnBoard = new SignalMessage();
-		newMenOnBoard.setType("session");
+		
+		if(update)
+				newMenOnBoard.setType("sessionUpdate");
+			else 
+				newMenOnBoard.setType("session");
+		
 		newMenOnBoard.setSender(session.getId());
 
+		
 		session.sendMessage(new TextMessage(Utils.getString(newMenOnBoard)));
 
 		newMenOnBoard.setType(TYPE_INIT);
@@ -108,6 +139,9 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 
 		String sessionId = session.getId();
+		
+		String dd = session.getUri().getQuery();
+		
 		LOG.info("SignalingSocketHandlerRPC::handleTextMessage sessionID " + sessionId + " : {}", message.getPayload());
 
 		String payload = message.getPayload();
@@ -132,9 +166,9 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 			error = e.getMessage();
 		}
 
-		ResultMessage resultMessage = new ResultMessage(request.getId(), result, error);
+		ResultMessage resultmessage = new ResultMessage(request.getId(), result, error);
 
-		final String resendingMessage = Utils.getString(resultMessage);
+		final String resendingMessage = Utils.getString(resultmessage);
 
 		session.sendMessage(new TextMessage(resendingMessage));
 
@@ -185,7 +219,7 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 		ResultMessage resultMessage = new ResultMessage(null, "RouteControl.loadOrders();TaxiControl.loadOrders();",
 				null);
 
-		String resendingMessage;
+		
 		connectedUsers.values().forEach(webSocket -> {
 			try {
 				webSocket.sendMessage(new TextMessage(Utils.getString(resultMessage)));
@@ -245,6 +279,11 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 		
 		try {
 			WebSocketSession webSocket = connectedUsers.get(sendFrom.getToken());
+			if (webSocket == null) {
+				LOG.error("Missing Connection  " + sendFrom.getToken());
+				return;
+			}
+			
 			webSocket.sendMessage(message);
 		} catch (Exception e) {
 			LOG.warn("Error while message sending.", e);
@@ -283,7 +322,11 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 		for (Person p : sendTo) {
 			WebSocketSession webSocket = connectedUsers.get(p.getToken());
 			try {
-				webSocket.sendMessage(new TextMessage(Utils.getString(resultMessage)));
+				
+				if(webSocket!=null)
+					   webSocket.sendMessage(new TextMessage(Utils.getString(resultMessage)));
+					else 
+						LOG.error("null webSocket");
 			} catch (Exception e) {
 				LOG.warn("Error while message sending.", e);
 			}

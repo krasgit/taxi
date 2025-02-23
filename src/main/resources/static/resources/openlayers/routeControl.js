@@ -1,6 +1,6 @@
 //RouteControl------------------------------------------------	  
 	class RouteControl extends ol.control.Control {
-
+		role;
 		constructor( opt_options) {
 			const options = opt_options || {};
 
@@ -12,6 +12,77 @@
 			super({element: container, target: options.target, });
 		}
 
+		
+		static get() {
+			var LonLat = [0, 0];
+						var feature = RouteControl._createFeature(LonLat);
+						var node_11 = RouteControl.autoCompleteBtnf(feature, '');
+						
+						return node_11;
+		}
+		static autoCompleteBtnf(feature, value) {
+
+					var featureId = feature.getId();
+
+					var node_11 = document.createElement('DIV');
+
+					node_11.reature
+					node_11.setAttribute('class', 'input-group mb-1 mt-1');
+
+					node_11.setAttribute('id', "inputGroupfeatureId" + featureId);
+					node_11.feature = feature;
+					node_11.featureId = featureId;
+					/*
+					var node_12 = document.createElement('SPAN');
+					node_12.setAttribute('class', 'input-group-text');
+					node_12.setAttribute('style', 'display:none1');
+					node_11.appendChild(node_12);
+
+					
+					var node_13 = document.createElement('IMG');
+					node_13.setAttribute('src', 'data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==');
+					node_13.setAttribute('alt', 'Red dot');
+					node_12.appendChild(node_13);
+		            */
+					var node_14 = document.createElement('INPUT');
+					node_14.setAttribute('type', 'text');
+					node_14.setAttribute('class', 'form-control');
+					node_14.setAttribute('style', 'min-width: 320px');
+					node_14.setAttribute('id', "bnt" + featureId);
+					node_14.setAttribute('featureId', featureId);
+
+					//node_14.setAttribute('placeholder', value);
+					
+					if( !(!value || value.length === 0 ))
+						node_14.value=value;
+
+					node_11.appendChild(node_14);
+
+					autocomplete(node_14);
+
+					/*
+					var node_15 = document.createElement('BUTTON');
+					node_15.setAttribute('type', 'button');
+					node_15.setAttribute('class', ' btn btn-primary btn-sm');
+					node_11.appendChild(node_15);
+
+					var node_16 = document.createElement('IMG');
+					node_16.setAttribute('class', 'geolocation_marker');
+					node_15.appendChild(node_16);
+					*/
+					var node_17 = document.createElement('BUTTON');
+					node_17.setAttribute('type', 'button');
+					node_17.setAttribute('class', 'btn btn-primary btn-sm');
+					node_17.setAttribute('onclick', 'RouteControl.delete(' + featureId + ')');
+					node_11.appendChild(node_17);
+
+					var node_18 = document.createElement('I');
+					node_18.setAttribute('class', 'fa fa-trash');
+					node_17.appendChild(node_18);
+					return node_11;
+				}
+		
+		
 		init() {
 			const cWaypoint = document.getElementById('Waypoint');
 			var LonLat = [0, 0];
@@ -366,19 +437,7 @@
 		}
 
 		
-		static logIn(){
-			var user =Cookie.getCookie("user") ;
-			const logoutButton = document.getElementById('log-out-button');
-			var buttonContent="logout:"+user;
-			
-			if(Cookie.getCookie("isTaxi")=='true')
-			 buttonContent+='<i class="fa fa-taxi" style="font-size:12px"></i>';
-			
-			logoutButton.innerHTML = buttonContent;
-			logoutButton.setAttribute('onclick', 'RouteControl.logOut();');
-			
-			RouteControl.loadOrders();
-		}
+	
 		
 		static logOut(){
 			var user =Cookie.getCookie("user") ;
@@ -474,6 +533,38 @@
 						}	 
 }
 		
+
+		static role(role) {
+			log(role);
+       }
+		
+	   
+	   
+	   static logIn(){
+	   		var user =Cookie.getCookie("user") ;
+	   		const logoutButton = document.getElementById('log-out-button');
+	   		var buttonContent="logout:"+user;
+	   		
+	   		if(Cookie.getCookie("isTaxi")=='true')
+	   		 buttonContent+='<i class="fa fa-taxi" style="font-size:12px"></i>';
+	   		
+	   		logoutButton.innerHTML = buttonContent;
+	   		logoutButton.setAttribute('onclick', 'RouteControl.logOut();');
+	   		
+	   		
+	   		const role = document.getElementById('role');
+			if(Cookie.getCookie("isTaxi")=='true')
+							role.innerHTML='<a href="#Foo" onclick="RouteControl.role(false)">taxi</a>';
+							else
+							role.innerHTML='<a href="#Foo" onclick="RouteControl.role(true)">qaz</a>';
+	   		
+	   		
+	   		RouteControl.loadOrders();
+	   	}
+	   
+	   
+	   
+	   
 		static createContainer(options) {
 
 			const mode =options.mode;
@@ -494,10 +585,25 @@
 			node_3.setAttribute('class', 'd-flex justify-content-between ');
 			node_2.appendChild(node_3);
 
+			var connectionState = document.createElement('SPAN');
+						connectionState.setAttribute('id','connectionState');
+						connectionState.setAttribute('class', 'fa');
+						
+						connectionState.innerHTML = "&#xf0c1;";
+						node_3.appendChild(connectionState);
+			
+			
+			
 			var node_4 = document.createElement('DIV');
 			node_4.setAttribute('class', '');
 			node_3.appendChild(node_4);
 
+			
+			//
+			
+			//
+			
+			
 			var node_5 = document.createElement('SPAN');
 			//node_5.setAttribute('class', 'ref1');
 			node_4.appendChild(node_5);
@@ -525,7 +631,7 @@
 				}
 				else
 				{
-				logoutButton.innerHTML = 'guest';
+				logoutButton.innerHTML = '<a href="#Foo" onclick="LoginControl.visible(true);">login</a>';
 				}
 			node_5.appendChild(logoutButton);	
 			
@@ -543,7 +649,14 @@
 			node_3.appendChild(node_8);
 
 			var node_9 = document.createElement('SPAN');
-			node_9.setAttribute('class', 'refX');
+			node_9.setAttribute('id','role');
+			//node_9.setAttribute('class', 'refX');
+			/*
+			if(Cookie.getCookie("isTaxi")=='true')
+				node_9.innerHTML='';
+				else
+				node_9.innerHTML='<a href="#Foo" onclick="RouteControl.role('+'role'+')">qaz</a>';
+			*/	
 			node_8.appendChild(node_9);
 
 			var node_10 = document.createElement('DIV');
@@ -635,17 +748,18 @@
 			node_11.setAttribute('id', "inputGroupfeatureId" + featureId);
 			node_11.feature = feature;
 			node_11.featureId = featureId;
-			
+			/*
 			var node_12 = document.createElement('SPAN');
 			node_12.setAttribute('class', 'input-group-text');
 			node_12.setAttribute('style', 'display:none1');
 			node_11.appendChild(node_12);
 
+			
 			var node_13 = document.createElement('IMG');
 			node_13.setAttribute('src', 'data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==');
 			node_13.setAttribute('alt', 'Red dot');
 			node_12.appendChild(node_13);
-
+            */
 			var node_14 = document.createElement('INPUT');
 			node_14.setAttribute('type', 'text');
 			node_14.setAttribute('class', 'form-control');
@@ -662,6 +776,7 @@
 
 			autocomplete(node_14);
 
+			/*
 			var node_15 = document.createElement('BUTTON');
 			node_15.setAttribute('type', 'button');
 			node_15.setAttribute('class', ' btn btn-primary btn-sm');
@@ -670,7 +785,7 @@
 			var node_16 = document.createElement('IMG');
 			node_16.setAttribute('class', 'geolocation_marker');
 			node_15.appendChild(node_16);
-
+			*/
 			var node_17 = document.createElement('BUTTON');
 			node_17.setAttribute('type', 'button');
 			node_17.setAttribute('class', 'btn btn-primary btn-sm');

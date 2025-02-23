@@ -7,25 +7,47 @@ class LoginControl extends ol.control.Control {
   //container;
   
   constructor(opt_options) {
+	
+	
+	
     const options = opt_options || {};
 
 		
 			var container = LoginControl.createContainer(options);
 			super({element: container, target: options.target, });
 			
-			//this.container=container;
+			this._count=0;
+				
+				Object.defineProperty(this, "test", {
+				  value: 42,
+				  writable: false,
+				  enumerable:false,
+				});
   }
 
-  
+  set count(value)
+  {
+	this._count=value;
+  }
+  get count(){
+	return this._count;
+  }
+  static exp(){
+	var dd=RouteControl.get();
+	const cWaypoint = document.getElementById('userName');
+	cWaypoint.appendChild(dd);
+  }
   
   static getLoginControlContent()
     {
   	let loginContent = '<div class="ccontainer"> \n \
   	    <div class="card" id="log-in-card">\n \
-  	      <header class="card-header"><h1 class="card-header-title">Log In</h1></header>\n \
-  	      <div class="card-content">\n \
+  	      <header class="card-header"><h1 class="card-header-title" style="padding: 0.1rem;">Log In</h1><h1 class="card-header-title" style="padding: 0.1rem;">\n \
+		   <a href="#Foo" onclick="LoginControl.exp()" >route</a></h1>\n \
+		 </header>\n \
+  	      <div class="card-content" style="padding: 0.3rem;">\n \
   	        <div class="content">\n \
-  	          <div class="field">\n \
+  	          <div id="userName" class="field">\n \
   	            <label class="label">Username</label>\n \
   	            <div class="control">\n \
   	              <input id="username" class="input" type="email" placeholder="user@example.com">\n \
@@ -40,8 +62,8 @@ class LoginControl extends ol.control.Control {
   	          <p style="text-align: right;"><a href="#" id="open-userinfo">Forgot your password?</a></p>\n \
   	        </div>\n \
   	      </div>\n \
-  	      <footer class="card-footer">\n \
-  	        <div class="card-footer-item">\n \
+  	      <footer class="card-footer" style="padding: 0.3rem;">\n \
+  	        <div class="card-footer-item" style="padding: 0.2rem;">\n \
   				<a href="#" onclick="LoginControl.logIn();" class="button is-primary" id="log-in-button">Log In</a>\n \
   				&nbsp;\n \
   				<a href="#" onclick="LoginControl.PrincipalRegistration();" class="button is-primary" id="log-in-button">Registration</a>\n \
@@ -101,8 +123,11 @@ class LoginControl extends ol.control.Control {
 	static visible(mode)
 	{
 		var container=document.getElementById('LoginControlContainer');
-		if(mode)
-			container.setAttribute('style', ' background-color: lightblue; min-width: 350;position: absolute; right : 0em; bottom : 0em ');
+		if(mode){
+			
+			container.setAttribute('style', ' background-color: lightblue; min-width: 350;position: absolute; right : 0em; top : 0em');
+			//container.setAttribute('style', ' background-color: lightblue; min-width: 350;position: absolute; right : 0em; bottom : 0em ');
+			}
 		else 
 			container.setAttribute('style', 'style="display: none" ');
 	}
