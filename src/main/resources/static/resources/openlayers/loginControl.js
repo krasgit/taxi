@@ -4,25 +4,38 @@ class LoginControl extends ol.control.Control {
    * @param {Object} [opt_options] Control options.
    */
   
+  static routeControl = null;
+  _count;
   //container;
   
   constructor(opt_options) {
 	
-	
-	
     const options = opt_options || {};
-
 		
 			var container = LoginControl.createContainer(options);
 			super({element: container, target: options.target, });
 			
-			this._count=0;
-				
+			this._count=container;
+				/*
 				Object.defineProperty(this, "test", {
 				  value: 42,
 				  writable: false,
 				  enumerable:false,
 				});
+				*/
+				/*
+				Object.defineProperty(this, "conteiner", {
+								  value: container,
+								  writable: true,
+								  enumerable:true,
+								});
+								
+								*/
+					//			LoginControl.curretActivePage="hgffgh";
+					
+				LoginControl.routeControl=new RouteControl();	
+							
+								
   }
 
   set count(value)
@@ -38,46 +51,47 @@ class LoginControl extends ol.control.Control {
 	cWaypoint.appendChild(dd);
   }
   
-  static getLoginControlContent()
-    {
-  	let loginContent = '<div class="ccontainer"> \n \
-  	    <div class="card" id="log-in-card">\n \
-  	      <header class="card-header"><h1 class="card-header-title" style="padding: 0.1rem;">Log In</h1><h1 class="card-header-title" style="padding: 0.1rem;">\n \
-		   <a href="#Foo" onclick="LoginControl.exp()" >route</a></h1>\n \
-		 </header>\n \
-  	      <div class="card-content" style="padding: 0.3rem;">\n \
-  	        <div class="content">\n \
-  	          <div id="userName" class="field">\n \
-  	            <label class="label">Username</label>\n \
-  	            <div class="control">\n \
-  	              <input id="username" class="input" type="email" placeholder="user@example.com">\n \
-  	            </div>\n \
-  	          </div>        \n \
-  	          <div class="field">\n \
-  	            <label class="label">Password</label>\n \
-  	            <div class="control">\n \
-  	              <input id="password" class="input" type="password">\n \
-  	            </div>\n \
-  	          </div>\n \
-  	          <p style="text-align: right;"><a href="#" id="open-userinfo">Forgot your password?</a></p>\n \
-  	        </div>\n \
-  	      </div>\n \
-  	      <footer class="card-footer" style="padding: 0.3rem;">\n \
-  	        <div class="card-footer-item" style="padding: 0.2rem;">\n \
-  				<a href="#" onclick="LoginControl.logIn();" class="button is-primary" id="log-in-button">Log In</a>\n \
-  				&nbsp;\n \
-  				<a href="#" onclick="LoginControl.PrincipalRegistration();" class="button is-primary" id="log-in-button">Registration</a>\n \
-  			</div>\n \
-  	      </footer>\n \
-  	    </div>\n \
-  	  </div>';
-   return loginContent;
-    }
-  
+  static  maximize(){
 	
-	static logIn() {
+  }
+  
+  static  showrouteControl(logned)
+  {
+	
+	
+	const logoutButton = document.getElementById('buttonContent');
+	
+	if(logned)
+				{			
+					var user =Cookie.getCookie("user") ;
+					logoutButton.setAttribute('onclick', 'RouteControl.logOut();');
+					
+					var buttonContent="logout:"+user;
+					const isTaxi=Cookie.getCookie("isTaxi");
+						if(isTaxi=='true')
+								 buttonContent+='<i class="fa fa-taxi" style="font-size:12px"></i>';
+					
+					
+					logoutButton.innerHTML = buttonContent;
+				}
+				else
+				{
+				logoutButton.innerHTML = '<a href="#Foo" onclick="LoginControl.visible(true);">login</a>';
+	}
+	
+	
+	const container = document.getElementById('LoginControlContainer');
+	var rc = new RouteControl({mode:true});
+	var routeContainer=	RouteControl.createContainerEx({mode:logned})
+	
+	container.innerHTML=routeContainer;
+	   //container.appendChild(routeContainer);
+	   rc.init();
+   return;
+  }
+    
+static logIn() {
 		
-
 		var username=document.getElementById('username').value;
 		var password=document.getElementById('password').value;
 
@@ -95,20 +109,14 @@ class LoginControl extends ol.control.Control {
 					Cookie.setCookie("user",username);
 					Cookie.setCookie("token",result.sessionId);
 					Cookie.setCookie("isTaxi",result.isTaxi);
-					LoginControl.visible(false);
-					TaxiControl.visible(true);
-					RouteControl.logIn();
+					
+					LoginControl.showrouteControl(true);
+					
 				   }
 				   });
-				   
-				
-		
-		
-	
-	//log("log In ");
-	}
+}
 
-	static PrincipalRegistration() {
+static PrincipalRegistration() {
 		
 		var username=document.getElementById('username').value;
 		var password=document.getElementById('password').value;
@@ -120,34 +128,85 @@ class LoginControl extends ol.control.Control {
 	}
 
 	
-	static visible(mode)
+static visible(mode)
 	{
-		var container=document.getElementById('LoginControlContainer');
-		if(mode){
+		const container = document.getElementById('LoginControlContainer');
 			
-			container.setAttribute('style', ' background-color: lightblue; min-width: 350;position: absolute; right : 0em; top : 0em');
-			//container.setAttribute('style', ' background-color: lightblue; min-width: 350;position: absolute; right : 0em; bottom : 0em ');
-			}
-		else 
-			container.setAttribute('style', 'style="display: none" ');
+			
+				
+			var login=	LoginControl.getLoginForm();
+				
+			container.innerHTML=login;
+	
 	}
 	
-  static createContainer(options) {
+static createContainer(options) {
 		var node_1 = document.createElement('DIV');
  			node_1.setAttribute('name', 'LoginControlContainer');
-  			node_1.setAttribute('id', 'LoginControlContainer');
+  			node_1.setAttribute('id', '');
   			node_1.setAttribute('class', '     border w3-border-red  ');
-  			node_1.setAttribute('style', ' background-color: lightblue; min-width: 350;position: absolute; right : 0em; bottom : 0em ');
+  			//node_1.setAttribute('style', ' background-color: lightblue; min-width: 350;position: absolute; right : 0em; bottom : 0em ');
+			node_1.setAttribute('style', ' background-color: lightblue; min-width: 350;position: absolute; right : 0em; top : 0em ');
 
-  		
-		var node_10 = document.createElement('DIV');
-  			node_10.setAttribute('name', 'Waypoint');
-  			node_10.setAttribute('id', 'Waypoint');
-  			node_1.appendChild(node_10);
-  			
-  			LoginControl.getLoginControlContent();
-  				node_10.innerHTML=LoginControl.getLoginControlContent();
+						node_1.innerHTML=LoginControl.getLoginControlContent();
   		return node_1;
   		}
  
+static getLoginControlContent(){
+		
+		//var form=LoginControl.getLoginForm();
+		
+	let loginContent = `
+	<div class="ccontainer">
+		<div class="card" id="log-in-card">
+			<header class="card-header">
+			
+			<h1 id="connectionState" class="card-header-title" style="padding: 0.1rem;"></h1>
+			<h1 id="buttonContent" class="card-header-title" style="padding: 0.1rem;">Log In</h1>
+			<h1 id="routeUpdateInfo" class="card-header-title" style="padding: 0.1rem;"></h1>
+				
+			</header>
+			
+			<div id="LoginControlContainer" ><div>
+			 
+		
+			</div>
+		   </div>`;
+			  
+		   return loginContent;
+		    }
+
+			
+			
+	static getLoginForm(){
+	var lc=`
+		<div class="card-content" style="padding: 0.3rem;">
+			<div class="content">
+				<div id="userName" class="field">
+					<label class="label">Username</label>
+			      		<div class="control">
+							<input id="username" class="input" type="email" placeholder="user@example.com">
+						</div>
+				</div>  
+				<div class="field">
+					<label class="label">Password</label>
+						<div class="control">
+							<input id="password" class="input" type="password">
+					    </div>
+				</div>
+			
+					<p style="text-align: right;"><a href="#" id="open-userinfo">Forgot your password?</a></p>
+			</div>
+		</div>
+		
+		<footer class="card-footer" style="padding: 0.3rem;">
+			<div class="card-footer-item" style="padding: 0.2rem;">
+				<a href="#" onclick="LoginControl.logIn();" class="button is-primary" id="log-in-button">Log In</a>
+				&nbsp;
+				<a href="#" onclick="LoginControl.PrincipalRegistration();" class="button is-primary" id="log-in-button">Registration</a>
+			</div>
+		</footer>`;		  
+	return lc;
+	}
+			
 }

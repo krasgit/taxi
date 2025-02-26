@@ -146,20 +146,21 @@
 		view: view,
 	});
 
-	var rc = new RouteControl({mode:mode});
+	//var rc = new RouteControl({mode:mode});
 
-	map.addControl(rc);
-	rc.init();
+	//map.addControl(rc);
+	//rc.init();
 	
-	var  lcc= new LoginControl();
+	var  lcc= new LoginControl({mode:mode});
 		map.addControl(lcc);
-		LoginControl.visible(false);
+		//LoginControl.visible(false);
 	
-	var tc = new TaxiControl();
+		LoginControl.showrouteControl(mode);
+	//var tc = new TaxiControl();
 
-	map.addControl(tc);
-	TaxiControl.visible(mode);
-	tc.init();
+	//map.addControl(tc);
+	//TaxiControl.visible(mode);
+	//tc.init();
 	
 	
 	var sc = new SuperCookie();

@@ -1,15 +1,15 @@
 //RouteControl------------------------------------------------	  
-	class RouteControl extends ol.control.Control {
+	class RouteControl  {
 		role;
 		constructor( opt_options) {
 			const options = opt_options || {};
 
 		
-			var container = RouteControl.createContainer(options);
+		//	var container = RouteControl.createContainer(options);
 			
-			RouteControl.loadOrders();//todo
+		//	RouteControl.loadOrders();//todo
 			
-			super({element: container, target: options.target, });
+		//	super({element: container, target: options.target, });
 		}
 
 		
@@ -573,7 +573,7 @@
 			node_1.setAttribute('name', 'RouteControl');
 			node_1.setAttribute('id', 'control');
 			node_1.setAttribute('class', '     border w3-border-red  ');
-			node_1.setAttribute('style', ' background-color: lightblue; min-width: 400;position: absolute; right : 0em; top : 0em ');
+		//	node_1.setAttribute('style', ' background-color: lightblue; min-width: 400;position: absolute; right : 0em; top : 0em ');
 
 			var node_2 = document.createElement('DIV');
 			node_2.setAttribute('name', 'header');
@@ -736,6 +736,16 @@
 		return node_1;
 		}
 
+		
+		//todo move
+		static createElementFromHTML(htmlString) {
+		  var div = document.createElement('div');
+		  div.innerHTML = htmlString.trim();
+
+		  // Change this to div.childNodes to support multiple top-level nodes.
+		  return div.firstChild;
+		}
+		
 		static autoCompleteBtn(feature, value) {
 
 			var featureId = feature.getId();
@@ -776,25 +786,57 @@
 
 			autocomplete(node_14);
 
-			/*
-			var node_15 = document.createElement('BUTTON');
-			node_15.setAttribute('type', 'button');
-			node_15.setAttribute('class', ' btn btn-primary btn-sm');
-			node_11.appendChild(node_15);
+			var deleteBtn =`<a onclick="RouteControl.delete(${featureId})" class="button is-primary" id=""><i class='fa fa-trash'></i></a>`
+			
+			node_11.appendChild(RouteControl.createElementFromHTML(deleteBtn));
 
-			var node_16 = document.createElement('IMG');
-			node_16.setAttribute('class', 'geolocation_marker');
-			node_15.appendChild(node_16);
-			*/
-			var node_17 = document.createElement('BUTTON');
-			node_17.setAttribute('type', 'button');
-			node_17.setAttribute('class', 'btn btn-primary btn-sm');
-			node_17.setAttribute('onclick', 'RouteControl.delete(' + featureId + ')');
-			node_11.appendChild(node_17);
-
-			var node_18 = document.createElement('I');
-			node_18.setAttribute('class', 'fa fa-trash');
-			node_17.appendChild(node_18);
 			return node_11;
 		}
+		
+		
+		static createContainerEx(options) {
+
+			const mode =options.mode;
+
+					
+					var footer=`<footer class="card-footer" style="padding: 0.3rem;">
+										<div class="card-footer-item" style="padding: 0.2rem;">
+										<a href="#" onclick="RouteControl.add();"         class="button is-primary" id="r-in-button">	  
+														<i class="fa fa-plus" aria-hidden="true"></i>
+													</a>
+											&nbsp;
+											  		<a href="#" onclick="RouteControl.createOrder();" class="button is-primary" id="log-in-button">CreateOrder</a>
+											
+											<span id="refDistance" class="f_refDistance"></span>
+										</div>
+									</footer>`;				
+					
+var lc=`
+<div>			      
+  <div>
+    <div name="Waypoint" id="Waypoint"></div>
+      ${footer}
+       </div>
+</div>`;									
+						/**			
+			let header = `
+			<div class="ccontainer">
+				<div class="card" id="log-in-card">
+					<header class="card-header">
+						<h1 class="card-header-title" style="padding: 0.1rem;">Log In</h1>
+						<h1 id="connectionState" class="card-header-title" style="padding: 0.1rem;"></h1>
+						<h1 id="routeUpdateInfo" class="card-header-title" style="padding: 0.1rem;"></h1>
+						
+						
+						
+						
+						<h1 class="card-header-title" style="padding: 0.1rem;"><a href="#Foo" onclick="LoginControl.exp()" >route</a>   <a href="#Foo" onclick="LoginControl.minimize()" > minomize </a></h1>
+					</header> ${lc}
+				</div>
+			</div>`;
+			
+			*/
+			return lc;
+			}
+		
 	}
