@@ -242,87 +242,7 @@
 					}
 			
 			
-			static render(orders)
-			{
-			/*  orders.id, orders.route, orders.clientid, orders.state,	orders.taxiid, orders.createtime */
-			var ordersTable = document.getElementById("tbodyMainRoute");		
 			
-			if(orders==null)
-					{
-						ordersTable.innerHTML="No active request";
-						return;
-						
-					}
-			
-			var tableRuws="";
-			const jsonData = JSON.parse(orders);
-				
-			for (var i = 0; i < jsonData.length; i++) 
-				{
-				var order = jsonData[i];
-				
-				var orderState =order.state;
-				
-				var route=order.route;
-				const jsonRoute = JSON.parse(route);
-
-				var coord=jsonRoute.coord;
-						
-				
-			
-				
-				
-				var icon
-				
-				switch (orderState) {
-			  			
-					case 0: icon='<i class="fa fa-book" aria-hidden="true"></i>';  break;
-					case 1: icon='<i class="fa fa-hourglass-start" aria-hidden="true"></i>';  break;
-				  case 2: icon='<i class="fa fa-check" aria-hidden="true"></i>';break;
-				  case 3: icon="";break;
-				  default:
-				    
-				}
-
-				
-				
-				
-				tableRuws+='<tr> <td><a href="/owners/1">'+orderState+'</a>'+icon+'</td>';
-				tableRuws+='<td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">';
-				
-				onclick=" RouteControl.loadOrderById('+order.id+')"
-				tableRuws+='<a href="#Foo" onclick="RouteControl.loadOrderById('+order.id+')">';
-				for (var ii = 0; ii < coord.length; ii++) 
-					{
-						
-											
-					var jsonRouteRow = coord[ii];
-						tableRuws+=jsonRouteRow.name;
-						tableRuws+='<br/>';
-					}
-					tableRuws+='</a>'
-					
-				tableRuws+='</td>';
-							
-				tableRuws+='<td> ';
-						if(orderState==0){
-							tableRuws+='<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.deleteOrderById('+order.id+')"> 							<i class="fa fa-trash" aria-hidden="true"></i> </button> ';//Delete
-							//tableRuws+='<button type="button" class="btn btn-primary btn-sm" onclick=" RouteControl.loadOrderById('+order.id+')"> Show </button> ';
-							tableRuws+='<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.acceptOrder('+order.id+')"> 							<i class="fa fa-sign-in" aria-hidden="true"></i> </button>';//Accept
-							}
-							if(orderState==1){
-								//eval(" RouteControl.loadOrderById('"+order.id+"')");
-								//tableRuws+='<button type="button" class="btn btn-primary btn-sm" onclick=" RouteControl.loadOrderById('+order.id+')"> Show </button> ';
-							}
-
-					
-							
-							
-				tableRuws+=	'</td>';
-				tableRuws+='</tr>';
-				}
-			ordersTable.innerHTML=tableRuws;
-			}
 					
 			static loadOrder(){
 				var user =Cookie.getCookie("user") ;
@@ -794,6 +714,69 @@
 		}
 		
 		
+  static render(orders)
+  {
+  var ordersTable = document.getElementById("tbodyMainRoute");		
+  if(orders==null){
+	
+	ordersTable.innerHTML="";
+    
+	return;
+	}
+	
+  
+  const jsonData = JSON.parse(orders);
+  
+  var  tableRuws=`<table id="owners" style="	height: 50px;  overflow-y: auto;  overflow-x: hidden;" class="table table-striped" border="2">
+    <tbody">`;
+    
+  
+  for (var i = 0; i < jsonData.length; i++){
+    var order = jsonData[i];
+    var orderState =order.state;
+    var route=order.route;
+    const jsonRoute = JSON.parse(route);
+	var coord=jsonRoute.coord;
+
+	var icon
+    switch (orderState) {
+       case 0: icon='<i class="fa fa-book" aria-hidden="true"></i>';  break;
+       case 1: icon='<i class="fa fa-hourglass-start" aria-hidden="true"></i>';  break;
+       case 2: icon='<i class="fa fa-check" aria-hidden="true"></i>';break;
+       case 3: icon="";break;
+       default:
+   }
+
+    tableRuws+=
+  `<tr> 
+     <td>${icon}</td>
+     <td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">
+       <a href="#Foo" onclick="RouteControl.loadOrderById('+order.id+')">`;
+		for (var ii = 0; ii < coord.length; ii++) 
+							{
+							var jsonRouteRow = coord[ii];
+								tableRuws+=jsonRouteRow.name;
+								tableRuws+='<br/>';
+							}
+		tableRuws+=
+       `</a>
+      </td>
+      <td>
+    	<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.deleteOrderById(${order.id})"> 					
+							<i class="fa fa-trash" aria-hidden="true"></i> 
+						</button> 
+                       	<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.acceptOrder(${order.id})"> 				
+							<i class="fa fa-sign-in" aria-hidden="true"></i> 
+						</button>
+		</td>
+	 </tr>`;
+						}
+						
+		tableRuws+=`</tbody>
+					</table>`;
+		ordersTable.innerHTML=tableRuws;
+	}
+		
 		static createContainerEx(options) {
 
 			const mode =options.mode;
@@ -810,32 +793,22 @@
 											<span id="refDistance" class="f_refDistance"></span>
 										</div>
 									</footer>`;				
-					
+				
+									
+										
 var lc=`
 <div>			      
   <div>
     <div name="Waypoint" id="Waypoint"></div>
       ${footer}
-       </div>
+  </div>
+  
+  <div id="tbodyMainRoute">
+ 
+  </div>
+  
+  
 </div>`;									
-						/**			
-			let header = `
-			<div class="ccontainer">
-				<div class="card" id="log-in-card">
-					<header class="card-header">
-						<h1 class="card-header-title" style="padding: 0.1rem;">Log In</h1>
-						<h1 id="connectionState" class="card-header-title" style="padding: 0.1rem;"></h1>
-						<h1 id="routeUpdateInfo" class="card-header-title" style="padding: 0.1rem;"></h1>
-						
-						
-						
-						
-						<h1 class="card-header-title" style="padding: 0.1rem;"><a href="#Foo" onclick="LoginControl.exp()" >route</a>   <a href="#Foo" onclick="LoginControl.minimize()" > minomize </a></h1>
-					</header> ${lc}
-				</div>
-			</div>`;
-			
-			*/
 			return lc;
 			}
 		
