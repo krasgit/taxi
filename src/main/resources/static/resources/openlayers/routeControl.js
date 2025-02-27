@@ -777,6 +777,15 @@
 		ordersTable.innerHTML=tableRuws;
 	}
 		
+	
+	static center() {
+		
+		var layerExtent = vectorSource.getExtent();
+
+		if (layerExtent) {
+		    map.getView().fit(layerExtent);
+		}
+		}
 		static createContainerEx(options) {
 
 			const mode =options.mode;
@@ -789,7 +798,8 @@
 													</a>
 											&nbsp;
 											  		<a href="#" onclick="RouteControl.createOrder();" class="button is-primary" id="log-in-button">CreateOrder</a>
-											
+													<a href="#" onclick="RouteControl.center();" class="button is-primary" id="log-in-button">center</a>
+													
 											<span id="refDistance" class="f_refDistance"></span>
 										</div>
 									</footer>`;				
