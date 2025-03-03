@@ -77,22 +77,20 @@ return	style;
 					
 					
 					
-	static removeAllRoute(routeFeature){
-		var f=vectorSource.getFeatures();
-						
-						for (var i = 0; i < f.length; i++) {
-							var dd=f[i];		
-						
-							var routeFeatureId=''+dd.getId(); //cast to string
-							if(routeFeatureId.startsWith(routeFeature)){
-								var routeFeature = vectorSource.getFeatureById(routeFeatureId);
-									if (routeFeature){}
-													vectorSource.removeFeature(routeFeature);
+  static removeAllRoute(routeFeature){
+    var f=vectorSource.getFeatures();
+	for (var i = 0; i < f.length; i++) {
+	  var dd=f[i];		
+      var routeFeatureId=''+dd.getId(); //cast to string
+      if(routeFeatureId.startsWith(routeFeature)){
+        var routeFeature = vectorSource.getFeatureById(routeFeatureId);
+		 if (routeFeature){}
+		vectorSource.removeFeature(routeFeature);
 													//log("delete rute "+routeFeature)
-													}
-									}			
-						}
-					
+      }
+	}			
+  }
+				
 					
 					
 	static	createRoute(path ,routeFeatureId) {

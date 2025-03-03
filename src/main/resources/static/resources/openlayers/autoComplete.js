@@ -117,8 +117,17 @@ function newinitItem(autocompleteList, json, inputEl) {
 			//var value = pr.name;
 			var value=selectesItem.value;
 			
+			//
+			inputEl.value=value;
 			
-			RouteControl.updateFeature(featureId, coordinates, value);
+			
+			var feature =inputEl.feature;// vectorSource.getFeatureById(featureId);
+			var coord = getPointFromLongLat(coordinates[0], coordinates[1]);
+
+			feature.getGeometry().setCoordinates(coord);
+			
+			
+			RouteControl.updateFeature(featureId);
 			var x = document.getElementsByClassName("autocomplete-items");
 			for (var i = 0; i < x.length; i++) {
 				//if (elmnt != x[i] && elmnt != inp) 
@@ -130,6 +139,23 @@ function newinitItem(autocompleteList, json, inputEl) {
 		});
 		autocompleteList.appendChild(b);
 	}
+}
+
+function fff()
+{
+		var bntEl = document.getElementById("bnt" + featureId);
+
+				if (value == ""){
+					reverseGeocoding(coordinates[0], coordinates[1], bntEl, callbackSetInputElVal)
+					//reverseGeocodingProton(coordinates[0], coordinates[1], bntEl, callbackSetInputElVal)
+				}else{
+					bntEl.value = value;
+	}
+				var feature = vectorSource.getFeatureById(featureId);
+				var coord = getPointFromLongLat(coordinates[0], coordinates[1]);
+
+				feature.getGeometry().setCoordinates(coord);
+	
 }
 
 
@@ -171,7 +197,19 @@ function autocomplete(inp) {
 			var coordsss = getLastGeoLocationEvent()
 			const coordss = coordsss.coords;
 			var coordinates = [coordss.longitude, coordss.latitude];
-			RouteControl.updateFeature(featureId, coordinates, "");
+			
+			var bntEl = document.getElementById("bnt" + featureId);
+			var feature =bntEl.feature;// vectorSource.getFeatureById(featureId);
+			
+			reverseGeocoding(coordinates[0], coordinates[1], bntEl, callbackSetInputElVal);
+			
+			var feature =bntEl.feature;// vectorSource.getFeatureById(featureId);
+						var coord = getPointFromLongLat(coordinates[0], coordinates[1]);
+
+						feature.getGeometry().setCoordinates(coord);
+			
+			
+			RouteControl.updateFeature(featureId);
 			var x = document.getElementsByClassName("autocomplete-items");
 			for (var i = 0; i < x.length; i++) {
 				//if (elmnt != x[i] && elmnt != inp) 

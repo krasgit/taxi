@@ -1,4 +1,3 @@
-//RouteControl------------------------------------------------	  
 	class RouteControl  {
 		role;
 		constructor( opt_options) {
@@ -97,7 +96,8 @@
 			RouteControl.refresh();
 		}
 
-		static updateFeature(featureId, coordinates, value) {
+		static updateFeature(featureId) {
+			/*
 			var bntEl = document.getElementById("bnt" + featureId);
 
 			if (value == ""){
@@ -112,8 +112,37 @@
 			feature.getGeometry().setCoordinates(coord);
 
 			RouteControl.showFeature(featureId);
+			*/
 			RouteControl.refresh()
 		}
+		
+        //deprecate
+		static showFeature(featureId) {
+			log("showFeature");
+			
+			var feature = vectorSource.getFeatureById(featureId);
+
+			var bntEl = document.getElementById("bnt" + featureId);
+								
+				var fn=bntEl.placeholder;
+			
+			var st = getFeatureStyle(fn);
+
+			feature.setStyle(st);
+		}
+		//deprecate
+		static hideFeature(featureId) {
+			log("hideFeature");
+			var feature = vectorSource.getFeatureById(featureId);
+			feature.setStyle(new ol.style.Style(null));
+			
+			var coord = getPointFromLongLat(0, 0);
+					feature.getGeometry().setCoordinates(coord);
+			
+		}
+		
+		
+		
 		//kilometers: "km",meters: "m"
 		static updateRouteInfo(json)
 			{
@@ -232,7 +261,7 @@
 							callRPC("deleteOrderById",user,token,id).then((result) => {	RouteControl.loadOrders(); });
 			}
 			
-			static acceptOrder(id){
+			static acceptOrderClient(id){
 						
 						callRPC("acceptOrderClient",id).then((result) => 
 							{	
@@ -241,9 +270,24 @@
 						
 					}
 			
+			static acceptOrder(id){
+											
+					callRPC("acceptOrder",id).then((result) => 
+												{	
+											//	TaxiControl.render(result); 
+											});
+											
+										}			
 			
-			
-					
+			static startOrder(id){
+				callRPC("startOrder",id).then((result) => 
+			{	
+		//	TaxiControl.render(result); 
+			});
+																					
+																				}			
+										
+				
 			static loadOrder(){
 				var user =Cookie.getCookie("user") ;
 				var token =Cookie.getCookie("token") ;
@@ -263,8 +307,24 @@
 					var f=feature.feature;
 				return f;
 				}	
-		static refresh()//delete update add move
+	
+				
+	static removeAllRoute(){
+		var f=vectorSource.getFeatures();
+		for (var i = 0; i < f.length; i++) {
+		var dd=f[i];		
+		var routeFeatureId=''+dd.getId(); //cast to string
+		var routeFeature = vectorSource.getFeatureById(routeFeatureId);
+		vectorSource.removeFeature(routeFeature);
+		}			
+				  }				
+				
+  static refresh()//delete update add move
 		{
+			
+			RouteControl.removeAllRoute();
+			
+			
 			var inputGroupfeatureIdEl = document.getElementById("Waypoint");
 			var features=utils.elementChildren(inputGroupfeatureIdEl);
 		
@@ -293,6 +353,21 @@
 					var st=f.style;
 										if(st!=null)
 										*/
+					if(coordinates[0]!=0){			
+						
+					
+								var bntEl = document.getElementById("bnt" + featureId);
+													
+									var fn=bntEl.placeholder;
+								
+								var st = getFeatureStyle(fn);
+
+								f.setStyle(st);
+						
+						vectorSource.addFeature(f);
+							
+									}
+										
 					if(coordinates[0]!=0)
 					{
 						if(path != "")
@@ -331,7 +406,12 @@
 
 			if (bntEl.value != "") {
 				bntEl.value = "";
-				RouteControl.hideFeature(featureId);
+				//RouteControl.hideFeature(featureId);
+				var feature = vectorSource.getFeatureById(featureId);
+				var coord = getPointFromLongLat(0, 0);
+									feature.getGeometry().setCoordinates(coord);
+				
+				
 				RouteControl.refresh();
 				return;
 			}
@@ -395,7 +475,7 @@
 			var g = new ol.geom.Point(ol.proj.fromLonLat(coord));
 			var feature = new ol.Feature({type: 'place', geometry: g});
 			feature.setStyle(new ol.style.Style(null));
-			vectorSource.addFeature(feature);
+		//	vectorSource.addFeature(feature);
 			var translate1 = new app.Drag({features: new ol.Collection([feature])});
 			map.addInteraction(translate1);
 
@@ -415,30 +495,6 @@
 			log("createFeature");
 
 		}
-
-		static showFeature(featureId) {
-			log("showFeature");
-			var feature = vectorSource.getFeatureById(featureId);
-
-			var bntEl = document.getElementById("bnt" + featureId);
-								
-				var fn=bntEl.placeholder;
-			
-			var st = getFeatureStyle(fn);
-
-			feature.setStyle(st);
-		}
-
-		static hideFeature(featureId) {
-			log("hideFeature");
-			var feature = vectorSource.getFeatureById(featureId);
-			feature.setStyle(new ol.style.Style(null));
-			
-			var coord = getPointFromLongLat(0, 0);
-					feature.getGeometry().setCoordinates(coord);
-			
-		}
-
 		
 		static test(){
 			var f=vectorSource.getFeatures();
@@ -697,6 +753,9 @@
 			node_14.setAttribute('id', "bnt" + featureId);
 			node_14.setAttribute('featureId', featureId);
 
+			node_14.feature = feature;
+			
+			
 			//node_14.setAttribute('placeholder', value);
 			
 			if( !(!value || value.length === 0 ))
@@ -714,8 +773,164 @@
 		}
 		
 		
+		
+		
+  static orders(order){
+	
+	
+	
+	
+	var  tableRuws=`
+		<table id="owners" style="	height: 50px;  overflow-y: auto;  overflow-x: hidden;" class="table table-striped" border="2">
+	   <tbody">
+	   
+	   </tbody>
+	   	</table>`;
+	   
+  }	
+  
+  static getRouteName(route){
+	var ret='';
+	
+	try {
+	const jsonRoute = JSON.parse(route);
+	var coord=jsonRoute.coord;
+	} catch (error) {
+	  console.error(error);
+	  return  "error";
+	}
+	
+    for (var ii = 0; ii < coord.length; ii++){
+      var jsonRouteRow = coord[ii];
+	    ret+=jsonRouteRow.name+'<br/>';
+	}
+	return ret;
+   }
+  	
+   
+//---------------------------------------------------------------------------------------------------------------		
+static createInnerOrders()
+{
+	return 	class Orders {
+	   		constructor() {
+	   		  this.row="";
+	   		 }
+	   	addRow(order){
+	   		
+		var st="";
+		if(order.state==1)
+			st='<i class="fa fa-hourglass-start" aria-hidden="true"></i>';
+		if(order.state==2)
+			st='<i class="fa fa-check" aria-hidden="true"></i>';	
+		
+		if(order.state==3)
+					st='<i class="fa fa-taxi" aria-hidden="true"></i>';
+			
+			
+	   	var routeName=RouteControl.getRouteName(order.route);
+	   	var	tableRuws=
+	   		  `<tr> 
+	   		     <td>  ${st}</td>
+	   		     <td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">
+	   		       <a href="#Foo" onclick="RouteControl.loadOrderById(${order.id})">
+	   			   ${routeName}
+	   			   
+	   			   </a>
+	   		      </td>
+	   		      <td>
+	   		    	<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.deleteOrderById(${order.id})"> 					
+	   									<i class="fa fa-trash" aria-hidden="true"></i> 
+	   								</button> 
+	   		        
+									<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.startOrder(${order.id})"> 				
+	   									<i class="fa fa-sign-in" aria-hidden="true"></i> 
+										</button>
+                    									
+									
+	   				</td>
+	   			 </tr>`;
+	   			this.row += tableRuws;
+	       }
+	   		  
+	       getOrderTable(){
+	   		
+	   		if (this.row === "") {
+	   		 return "";
+	   		}
+	   		
+	   		
+	         var  ret=this.row;
+	   				
+	   			
+	          return ret ;	  
+	   		}
+
+	}
+	}
+	
+	static createInnerTemplates()
+	{
+		return 	class Orders {
+		   		constructor() {
+		   		  this.row="";
+		   		 }
+		   	addRow(order){
+		   		
+		   	var routeName=RouteControl.getRouteName(order.route);
+		   	var	tableRuws=
+		   		  `<tr> 
+		   		     <td><i class="fa fa-book" aria-hidden="true"></i></td>
+		   		     <td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">
+		   		       <a href="#Foo" onclick="RouteControl.loadOrderById(${order.id})">
+		   			   ${routeName}
+		   			   
+		   			   </a>
+		   		      </td>
+		   		      <td>
+		   		    	<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.deleteOrderById(${order.id})"> 					
+		   									<i class="fa fa-trash" aria-hidden="true"></i> 
+		   								</button> 
+		   		                       	<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.acceptOrderClient(${order.id})"> 				
+		   									<i class="fa fa-sign-in" aria-hidden="true"></i> 
+		   								</button>
+		   				</td>
+		   			 </tr>`;
+		   			this.row += tableRuws;
+		       }
+		   		  
+		       getOrderTable(){
+		   		
+		   		if (this.row === "") {
+		   		 return "";
+		   		}
+		   		
+		   		
+		         var  ret=this.row;
+		   				
+		   			
+		          return ret ;	  
+		   		}
+
+		}
+		}				
+//-----------------------------------------------------------------------------		
   static render(orders)
   {
+	
+	const InnerTemplates= RouteControl.createInnerTemplates();//0 STATE_CREATED
+	const innerTemplates=new InnerTemplates();
+		
+	const InnerOrders= RouteControl.createInnerOrders();//1 STATE_CLIENT_START
+	const innerOrders=new InnerOrders();
+	
+	
+	const InnerOrders2= RouteControl.createInnerOrders();//2 STATE_TAXI_ACCEPTED
+	const innerOrders2=new InnerOrders();
+	
+	const InnerOrders3= RouteControl.createInnerOrders();//2 STATE_TAXI_ACCEPTED
+		const innerOrders3=new InnerOrders();
+	
+	
   var ordersTable = document.getElementById("tbodyMainRoute");		
   if(orders==null){
 	
@@ -727,54 +942,36 @@
   
   const jsonData = JSON.parse(orders);
   
-  var  tableRuws=`<table id="owners" style="	height: 50px;  overflow-y: auto;  overflow-x: hidden;" class="table table-striped" border="2">
-    <tbody">`;
-    
-  
   for (var i = 0; i < jsonData.length; i++){
     var order = jsonData[i];
     var orderState =order.state;
-    var route=order.route;
-    const jsonRoute = JSON.parse(route);
-	var coord=jsonRoute.coord;
-
+    
 	var icon
     switch (orderState) {
-       case 0: icon='<i class="fa fa-book" aria-hidden="true"></i>';  break;
-       case 1: icon='<i class="fa fa-hourglass-start" aria-hidden="true"></i>';  break;
-       case 2: icon='<i class="fa fa-check" aria-hidden="true"></i>';break;
-       case 3: icon="";break;
+       case 0: icon='<i class="fa fa-book" aria-hidden="true"></i>'; innerTemplates.addRow(order); break;
+       case 1: icon='<i class="fa fa-hourglass-start" aria-hidden="true"></i>';innerOrders.addRow(order); 	 break;
+       case 2: icon='<i class="fa fa-check" aria-hidden="true"></i>';innerOrders2.addRow(order);break;
+       case 3: icon='<i class="fa fa-check" aria-hidden="true"></i>';innerOrders3.addRow(order);break;
        default:
    }
-
-    tableRuws+=
-  `<tr> 
-     <td>${icon}</td>
-     <td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">
-       <a href="#Foo" onclick="RouteControl.loadOrderById('+order.id+')">`;
-		for (var ii = 0; ii < coord.length; ii++) 
-							{
-							var jsonRouteRow = coord[ii];
-								tableRuws+=jsonRouteRow.name;
-								tableRuws+='<br/>';
-							}
-		tableRuws+=
-       `</a>
-      </td>
-      <td>
-    	<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.deleteOrderById(${order.id})"> 					
-							<i class="fa fa-trash" aria-hidden="true"></i> 
-						</button> 
-                       	<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.acceptOrder(${order.id})"> 				
-							<i class="fa fa-sign-in" aria-hidden="true"></i> 
-						</button>
-		</td>
-	 </tr>`;
-						}
-						
-		tableRuws+=`</tbody>
-					</table>`;
-		ordersTable.innerHTML=tableRuws;
+   	}
+	
+		var trTemplates=innerTemplates.getOrderTable();				
+		var trOrder=innerOrders.getOrderTable();
+		var trOrder2=innerOrders2.getOrderTable();									
+		var trOrder3=innerOrders3.getOrderTable();
+		
+		
+			var  table=`<table id="owners" style="	height: 50px;  overflow-y: auto;  overflow-x: hidden;" class="table table-striped" border="2">
+						    <tbody">
+							${trTemplates}
+							${trOrder}
+							${trOrder2}
+							${trOrder3}
+					 </tbody></table>`;			
+	
+					
+		ordersTable.innerHTML=table;
 	}
 		
 	
