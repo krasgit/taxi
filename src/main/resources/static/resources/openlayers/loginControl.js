@@ -87,6 +87,10 @@ class LoginControl extends ol.control.Control {
 	container.innerHTML=routeContainer;
 	   //container.appendChild(routeContainer);
 	   rc.init();
+	   
+	   if(logned)
+	     RouteControl.loadOrders();
+	   
    return;
   }
     

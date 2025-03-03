@@ -338,8 +338,68 @@
         <artifactId>cyclonedx-maven-plugin</artifactId>
       </plugin>
 
+
+ <plugin>
+              <groupId>org.primefaces.extensions</groupId>
+              <artifactId>resources-optimizer-maven-plugin</artifactId>
+              <version>2.5.6</version>
+              <executions>
+                <execution>
+                  <id>optimize</id>
+                  <goals>
+                    <goal>optimize</goal>
+                  </goals>
+                </execution>
+              </executions>
+              <configuration>
+                <compilationLevel>SIMPLE_OPTIMIZATIONS</compilationLevel>
+                <warningLevel>VERBOSE</warningLevel>
+                <failOnWarning>false</failOnWarning>
+                <suffix>-min</suffix>
+                <useDataUri>false</useDataUri>
+                <languageIn>ECMASCRIPT_2017</languageIn>
+                <languageOut>ECMASCRIPT_2017</languageOut>
+                <resourcesSets>
+                  <resourcesSet>
+                    <inputDir>${basedir}/src/main/resources/static/p/js</inputDir>
+                    <includes>
+                      <!--
+                      <include>*.js</include>
+                      
+                      -->
+                      
+                      <include>routeControl.js</include>
+                    </includes>
+                    <excludes>
+                      <exclude>./lib/*.js</exclude>
+                    </excludes>
+                    <aggregations>
+                        <aggregation>
+                          <withoutCompress>false</withoutCompress>
+                          <outputFile>
+                            ${project.build.directory}/webapp/resources/scripts.js
+                          </outputFile>
+                        </aggregation>
+                      </aggregations>
+                  </resourcesSet>
+                  <resourcesSet>
+                    <inputDir>${basedir}/src/main/resources/static/p</inputDir>
+                    <includes>
+                      <include>**/*.css</include>
+                    </includes>
+                    <aggregations>
+                      <aggregation>
+                        <outputFile>${project.build.directory}/webapp/resources/min.css</outputFile>
+                      </aggregation>
+                    </aggregations>
+                  </resourcesSet>
+                </resourcesSets>
+              </configuration>        
+            </plugin>      
+
     </plugins>
-  </build>
+     
+</build>
 
   <licenses>
     <license>

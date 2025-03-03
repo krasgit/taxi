@@ -183,7 +183,9 @@ public class ProcedureRPC {
 		order.setState(Orders.STATE_CLIENT_START);
 		order.setClientStartTime(new Timestamp(System.currentTimeMillis()));
 		// TODO
-		boolean res = personDAO.updateOrders(order);
+		order.setId(null);
+		
+		boolean res = personDAO.createOrders(order);
 
 		signalingSocketHandlerRPC.acceptOrderClientCB(person, order); // notify current and taxis
 

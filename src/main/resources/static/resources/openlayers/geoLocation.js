@@ -93,7 +93,7 @@
 		
 		
 		
-		// if(distance>1)// TODO UNCOMMENT
+		if(distance>1)// TODO UNCOMMENT
 			{
 			//	document.getElementById("b1").innerHTML=""+distance ;
 			//wsUpdatePostion(event);

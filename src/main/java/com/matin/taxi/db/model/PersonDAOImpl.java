@@ -184,6 +184,7 @@ public class PersonDAOImpl implements PersonDAO {
 	private final String SQL_INSERT_ORDERSs = "insert into Orders( clientId, taxiId, state,route,createTime) values(?,?,?,?,?)";
 
 	// insert into person( name, passw, age) values(?,?,?)";
+	@Deprecated
 	public boolean createOrderss(Orders orders) {
 		int r = jdbcTemplate.update(SQL_INSERT_ORDERSs, orders.getClientId(), orders.getTaxiId(), orders.getState(),
 				orders.getRoute(), orders.getCreateTime());
@@ -361,8 +362,6 @@ public class PersonDAOImpl implements PersonDAO {
         return "";
 	
 	}
-
-	
 
 	
 	@Override
