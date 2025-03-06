@@ -63,20 +63,25 @@ class LoginControl extends ol.control.Control {
 	
 	if(logned)
 				{			
+					//Todo dublicate fix
 					var user =Cookie.getCookie("user") ;
-					logoutButton.setAttribute('onclick', 'RouteControl.logOut();');
+					
+					var logOutLink=`<a href="#" onclick="RouteControl.logOut();">logout: ${user}</a>`;
+					
 					
 					var buttonContent="logout:"+user;
+					//todo 
 					const isTaxi=Cookie.getCookie("isTaxi");
 						if(isTaxi=='true')
 								 buttonContent+='<i class="fa fa-taxi" style="font-size:12px"></i>';
 					
 					
-					logoutButton.innerHTML = buttonContent;
+					logoutButton.innerHTML = logOutLink;
 				}
 				else
 				{
-				logoutButton.innerHTML = '<a href="#Foo" onclick="LoginControl.visible(true);">login</a>';
+				logoutButton.innerHTML = '<a href="#" onclick="LoginControl.visible(true);">login</a>';
+	
 	}
 	
 	
@@ -165,9 +170,10 @@ static getLoginControlContent(){
 		<div class="card" id="log-in-card">
 			<header class="card-header">
 			
-			<h1 id="connectionState" class="card-header-title" style="padding: 0.1rem;"></h1>
-			<h1 id="buttonContent" class="card-header-title" style="padding: 0.1rem;">Log In</h1>
-			<h1 id="routeUpdateInfo" class="card-header-title" style="padding: 0.1rem;"></h1>
+			<h1 id="connectionState" class="#card-header-title" style="padding: 0.1rem;"></h1>
+			<h1 id="buttonContent" class="#card-header-title" style="padding: 0.1rem;">Log In</h1>
+			<h1 id="space">&nbsp;&nbsp;&nbsp;</h1>
+			<h1 id="routeUpdateInfo" class="#card-header-title" style="padding: 0.1rem;"></h1>
 				
 			</header>
 			

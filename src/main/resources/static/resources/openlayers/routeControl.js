@@ -245,11 +245,21 @@
 			{
 			var user =Cookie.getCookie("user") ;
 			var token =Cookie.getCookie("token") ;
+			//client
 				callRPC("loadOrders",user,token).then((result) => 
 					{	
 						RouteControl.render(result); });
+			//taxi			
+			var user =Cookie.getCookie("user") ;
+				var token =Cookie.getCookie("token") ;
+					callRPC("loadTaxiOrders",user,token).then((result) => {	RouteControl.TaxiRender(result); });			
+						
+						
+						
 			}
 
+			
+		
 			
 			static loadOrderById(id){
 						callRPC("loadOrderById",id,id).then((result) => {	RouteControl.loadOrderCB(result); });
@@ -519,15 +529,16 @@
 	   static logIn(){
 	   		var user =Cookie.getCookie("user") ;
 	   		const logoutButton = document.getElementById('log-out-button');
-	   		var buttonContent="logout:"+user;
+			
+			var logautlink=`<a href="#" onclick="RouteControl.logOut();">logout:+${user}</a>`;
+			
+			//todo taxi indicator
+	   		//if(Cookie.getCookie("isTaxi")=='true')
+	   		// buttonContent+='<i class="fa fa-taxi" style="font-size:10px"></i>';
 	   		
-	   		if(Cookie.getCookie("isTaxi")=='true')
-	   		 buttonContent+='<i class="fa fa-taxi" style="font-size:12px"></i>';
+	   		logoutButton.innerHTML = logautlink;
 	   		
-	   		logoutButton.innerHTML = buttonContent;
-	   		logoutButton.setAttribute('onclick', 'RouteControl.logOut();');
-	   		
-	   		
+			//todo separate init 
 	   		const role = document.getElementById('role');
 			if(Cookie.getCookie("isTaxi")=='true')
 							role.innerHTML='<a href="#Foo" onclick="RouteControl.role(false)">taxi</a>';
@@ -538,180 +549,7 @@
 	   		RouteControl.loadOrders();
 	   	}
 	   
-	   
-	   
-	   
-		static createContainer(options) {
-
-			const mode =options.mode;
-			
-			var node_1 = document.createElement('DIV');
-			node_1.setAttribute('name', 'RouteControl');
-			node_1.setAttribute('id', 'control');
-			node_1.setAttribute('class', '     border w3-border-red  ');
-		//	node_1.setAttribute('style', ' background-color: lightblue; min-width: 400;position: absolute; right : 0em; top : 0em ');
-
-			var node_2 = document.createElement('DIV');
-			node_2.setAttribute('name', 'header');
-			node_2.setAttribute('class', 'container ');
-			node_2.setAttribute('style', ' ');
-			node_1.appendChild(node_2);
-
-			var node_3 = document.createElement('DIV');
-			node_3.setAttribute('class', 'd-flex justify-content-between ');
-			node_2.appendChild(node_3);
-
-			var connectionState = document.createElement('SPAN');
-						connectionState.setAttribute('id','connectionState');
-						connectionState.setAttribute('class', 'fa');
-						
-						connectionState.innerHTML = "&#xf0c1;";
-						node_3.appendChild(connectionState);
-			
-			
-			
-			var node_4 = document.createElement('DIV');
-			node_4.setAttribute('class', '');
-			node_3.appendChild(node_4);
-
-			
-			//
-			
-			//
-			
-			
-			var node_5 = document.createElement('SPAN');
-			//node_5.setAttribute('class', 'ref1');
-			node_4.appendChild(node_5);
-
-			//mode
-			
-			
-			var logoutButton = document.createElement('A');
-					logoutButton.setAttribute('href', '#');
-					logoutButton.setAttribute('id', 'log-out-button');
-					logoutButton.setAttribute('class', 'is-primary');
-
-			if(mode)
-				{			
-					var user =Cookie.getCookie("user") ;
-					logoutButton.setAttribute('onclick', 'RouteControl.logOut();');
-					
-					var buttonContent="logout:"+user;
-					const isTaxi=Cookie.getCookie("isTaxi");
-						if(isTaxi=='true')
-								 buttonContent+='<i class="fa fa-taxi" style="font-size:12px"></i>';
-					
-					
-					logoutButton.innerHTML = buttonContent;
-				}
-				else
-				{
-				logoutButton.innerHTML = '<a href="#Foo" onclick="LoginControl.visible(true);">login</a>';
-				}
-			node_5.appendChild(logoutButton);	
-			
-			
-			var node_6 = document.createElement('DIV');
-			node_6.setAttribute('class', '');
-			node_3.appendChild(node_6);
-
-			var node_7 = document.createElement('SPAN');
-			node_7.setAttribute('id', 'routeUpdateInfo');	
-			node_6.appendChild(node_7);
-
-			var node_8 = document.createElement('DIV');
-			node_8.setAttribute('class', '');
-			node_3.appendChild(node_8);
-
-			var node_9 = document.createElement('SPAN');
-			node_9.setAttribute('id','role');
-			//node_9.setAttribute('class', 'refX');
-			/*
-			if(Cookie.getCookie("isTaxi")=='true')
-				node_9.innerHTML='';
-				else
-				node_9.innerHTML='<a href="#Foo" onclick="RouteControl.role('+'role'+')">qaz</a>';
-			*/	
-			node_8.appendChild(node_9);
-
-			var node_10 = document.createElement('DIV');
-			node_10.setAttribute('name', 'Waypoint');
-			node_10.setAttribute('id', 'Waypoint');
-			node_1.appendChild(node_10);
-
-			var node_19 = document.createElement('DIV');
-			node_19.setAttribute('name', 'footer');
-			node_19.setAttribute('class', 'd-flex justify-content-between ');
-			node_1.appendChild(node_19);
-
-			var node_20 = document.createElement('DIV');
-			node_20.setAttribute('class', '');
-			node_19.appendChild(node_20);
-
-			var node_21 = document.createElement('BUTTON');
-			node_21.setAttribute('type', 'button');
-			node_21.setAttribute('class', 'btn btn-primary btn-sm');
-			node_21.setAttribute('onclick', 'RouteControl.add()');
-			node_20.appendChild(node_21);
-
-			var createOrder = document.createElement('BUTTON');
-			createOrder.setAttribute('type', 'button');
-			createOrder.setAttribute('class', 'btn btn-primary btn-sm');
-			createOrder.setAttribute('onclick', 'RouteControl.createOrder()');
-			createOrder.innerHTML = 'CreateOrder';
-			node_20.appendChild(createOrder);
-
-			
-			
-			
-			var loadOrder = document.createElement('BUTTON');
-				loadOrder.setAttribute('type', 'button');
-				loadOrder.setAttribute('class', 'btn btn-primary btn-sm');
-				loadOrder.setAttribute('onclick', 'RouteControl.test()');
-				loadOrder.innerHTML = 'test';
-				node_20.appendChild(loadOrder);
-			
-			
-				
-			var node_22 = document.createElement('SPAN');
-			node_22.setAttribute('class', 'refAdd');
-			node_21.appendChild(node_22);
-
-			var node_23 = document.createElement('DIV');
-			node_23.setAttribute('class', '');
-			node_19.appendChild(node_23);
-
-			var node_24 = document.createElement('SPAN');
-			node_24.id='refDistance';
-			//node_14.setAttribute('id', "refDistance");
-			
-			node_24.setAttribute('class', 'f_refDistance');
-			node_23.appendChild(node_24);
-			
-			
-			
-			var route = document.createElement('DIV');
-						route.setAttribute('name', 'footer');
-						route.setAttribute('class', 'd-flex justify-content-between ');
-						route.innerHTML="qaz";
-						node_1.appendChild(route);
-			
-			
-			
-						
-						var 	tableSTART='<table id="owners" style="	height: 50px;  overflow-y: auto;  overflow-x: hidden;" class="table table-striped" border="2">'
-										//	var th='<thead><tr><th style="width: 150px;">Name</th><th style="width: 200px;">Address</th><th>City</th></thead>';
-								var b='<tbody id="tbodyMainRoute">';
-								var tableEND='</tbody></table>';
-								var table= tableSTART+b+tableEND;
-								
-								route.innerHTML=table
-			
-			
-		return node_1;
-		}
-
+		
 		
 		//todo move
 		static createElementFromHTML(htmlString) {
@@ -818,19 +656,27 @@ static createInnerOrders()
 	   	addRow(order){
 	   		
 		var st="";
-		if(order.state==1)
+		if(order.state==1){
 			st='<i class="fa fa-hourglass-start" aria-hidden="true"></i>';
-		if(order.state==2)
+			}
+		if(order.state==2){
 			st='<i class="fa fa-check" aria-hidden="true"></i>';	
-		
+		}
 		if(order.state==3)
-					st='<i class="fa fa-taxi" aria-hidden="true"></i>';
+			{
+				
+					st='<i class="fa fa-check-circle-o" aria-hidden="true"></i>';
+			}
 			
+		
+		
+		
+		
 			
 	   	var routeName=RouteControl.getRouteName(order.route);
 	   	var	tableRuws=
 	   		  `<tr> 
-	   		     <td>  ${st}</td>
+	   		     <td>${order.state}  ${st}</td>
 	   		     <td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">
 	   		       <a href="#Foo" onclick="RouteControl.loadOrderById(${order.id})">
 	   			   ${routeName}
@@ -838,14 +684,9 @@ static createInnerOrders()
 	   			   </a>
 	   		      </td>
 	   		      <td>
-	   		    	<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.deleteOrderById(${order.id})"> 					
-	   									<i class="fa fa-trash" aria-hidden="true"></i> 
-	   								</button> 
-	   		        
-									<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.startOrder(${order.id})"> 				
-	   									<i class="fa fa-sign-in" aria-hidden="true"></i> 
-										</button>
-                    									
+				  
+				  <a href="#" onclick="RouteControl.deleteOrderById(${order.id});" class="button is-primary" id="log-in-button"><i class="fa fa-trash" aria-hidden="true"></i> </a>
+	   		    										
 									
 	   				</td>
 	   			 </tr>`;
@@ -887,12 +728,9 @@ static createInnerOrders()
 		   			   </a>
 		   		      </td>
 		   		      <td>
-		   		    	<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.deleteOrderById(${order.id})"> 					
-		   									<i class="fa fa-trash" aria-hidden="true"></i> 
-		   								</button> 
-		   		                       	<button type="button" class="btn btn-primary btn-sm" onclick="RouteControl.acceptOrderClient(${order.id})"> 				
-		   									<i class="fa fa-sign-in" aria-hidden="true"></i> 
-		   								</button>
+					  
+					  <a href="#" onclick="RouteControl.deleteOrderById(${order.id});" class="button is-primary" id="log-in-button"><i class="fa fa-trash" aria-hidden="true"></i> </a>
+					  <a href="#" onclick="RouteControl.acceptOrderClient(${order.id});" class="button is-primary" id="log-in-button"><i class="fa fa-sign-in" aria-hidden="true"></i> </a>
 		   				</td>
 		   			 </tr>`;
 		   			this.row += tableRuws;
@@ -912,7 +750,142 @@ static createInnerOrders()
 		   		}
 
 		}
-		}				
+		}		
+		
+//-----------------------------------------------------------------------------
+
+static createOrdersEx()
+{
+	return 	class Orders {
+	   		constructor() {
+	   		  this.row="";
+	   		 }
+	   	addRow(order,icon,button){
+	   		
+	   	var routeName=RouteControl.getRouteName(order.route);
+	   	var	tableRuws=
+	   		  `<tr> 
+	   		     <td>${order.state}  ${icon}</td>
+	   		     <td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">
+	   		       <a href="#Foo" onclick="RouteControl.loadOrderById(${order.id})">
+	   			   ${routeName}
+	   			   
+	   			   </a>
+	   		      </td>
+	   		      <td>
+				  
+		${button}
+	   		    										
+									
+	   				</td>
+	   			 </tr>`;
+	   			this.row += tableRuws;
+	       }
+	   		  
+	       getOrderTable(){
+	   		
+	   		if (this.row === "") {
+	   		 return "";
+	   		}
+	   		
+	   		
+	         var  ret=this.row;
+	   				
+	   			
+	          return ret ;	  
+	   		}
+
+	}
+	}
+
+	static acceptOrder(id){
+			
+			callRPC("acceptOrder",id).then((result) => 
+				{	
+			//	TaxiControl.render(result); 
+			});
+			
+		}
+		
+		
+		static finishOrder(id){
+					
+					callRPC("finishOrder",id).then((result) => 
+						{	
+					//	TaxiControl.render(result); 
+					});
+					
+				}
+
+  static TaxiRender(orders){
+    const InnerOrders1= RouteControl.createOrdersEx();//1 STATE_CLIENT_START
+	const innerOrders1=new InnerOrders1();
+				
+	const InnerOrders2= RouteControl.createOrdersEx();//2 STATE_TAXI_ACCEPTED
+	const innerOrders2=new InnerOrders2();
+				
+    var ordersTable = document.getElementById("taxiOrder");		
+	
+	if(orders==null){
+				ordersTable.innerHTML="";
+				return;
+	  }
+	  
+	  
+	  const jsonData = JSON.parse(orders);
+	    
+    for (var i = 0; i < jsonData.length; i++){
+	  var order = jsonData[i];
+	  var orderState =order.state;
+	      
+	  var icon,button
+	  switch (orderState) {
+        case 1: 
+				icon='<i class="fa fa-hourglass-start" aria-hidden="true"></i>';
+				button=`<a href="#" onclick="RouteControl.acceptOrder(${order.id});" class="button is-primary" id="log-in-button">
+                          <i class="fa fa-trash" aria-hidden="true"></i>
+						  Accept 
+						</a>`;
+		
+			innerOrders1.addRow(order,icon,button);	break;
+	    case 2: 
+			icon='<i class="fa fa-check" aria-hidden="true"></i>';
+			button=`<a href="#" onclick="RouteControl.startOrder(${order.id});" class="button is-primary" id="log-in-button">
+					<i class="fa fa-" aria-hidden="true"></i>
+						Start 
+								</a>
+			<a href="#" onclick="RouteControl.finishOrder(${order.id});" class="button is-primary" id="log-in-button">
+						<i class="fa fa-" aria-hidden="true"></i> 
+                         Finish
+					</a>`;
+		innerOrders2.addRow(order,icon,button);break;
+		
+		case 3: 
+				icon='<i class="fa fa-check" aria-hidden="true"></i>';
+				button=`<a href="#" onclick="RouteControl.finishOrder(${order.id});" class="button is-primary" id="log-in-button">
+							<i class="fa fa-" aria-hidden="true"></i> 
+		                       Finish
+						</a>`;
+			innerOrders2.addRow(order,icon,button);break;
+		
+		
+	         default:
+	     }
+	     	}
+	  	
+		var trOrder1=innerOrders1.getOrderTable();									
+	  	var trOrder2=innerOrders2.getOrderTable();
+	  	
+		var  table=`<table id="owners" style="	height: 50px;  overflow-y: auto;  overflow-x: hidden;" class="table table-striped" border="2">
+	  			      <tbody">
+					    ${trOrder1}
+					    ${trOrder2}
+                      </tbody>
+					</table>`;			
+	  					
+	  		ordersTable.innerHTML=table;
+	  
+  }				
 //-----------------------------------------------------------------------------		
   static render(orders)
   {
@@ -989,7 +962,7 @@ static createInnerOrders()
 
 					
 					var footer=`<footer class="card-footer" style="padding: 0.3rem;">
-										<div class="card-footer-item" style="padding: 0.2rem;">
+										<div class="@card-footer-item" style="padding: 0.2rem;">
 										<a href="#" onclick="RouteControl.add();"         class="button is-primary" id="r-in-button">	  
 														<i class="fa fa-plus" aria-hidden="true"></i>
 													</a>
@@ -1013,6 +986,10 @@ var lc=`
   <div id="tbodyMainRoute">
  
   </div>
+  
+  <div id="taxiOrder">
+
+   </div>
   
   
 </div>`;									

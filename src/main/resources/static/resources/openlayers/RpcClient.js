@@ -50,7 +50,7 @@ export class RpcClient {
 	 
 	var connectionState= document.getElementById("connectionState");
 	if(connectionState)
-	   connectionState.innerHTML = "&#xf127;";
+	   connectionState.innerHTML = '<i class="fa fa-chain-broken" aria-hidden="true"> </i>';
 	 
 	 }
   
@@ -121,15 +121,18 @@ export class RpcClient {
    * @param {MessageEvent} event
    */
   #onMessage(event) {
+	
+	var connectionState= document.getElementById("connectionState");
+				if(connectionState)
+				connectionState.innerHTML ='<i class="fa fa-chain" aria-hidden="true"> </i>';
+	
     //console.log(`[message] Data received from server: ${event.data}`);
     let response = JSON.parse(event.data);
 	
 	if(response.type=='sessionUpdate'){
 	var session=	response.sender;
 	Cookie.setCookie("token",session) ;
-	var connectionState= document.getElementById("connectionState");
-			if(connectionState)
-			connectionState.innerHTML ="&#xf0c1;";
+	
 	
 	}
 	
