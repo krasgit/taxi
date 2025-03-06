@@ -396,12 +396,14 @@
 					Route.removeAllRoute('routeFeature');	
 			if(count>=2)
 			{
+				//create-order-button
+				
 				Route.createRoute(path,'routeFeature');
 					var refDistance = document.getElementById("refDistance").innerHTML='';
-					}
-					else {
-						var refDistance = document.getElementById("refDistance").innerHTML='';
-						//dublicate
+			}
+			else {
+			var refDistance = document.getElementById("refDistance").innerHTML='';
+			//dublicate
 						var routeFeature = vectorSource.getFeatureById('routeFeature');
 						if (routeFeature)
 			     		vectorSource.removeFeature(routeFeature);	
@@ -967,7 +969,7 @@ static createOrdersEx()
 														<i class="fa fa-plus" aria-hidden="true"></i>
 													</a>
 											&nbsp;
-											  		<a href="#" onclick="RouteControl.createOrder();" class="button is-primary" id="log-in-button">CreateOrder</a>
+											  		<a href="#" onclick="RouteControl.createOrder();" class="button is-primary" id="create-order-button">CreateOrder</a>
 													<a href="#" onclick="RouteControl.center();" class="button is-primary" id="log-in-button">center</a>
 													
 											<span id="refDistance" class="f_refDistance"></span>
