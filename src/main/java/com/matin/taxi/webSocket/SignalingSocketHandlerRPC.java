@@ -244,7 +244,7 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 			return;
 		}
 
-		ResultMessage resultMessage = new ResultMessage(null, "RouteControl.loadOrders();TaxiControl.loadOrders();",null);
+		ResultMessage resultMessage = new ResultMessage(null, "RouteControl.loadOrders();",null);
 
 		String resendingMessage;
 		try {
@@ -317,7 +317,7 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 		
 		sendTo.add(sendFrom) ;//self notify
 		
-		ResultMessage resultMessage = new ResultMessage(null, "RouteControl.loadOrders();TaxiControl.loadOrders();",sendFrom.getName());
+		ResultMessage resultMessage = new ResultMessage(null, "RouteControl.loadOrders();",sendFrom.getName());
 		
 		for (Person p : sendTo) {
 			WebSocketSession webSocket = connectedUsers.get(p.getToken());

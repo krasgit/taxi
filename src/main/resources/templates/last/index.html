@@ -8,7 +8,7 @@
 	<!-- <link rel="icon" type="image/x-icon" href="/resources/images/favicon.png">-->
 	<link rel="icon" type="image/x-icon" href="./resources/images/favicon.ico">
 	<link rel="icon" type="image/x-icon" href="./resources/sc/favicon.ico">
-	<link rel="icon" type="image/x-icon" href="./resources/sc1/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/SuperCookie/sc1/favicon.ico">
 	
 
 	<link rel="stylesheet" href="/resources/openlayers/ol-debug.css" type="text/css" />
@@ -40,7 +40,6 @@
 	<script src="cookie.js"          th:src="@{/resources/openlayers/cookie.js}" ></script>
 	
 	<script src="RpcMain.js"  type="module" defer  th:src="@{/resources/openlayers/RpcMain.js}" ></script>
-	<script src="taxiControl.js"     th:src="@{/resources/openlayers/taxiControl.js}" ></script>
 	<script src="loginControl.js"    th:src="@{/resources/openlayers/loginControl.js}" ></script>
 	<!--
 	<script src="mylib.js"           th:src="@{/resources/openlayers/mylib.js}" ></script>
@@ -156,12 +155,6 @@
 		//LoginControl.visible(false);
 	
 		LoginControl.showrouteControl(mode);
-	//var tc = new TaxiControl();
-
-	//map.addControl(tc);
-	//TaxiControl.visible(mode);
-	//tc.init();
-	
 	
 	var sc = new SuperCookie();
 		map.addControl(sc);

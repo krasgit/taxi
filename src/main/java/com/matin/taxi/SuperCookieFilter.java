@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -11,8 +13,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.xml.bind.DatatypeConverter;
 
 public class SuperCookieFilter implements Filter {
 
@@ -31,15 +35,39 @@ public class SuperCookieFilter implements Filter {
 		}
 	}
 
+	
+	public String  hashNumber(String password) 	  throws NoSuchAlgorithmException {
+	    
+	    
+	        
+	    MessageDigest md = MessageDigest.getInstance("MD5");
+	    md.update(password.getBytes());
+	    byte[] digest = md.digest();
+	    String myHash = DatatypeConverter.printHexBinary(digest).toUpperCase();
+	        
+	    return myHash;
+	}
+	
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		//System.out.println("Procces UrlPatterns "+urlPatterns);
+		try {
+			String identifier="4";
+			String hash=hashNumber(identifier);
+			System.err.println(hash);
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
 
-		HttpServletRequest dd = (HttpServletRequest) request;
-
+		 Cookie[] cookies = httpRequest.getCookies();
+		String rs = httpRequest.getRequestedSessionId();
+		
+		String ff = httpRequest.getRequestURI();
 		//String bb = getFullURL((HttpServletRequest) request);
-		String queryString = dd.getQueryString();
+		String queryString = httpRequest.getQueryString();
 		String url = "http://localhost:8181/search?" + queryString;
 
 		

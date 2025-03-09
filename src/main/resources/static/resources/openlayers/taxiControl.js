@@ -41,7 +41,7 @@
 			callRPC("loadTaxiOrders",user,token).then((result) => {	TaxiControl.render(result); });
 		}
 		
-		static render(orders)
+		static renderNO(orders)
 		{
 		/*  orders.id, orders.route, orders.clientid, orders.state,	orders.taxiid, orders.createtime */
 		var ordersTable = document.getElementById("tbodyRoute");	

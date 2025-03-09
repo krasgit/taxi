@@ -357,8 +357,8 @@ public class ProcedureRPC {
 	public String getTaxuOrdersByClientId(Long clientId) {
 		// String sql = "SELECT json_agg(orders) FROM orders where clientId = ? ";
 		String sql = "SELECT json_agg( json_build_object(\n" + "'id', orders.id\n" + ",'state', orders.state\n"
-				+ ",'taxi.id',persontaxi.id,'taxi.name',persontaxi.name\n"
-				+ ",'createperson.id',person.id,'person.name',person.name\n"
+				+ ",'taxiId',persontaxi.id,'taxiName',persontaxi.name\n"
+				+ ",'createpersonId',person.id,'personName',person.name\n"
 				+ ",'',orders.createtime ,'acepted',orders.createtime \n" + ",'route', orders.route  \n" + "))\n"
 				+ "FROM orders\n" + "left join person on person.id =orders.clientid\n"
 				+ "left join person persontaxi on persontaxi.id =orders.taxiid \n" + "\n" + "\n"

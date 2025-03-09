@@ -119,12 +119,14 @@ return	style;
 						log('json.routes[0].'+json.routes[i].geometry);
 						var stule=Route.getStule(routeFeatureId+i);				
 						var r = Route.createRouteFeaturemt(json.routes[i].geometry,routeFeatureId+i,stule);
+						
+						RouteControl.updateRouteInfo(json.routes[i],i,stule);
 						}
 					
 					
 					
 					//var r = Route.createRouteFeature(json.routes[0].geometry,routeFeatureId,stule);
-					RouteControl.updateRouteInfo(json.routes[0]);
+					//RouteControl.updateRouteInfo(json.routes[0]);
 					// r.setId("ff");
 
 					// 		let feature = vectorSource.getFeatureById('ff');

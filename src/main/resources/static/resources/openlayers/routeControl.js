@@ -93,6 +93,20 @@
 			var node_111 = RouteControl.autoCompleteBtn(feature1, '');
 			cWaypoint.appendChild(node_111);
 			
+			
+			
+			const isTaxi=Cookie.getCookie("isTaxi");
+			if(isTaxi=='true'){
+				cWaypoint.style.display = "none"; 				
+								}
+			
+			
+			
+			
+			
+			
+			
+			
 			RouteControl.refresh();
 		}
 
@@ -144,8 +158,10 @@
 		
 		
 		//kilometers: "km",meters: "m"
-		static updateRouteInfo(json)
+		static updateRouteInfo(json,index,style)
 			{
+			var color=	style.getStroke().getColor();
+				
 			const	un= { meters: 'm', kilometers: 'km' }
 			var duration=	json.duration;
 			var distance=json.distance;
@@ -156,7 +172,7 @@
 				    unit: v >= 1000 ? un.kilometers : un.meters
 				  };
 				
-				var refDistance = document.getElementById("refDistance");
+				var refDistance = document.getElementById("refDistance"+index);
 				refDistance.innerHTML=data.value.toFixed(1) +' '+data.unit +' '+(duration/60).toFixed(1)+' min';
 				
 			}	
@@ -394,15 +410,22 @@
                     log(feature);								
 					}
 					Route.removeAllRoute('routeFeature');	
+					
+					
+			var createOrderButton = document.getElementById('create-order-button');
+					
 			if(count>=2)
 			{
-				//create-order-button
+				 createOrderButton.removeAttribute("disabled");
 				
 				Route.createRoute(path,'routeFeature');
-					var refDistance = document.getElementById("refDistance").innerHTML='';
+					var refDistance = document.getElementById("refDistance0").innerHTML='';
+					document.getElementById("refDistance1").innerHTML='';
 			}
 			else {
-			var refDistance = document.getElementById("refDistance").innerHTML='';
+				createOrderButton.setAttribute("disabled", true);
+				var refDistance = document.getElementById("refDistance0").innerHTML='';
+					document.getElementById("refDistance1").innerHTML='';
 			//dublicate
 						var routeFeature = vectorSource.getFeatureById('routeFeature');
 						if (routeFeature)
@@ -678,7 +701,7 @@ static createInnerOrders()
 	   	var routeName=RouteControl.getRouteName(order.route);
 	   	var	tableRuws=
 	   		  `<tr> 
-	   		     <td>${order.state}  ${st}</td>
+	   		     <td> ${st} ${order.state}  ${order.id} ${order.personName}</td>
 	   		     <td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">
 	   		       <a href="#Foo" onclick="RouteControl.loadOrderById(${order.id})">
 	   			   ${routeName}
@@ -767,7 +790,7 @@ static createOrdersEx()
 	   	var routeName=RouteControl.getRouteName(order.route);
 	   	var	tableRuws=
 	   		  `<tr> 
-	   		     <td>${order.state}  ${icon}</td>
+	   		     <td>${icon} ${order.state} ${order.id} ${order.personName} </td>
 	   		     <td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">
 	   		       <a href="#Foo" onclick="RouteControl.loadOrderById(${order.id})">
 	   			   ${routeName}
@@ -804,7 +827,7 @@ static createOrdersEx()
 			
 			callRPC("acceptOrder",id).then((result) => 
 				{	
-			//	TaxiControl.render(result); 
+				RouteControl.render(result); 
 			});
 			
 		}
@@ -814,7 +837,7 @@ static createOrdersEx()
 					
 					callRPC("finishOrder",id).then((result) => 
 						{	
-					//	TaxiControl.render(result); 
+						RouteControl.render(result); 
 					});
 					
 				}
@@ -970,9 +993,14 @@ static createOrdersEx()
 													</a>
 											&nbsp;
 											  		<a href="#" onclick="RouteControl.createOrder();" class="button is-primary" id="create-order-button">CreateOrder</a>
+													
 													<a href="#" onclick="RouteControl.center();" class="button is-primary" id="log-in-button">center</a>
 													
-											<span id="refDistance" class="f_refDistance"></span>
+													<div id="!refDistance" class="f_refDistance" style=" display: inline-block;">
+														<h6 id="refDistance0" style=" font-size: 12px;color:red;">I am red</h6>
+														<h6 id="refDistance1" style=" font-size: 12px;color:blue;">I am blue</h6>
+													</div>
+													
 										</div>
 									</footer>`;				
 				

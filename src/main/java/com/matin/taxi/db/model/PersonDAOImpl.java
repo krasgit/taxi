@@ -312,8 +312,8 @@ public class PersonDAOImpl implements PersonDAO {
 		//String sql = "SELECT json_agg(orders) FROM orders where clientId = ? ";
 		String sql = "SELECT json_agg( json_build_object(\n"
 				+ "'id', orders.id\n"
-				+ ",'person.id',person.id,'person.name',person.name\n"
-				+ ",'taxi.id',person.id,'taxi.name',person.name\n"
+				+ ",'personId',person.id,'personName',person.name\n"
+				+ ",'taxiId',person.id,'taxiName',person.name\n"
 				+ ",'state', orders.state,'create',orders.createtime ,'acepted',orders.createtime \n"
 				+ ",'route', orders.route  \n"
 				+ ")\n"
