@@ -216,7 +216,7 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 
 		// TODO Send To current user and free taxi
 
-		ResultMessage resultMessage = new ResultMessage(null, "RouteControl.loadOrders();TaxiControl.loadOrders();",
+		ResultMessage resultMessage = new ResultMessage(null, "RouteControl.loadOrders();",
 				null);
 
 		
