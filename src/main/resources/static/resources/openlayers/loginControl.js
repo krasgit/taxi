@@ -104,10 +104,15 @@ static logIn() {
 		var username=document.getElementById('username').value;
 		var password=document.getElementById('password').value;
 
-		callRPC("login",username,username).then((resultJson) => {
+		callRPC("login",username,password).then((resultJson) => {
 	
 			if(resultJson==null){
 
+				var password=document.getElementById('password');
+				password.style.borderColor="#FF0000"
+
+				password.value="";
+				
 				   }
 				   else 
 				   {
@@ -125,8 +130,82 @@ static logIn() {
 				   });
 }
 
+
+static getRegistrationForm(){
+var lc=`
+	<div class="card-content" style="padding: 0.3rem;">
+		<div class="content">
+			
+		<div class="field">
+		  <label class="label">Username</label>
+		  <div class="control has-icons-left has-icons-right">
+		    <input class="input is-success" type="text" placeholder="Text input" value="bulma">
+		    <span class="icon is-small is-left">
+		      <i class="fas fa-user"></i>
+		    </span>
+		    <span class="icon is-small is-right">
+		      <i class="fas fa-check"></i>
+		    </span>
+		  </div>
+		  
+		  
+			
+			<div class="field">
+			  <label class="label" style="margin-bottom: 0.2em;">Email</label>
+			  <div class="control has-icons-left has-icons-right">
+			    <input class="input is-danger" type="email" placeholder="Email input" value="hello@">
+			    <span class="icon is-small is-left">
+			      <i class="fas fa-envelope"></i>
+			    </span>
+			    <span class="icon is-small is-right">
+			      <i class="fas fa-exclamation-triangle"></i>
+			    </span>
+			  </div>
+			  <p class="help is-danger">This email is invalid</p>
+			</div>
+			
+			  
+			<div class="field">
+				<label class="label" style="margin-bottom: 0.2em;" >Password</label>
+					<div class="control">
+						<input id="password" class="input" type="password">
+				    </div>
+			</div>
+			<div class="field">
+							<label class="label" style="margin-bottom: 0.2em;">Password</label>
+								<div class="control">
+									<input id="password" class="input" type="password">
+							    </div>
+			</div>
+			
+			
+				<p style="text-align: right;"><a href="#" id="open-userinfo">Forgot your password?</a></p>
+		</div>
+	</div>
+	
+	<footer class="card-footer" style="padding: 0.3rem;">
+		<div class="card-footer-item" style="padding: 0.2rem;">
+			<a href="#" onclick="LoginControl.logIn();" class="button is-primary" id="log-in-button">Log In</a>
+			&nbsp;
+			<a href="#" onclick="LoginControl.PrincipalRegistration();" class="button is-primary" id="log-in-button">Registration</a>
+		</div>
+	</footer>`;		  
+return lc;
+}
+
 static PrincipalRegistration() {
 		
+	
+	
+			const container = document.getElementById('LoginControlContainer');
+				
+			var login=	LoginControl.getRegistrationForm();
+				
+			container.innerHTML=login;
+			
+			
+	
+	
 		var username=document.getElementById('username').value;
 		var password=document.getElementById('password').value;
 		
@@ -155,6 +234,7 @@ static createContainer(options) {
   			node_1.setAttribute('id', '');
   			node_1.setAttribute('class', '     border w3-border-red  ');
   			//node_1.setAttribute('style', ' background-color: lightblue; min-width: 350;position: absolute; right : 0em; bottom : 0em ');
+			//node_1.setAttribute('style', ' background-color: lightblue; min-width: 350;position: absolute; right : 0em; top : 0em ');
 			node_1.setAttribute('style', ' background-color: lightblue; min-width: 350;position: absolute; right : 0em; top : 0em ');
 
 						node_1.innerHTML=LoginControl.getLoginControlContent();
@@ -192,14 +272,36 @@ static getLoginControlContent(){
 	var lc=`
 		<div class="card-content" style="padding: 0.3rem;">
 			<div class="content">
+			
+			
+			<!--
+			<div class="field">
+			  <label class="label">Username</label>
+			  <div class="control has-icons-left has-icons-right">
+			    <input class="input is-success" type="text" placeholder="Text input" value="bulma">
+			    <span class="icon is-small is-left">
+			      <i class="fas fa-user"></i>
+			    </span>
+			    <span class="icon is-small is-right">
+			      <i class="fas fa-check"></i>
+			    </span>
+			  </div>
+			  <p class="help is-success">This username is available</p>
+			</div>
+			-->
+			
+			
+			
+			
+			
 				<div id="userName" class="field">
-					<label class="label">Username</label>
+					<label class="label" style="margin-bottom: 0.2em;">Username</label>
 			      		<div class="control">
 							<input id="username" class="input" type="email" placeholder="user@example.com">
 						</div>
 				</div>  
 				<div class="field">
-					<label class="label">Password</label>
+					<label class="label" style="margin-bottom: 0.2em;">Password</label>
 						<div class="control">
 							<input id="password" class="input" type="password">
 					    </div>

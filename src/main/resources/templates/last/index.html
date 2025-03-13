@@ -6,10 +6,13 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Open Taxi</title>
 	<!-- <link rel="icon" type="image/x-icon" href="/resources/images/favicon.png">-->
+	
+	<!-- 
 	<link rel="icon" type="image/x-icon" href="./resources/images/favicon.ico">
 	<link rel="icon" type="image/x-icon" href="./resources/sc/favicon.ico">
 	<link rel="icon" type="image/x-icon" href="/SuperCookie/sc1/favicon.ico">
-	
+	-->
+	<link rel="icon" type="image/svg+xml" href="/SuperCookie/sc1/favicon.svg" >
 
 	<link rel="stylesheet" href="/resources/openlayers/ol-debug.css" type="text/css" />
 	<!--
@@ -17,8 +20,17 @@
 				 
 	
 	-->
-	
+	<!--
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	-->
+	   <!--
+		https://fontawesome.com/icons
+		https://www.svgviewer.dev/s/478558/expand-full
+		-->
+	   <script src="/resources/openlayers/all.min.js" ccsrc='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/js/all.min.js' >
+	    </script>
+	
+	
 	<script src="/resources/openlayers/ol-debug.js"></script>
 
 	
@@ -28,8 +40,6 @@
 	<script src="SignalMessage.js"   th:src="@{/resources/openlayers/SignalMessage.js}" ></script>	
 	<script src="webSocketClient.js" th:src="@{/resources/openlayers/webSocketClient.js}" ></script>
 	<script src="autoComplete.js"    th:src="@{/resources/openlayers/autoComplete.js}" ></script>
-	<script src="autoComplete.js"    th:src="@{/resources/openlayers/autoComplete.js}" ></script>
-		
 	<script src="interaction.js"     th:src="@{/resources/openlayers/interaction.js}" ></script>
 	<script src="routeControl.js"    th:src="@{/resources/openlayers/routeControl.js}" ></script>
 	<script src="route.js"           th:src="@{/resources/openlayers/route.js}" ></script>
@@ -159,6 +169,18 @@
 	var sc = new SuperCookie();
 		map.addControl(sc);
 	
+		
+		
+		
+		
+		map.addControl(new ol.control.FullScreen());
+		
+		
+		
+		
+		
+		
+		
 	map.on('click', function (e) {
 		var coordinate = ol.proj.toLonLat(e.coordinate).map(function (val) {
 			return val.toFixed(6);
