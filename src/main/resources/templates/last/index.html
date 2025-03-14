@@ -20,9 +20,9 @@
 				 
 	
 	-->
-	<!--
+	
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-	-->
+	
 	   <!--
 		https://fontawesome.com/icons
 		https://www.svgviewer.dev/s/478558/expand-full
@@ -108,7 +108,7 @@
 	const log = console.log;
 
 	const locationOrigin = location.origin;
-	 log(locationOrigin);
+	// log(locationOrigin);
 
 	var url = new URL(location.origin);
 
@@ -317,7 +317,7 @@
 					log("value is undefined ");
 					return ;
 				}
-		el.value = value;
+		el.value = value; //TypeError Cannot set prop of null TODO
 	}
 
 	
@@ -405,8 +405,10 @@
 		var df = await JSON.stringify(json);
 		return df;
 	}
-	var res = fetchMAddress('Тодор Хаджистанчев');
-	log(res);
+	
+	
+	//var res = fetchMAddress('Тодор Хаджистанчев');
+	//log(res);
 
 	function fetchMAddresscb(q) {
 
