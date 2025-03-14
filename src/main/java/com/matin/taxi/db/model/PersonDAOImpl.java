@@ -313,13 +313,14 @@ public class PersonDAOImpl implements PersonDAO {
 		String sql = "SELECT json_agg( json_build_object(\n"
 				+ "'id', orders.id\n"
 				+ ",'personId',person.id,'personName',person.name\n"
-				+ ",'taxiId',person.id,'taxiName',person.name\n"
+				+ ",'taxiId',person.id,'taxiName',taxiPerson.name\n"
 				+ ",'state', orders.state,'create',orders.createtime ,'acepted',orders.createtime \n"
 				+ ",'route', orders.route  \n"
 				+ ")\n"
 				+ "\n"
 				+ ")FROM orders\n"
 				+ "left join person on person.id =orders.clientid \n"
+				+ "left join person taxiPerson on taxiPerson.id =orders.taxiid \n"
 				+ "where  orders.state not in(4) --NOT temporal ,finish\n"
 				+ "and  orders.clientId=?";
 			//	+ " order by state";		
