@@ -158,9 +158,9 @@
 		
 		
 		//kilometers: "km",meters: "m"
-		static updateRouteInfo(json,index,style)
+		static updateRouteInfo(json)
 			{
-			var color=	style.getStroke().getColor();
+			//var color=	style.getStroke().getColor();
 				
 			const	un= { meters: 'm', kilometers: 'km' }
 			var duration=	json.duration;
@@ -172,8 +172,9 @@
 				    unit: v >= 1000 ? un.kilometers : un.meters
 				  };
 				
-				var refDistance = document.getElementById("refDistance"+index);
-				refDistance.innerHTML=data.value.toFixed(1) +' '+data.unit +' '+(duration/60).toFixed(1)+' min';
+				//var refDistance = document.getElementById("refDistance"+index);
+				//refDistance.innerHTML=data.value.toFixed(1) +' '+data.unit +' '+(duration/60).toFixed(1)+' min';
+				return data.value.toFixed(1) +' '+data.unit +' '+(duration/60).toFixed(1)+' min';
 				
 			}	
 			
@@ -406,8 +407,8 @@
 					}
 					
 					
-					log(coordinates[0]+' '+ coordinates[1] );
-                    log(feature);								
+			//		log(coordinates[0]+' '+ coordinates[1] );
+            //        log(feature);								
 					}
 					Route.removeAllRoute('routeFeature');	
 					
@@ -432,7 +433,7 @@
 			     		vectorSource.removeFeature(routeFeature);	
 					}
 								
-			log("refresh");
+	//		log("refresh");
 		}
 		
 		static delete(featureId) {
@@ -701,7 +702,7 @@ static createInnerOrders()
 	   	var routeName=RouteControl.getRouteName(order.route);
 	   	var	tableRuws=
 	   		  `<tr> 
-	   		     <td> ${st} ${order.state}  ${order.id} ${order.personName}</td>
+	   		     <td> ${st} ${order.state}  ${order.id} ${order.personName} ${order.taxiName}</td>
 	   		     <td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">
 	   		       <a href="#Foo" onclick="RouteControl.loadOrderById(${order.id})">
 	   			   ${routeName}
@@ -1023,6 +1024,11 @@ static createOrdersEx()
 													<div id="!refDistance" class="f_refDistance" style=" display: inline-block;">
 														<h6 id="refDistance0" style=" font-size: 12px;color:red;">I am red</h6>
 														<h6 id="refDistance1" style=" font-size: 12px;color:blue;">I am blue</h6>
+													</div>
+													
+													<div id="!refDistance" class="f_refDistance" style=" display: inline-block;">
+														<h6 id="route2start0" style=" font-size: 12px;color:DarkGreen;"></h6>
+														<h6 id="route2start1" style=" font-size: 12px;color:DarkOliveGreen;"></h6>
 													</div>
 													
 										</div>

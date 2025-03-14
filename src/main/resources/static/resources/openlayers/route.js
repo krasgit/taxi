@@ -95,6 +95,7 @@ return	style;
 					
 	static	createRoute(path ,routeFeatureId) {
 		
+		log('createRoute routeFeatureId'+routeFeatureId);
 		
 				var extraparams = "?overview=full&alternatives=true&steps=true";  //&hints=;"
 				var urll = 'https://' + hostname + ':8443/route/v1/driving/'
@@ -114,13 +115,36 @@ return	style;
 					
 					Route.removeAllRoute(routeFeatureId);
 					
+					if(routeFeatureId =='route2start'){//Resset
+						var route2startEl1 = document.getElementById("route2start"+0);
+						 route2startEl1.innerHTML=' ';
+						
+						var route2startEl2 = document.getElementById("route2start"+1);
+							route2startEl2.innerHTML=' ';
+					}
+						
+					
+					
 			
 					for (var i = 0; i < json.routes.length; i++) {
-						log('json.routes[0].'+json.routes[i].geometry);
+			//			log('json.routes[0].'+json.routes[i].geometry);
 						var stule=Route.getStule(routeFeatureId+i);				
 						var r = Route.createRouteFeaturemt(json.routes[i].geometry,routeFeatureId+i,stule);
 						
-						RouteControl.updateRouteInfo(json.routes[i],i,stule);
+						const distanceInfo=RouteControl.updateRouteInfo(json.routes[i]);
+						
+						if(routeFeatureId =='route2start')
+						{
+							var route2startEl = document.getElementById("route2start"+i);
+													route2startEl.innerHTML=distanceInfo;
+													log('createRoute route2start info '+distanceInfo +' index '+i);
+						}
+						else
+						{
+						var refDistance = document.getElementById("refDistance"+i);
+						refDistance.innerHTML=distanceInfo;
+						log('createRoute !!!!!route2start   info '+distanceInfo +' index '+i);
+						}
 						}
 					
 					
