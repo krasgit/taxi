@@ -20,3 +20,45 @@ http://krastaxi.ddns.net/
  Modify DDNS Key east4rq
  
  http://krastaxi.ddns.net/
+ 
+ 
+ Layer.handle [as handle_request] (/home/kivanov/Desktop/superCooke/supercookie/server/node_modules/express/lib/router/layer.js:95:5)
+    at /home/kivanov/Desktop/superCooke/supercookie/server/node_modules/express/lib/router/index.js:284:15
+    at param (/home/kivanov/Desktop/superCooke/supercookie/server/node_modules/express/lib/router/index.js:365:14)
+    at param (/home/kivanov/Desktop/superCooke/supercookie/server/node_modules/express/lib/router/index.js:376:14)
+    at Function.process_params (/home/kivanov/Desktop/superCooke/supercookie/server/node_modules/express/lib/router/index.js:421:3)
+    at next (/home/kivanov/Desktop/superCooke/supercookie/server/node_modules/express/lib/router/index.js:280:10)
+supercookie | Visitor uid='9fzo-zopd-3qpy-ilcx-wi4u' is known • Read
+supercookie | Visitor uid='puki-id9f-etxf-d0zq-akl0' is known • Read
+supercookie | Favicon requested by uid='puki-id9f-etxf-d0zq-akl0' • Read  0 • [ 0 ]
+supercookie | Favicon requested by uid='puki-id9f-etxf-d0zq-akl0' • Read  1 • [ 0, 1 ]
+supercookie | Favicon requested by uid='puki-id9f-etxf-d0zq-akl0' • Read  2 • [ 0, 1, 2 ]
+supercookie | Visitor uid='8ddj-qcid-j3ey-k4g9-hluy' is known • Read
+supercookie | Favicon requested by uid='8ddj-qcid-j3ey-k4g9-hluy' • Read  0 • [ 0 ]
+supercookie | Favicon requested by uid='8ddj-qcid-j3ey-k4g9-hluy' • Read  1 • [ 0, 1 ]
+supercookie | Favicon requested by uid='8ddj-qcid-j3ey-k4g9-hluy' • Read  2 • [ 0, 1, 2 ]
+supercookie | Favicon requested by uid='8ddj-qcid-j3ey-k4g9-hluy' • Read  3 • [ 0, 1, 2, 3 ]
+supercookie | Favicon requested by uid='8ddj-qcid-j3ey-k4g9-hluy' • Read  4 • [ 0, 1, 2, 3, 4 ]
+supercookie | Visitor successfully identified as '8D 3B 5C 6E 0B 01' • (#32).
+TypeError: Cannot read property 'includes' of undefined
+    at file:///home/kivanov/Desktop/superCooke/supercookie/server/main.js:345:25
+    at Layer.handle [as handle_request] (/home/kivanov/Desktop/superCooke/supercookie/server/node_modules/express/lib/router/layer.js:95:5)
+    at next (/home/kivanov/Desktop/superCooke/supercookie/server/node_modules/express/lib/router/route.js:149:13)
+    at Route.dispatch (/home/kivanov/Desktop/superCooke/supercookie/server/node_modules/express/lib/router/route.js:119:3)
+    at Layer.handle [as handle_request] (/home/kivanov/Desktop/superCooke/supercookie/server/node_modules/express/lib/router/layer.js:95:5)
+    at /home/kivanov/Desktop/superCooke/supercookie/server/node_modules/express/lib/router/index.js:284:15
+    at param (/home/kivanov/Desktop/superCooke/supercookie/server/node_modules/express/lib/router/index.js:365:14)
+    at param (/home/kivanov/Desktop/superCooke/supercookie/server/node_modules/express/lib/router/index.js:376:14)
+    at Function.process_params (/home/kivanov/Desktop/superCooke/supercookie/server/node_modules/express/lib/router/index.js:421:3)
+    at next (/home/kivanov/Desktop/superCooke/supercookie/server/node_modules/express/lib/router/index.js:280:10)
+supercookie | Visitor uid='a4pn-8sbd-sbf8-6t9x-3avg' is known • Read
+Debugger listening on ws://127.0.0.1:9229/f01bb79a-f18c-4b7e-9a2a-76d16dd5a815
+For help, see: https://nodejs.org/en/docs/inspector
+supercookie | Visitor uid='us5k-zo9y-1zg7-ul06-sdqg' is known • Read
+supercookie | Favicon requested by uid='us5k-zo9y-1zg7-ul06-sdqg' • Read  0 • [ 0 ]
+supercookie | Favicon requested by uid='us5k-zo9y-1zg7-ul06-sdqg' • Read  1 • [ 0, 1 ]
+supercookie | Favicon requested by uid='us5k-zo9y-1zg7-ul06-sdqg' • Read  2 • [ 0, 1, 2 ]
+supercookie | Favicon requested by uid='us5k-zo9y-1zg7-ul06-sdqg' • Read  3 • [ 0, 1, 2, 3 ]
+supercookie | Favicon requested by uid='us5k-zo9y-1zg7-ul06-sdqg' • Read  4 • [ 0, 1, 2, 3, 4 ]
+supercookie | Visitor successfully identified as '8D 3B 5C 6E 0B 01' • (#32).
+ 
