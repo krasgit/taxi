@@ -8,10 +8,13 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -23,10 +26,30 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.xml.bind.DatatypeConverter;
+import java.util.UUID;
 
 public class SuperCookieFilter implements Filter {
 
 	private static final int BUFFER_SIZE = 4096;
+	
+	
+	static List<String> ROUTES = new ArrayList<String>();
+	
+	static int ID=3;
+	
+	static void init()
+	{
+		ROUTES.add("A");
+		ROUTES.add("B");
+		ROUTES.add("C");
+		ROUTES.add("D");
+		
+	}
+	
+	
+	//generateVectorFromID(int id){
+	//	
+	//}
 	
 	static String urlPatterns="/SuperCookie/*";
 	
@@ -52,30 +75,50 @@ public class SuperCookieFilter implements Filter {
 	    return myHash;
 	}
 	
+	
+	
+	private String getCookieValue(HttpServletRequest req, String cookieName) {
+	    return Arrays.stream(req.getCookies())
+	            .filter(c -> c.getName().equals(cookieName))
+	            .findFirst()
+	            .map(Cookie::getValue)
+	            .orElse(null);
+	}
+	
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		//System.out.println("Procces UrlPatterns "+urlPatterns);
+		
+		/*
 		try {
 			String identifier="4";
 			String hash=hashNumber(identifier);
 			System.err.println("SuperCookie"+hash);
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		*/
+		
+		
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 
 		 Cookie[] cookies = httpRequest.getCookies();
-		String rs = httpRequest.getRequestedSessionId();
-		 Enumeration<String> hs = httpRequest.getHeaderNames();
 		 
+	
+		 
+		String rs = httpRequest.getRequestedSessionId();
+		 /*
+		   Enumeration<String> hs = httpRequest.getHeaderNames();
+		  
+		 
+		    while (hs.hasMoreElements()) {
+                System.out.println("Value is: " + hs.nextElement());
+        }
+		*/
 		
-		
-		
-		
-		System.err.printf("The current date is: %tF", new Date());  // '%tF': format as yyyy-mm-dd
-		System.err.println();
+		//System.err.printf("The current date is: %tF", new Date());  // '%tF': format as yyyy-mm-dd
+		//System.err.println();
 		//System.err.printf("The last mo date is: %tF", getLastModified(httpRequest));  // '%tF': format as yyyy-mm-dd
 		
 		
@@ -84,15 +127,215 @@ public class SuperCookieFilter implements Filter {
 		String ff = httpRequest.getRequestURI();
 		//String bb = getFullURL((HttpServletRequest) request);
 		String queryString = httpRequest.getQueryString();
-		String url = "http://localhost:8181/search?" + queryString;
+		
+		System.out.println("GET ==" + ff );
+		
+		//String url = "http://localhost:8181/search?" + queryString;
 
+		 HttpServletResponse httpResponse=(HttpServletResponse)response;
+		
+		if(ff.equals("/SuperCookie/"))
+		{
+			ServletOutputStream outputStream = response.getOutputStream();
+			 PrintStream printStream = new PrintStream(outputStream);
+			 printStream.print(getLaunch());
+			 printStream.close();
+			 return;
+		}
+			
+		
+		
+		if(ff.contains(".svg")) {
+		
+			String in=ff.replace("/SuperCookie/t/", "").replace("/favicon.svg", "");
+			
+			 String uid = getCookieValue(httpRequest,"uid");
+			System.err.println("Get favicon.svg index "+in+" uid "+uid);
+			httpResponse.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+			
+			
+		}
+		
+		
+		if(ff.startsWith("/SuperCookie/t/"))
+		{
+			int index=0;
+			
+			try {
+				index = Integer.parseInt(ff.replace("/SuperCookie/t/", ""));
+				}
+				catch (NumberFormatException e) {
+				
+				}
+			System.err.println(index);
+			
+			
+			
+			
+			
+			if(index>4)
+			{
+				System.err.println(index);
+				return ;
+			}
+			index++;
+			ServletOutputStream outputStream = response.getOutputStream();
+			 PrintStream printStream = new PrintStream(outputStream);
+			 //printStream.print(referrer(index,"SuperCookie/t/"+index));
+			 printStream.print(fgfdgf(index,"SuperCookie/t/"+index));
+			 
+			 printStream.close();
+			 return;
+			
+		}
+		
+		if(ff.equals("/SuperCookie/read"))
+		{
+			
+	        String  uuid = UUID.randomUUID().toString();
+	      
+
+	        System.out.println("supercookie | Visitor uid='${"+uuid+"}' is known • Read");
+	        
+	        
+	        httpResponse.addCookie(new Cookie("uid", uuid));
+	        
+	        System.err.println("new Cookie uid "+uuid); 
+	        
+	        
+	      String route="0";//  Webserver.getRouteByIndex(0)
+	        
+	        
+	        
+	        String redirect="/SuperCookie/t/"+route+"?"+uuid;
+	        httpResponse.sendRedirect(redirect);
+			
+			
+			return;
+			/*
+			
+			ServletOutputStream outputStream = response.getOutputStream();
+			 PrintStream printStream = new PrintStream(outputStream);
+			 printStream.print(getLaunch());
+			 printStream.close();
+			 return;
+			 */
+		}
 		
 		
 		//chain.doFilter(request, response);
-		connectRelay(url, (HttpServletResponse) response);
+		connectRelay(ff, (HttpServletResponse) response);
 
 	}
+
+	/*
+	String referrer(int index,String referrer){
+ String ret="<!DOCTYPE html>\n"
+ 		+ "<html>\n"
+ 		+ "    <head>\n"
+ 		+ "        <meta charset='utf-8'/>\n"
+ 		+ "        <title>supercookie • "+index+"</title>\n"
+ 		+ "        <meta name='robots' content='noindex'/>\n"
+ 		+ "        <meta name='viewport' content='viewport-fit=cover, user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1'>\n"
+ 		+ "        <link rel='shortcut icon' href='"+index+"/favicon2.svg' type='image/x-icon'/>\n"
+ 		+ "    </head>\n"
+ 		+ "    <body>\n"
+ 		+ "        <h1>"+index+"</h1>\n"
+ 		+ "        <script>\n"
+ 		//+ "            console.info('"+index+" • bit v1`, JSON.parse(\"{{bit}}'));\n"
+ 		+ "\n"
+ 		+ "            window.addEventListener('DOMContentLoaded', () => {\n"
+ 		+ "	var  ref=document.location.origin;           \n         "
+ 		+ "  ref+='/"+referrer+"'; \n"
+ 		
+ 		+ "                document.location.href =ref;\n"
+ 		+ "            });\n"
+ 		+ "        </script>\n"
+ 		+ "    </body>\n"
+ 		+ "</html>\n"
+ 		+ ""		;
+ 
+ return ret; 
+	}
 	
+	*/
+	
+	
+String fgfdgf(int index,String referrer){
+	
+	
+	
+	
+	String ret="<!DOCTYPE html>\n"
+			+ "<html>\n"
+			+ "    <head>\n"
+			+ "        <meta charset=\"utf-8\"/>\n"
+			+ "        <title>supercookie • "+referrer+"</title>\n"
+			+ "        <meta name=\"robots\" content=\"noindex\"/>\n"
+			+ "        <meta name=\"viewport\" content=\"viewport-fit=cover, user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1\">\n"
+			+ "        <link rel='shortcut icon' href='"+index+"/favicon100.svg' type='image/x-icon'/>\n"
+			
+			+ "        <style>html, body { margin: 0px; width: 100%;height: 100%;padding: 0px;display: flex;justify-content: center;align-items: center;background-color: rgb(32, 32, 32);\n"
+			+ "                color: #ff0358;\n"
+			+ "                font-size: large;\n"
+			+ "                font-family: sans-serif;\n"
+			+ "            }\n"
+			+ "        </style>\n"
+			+ "    </head>\n"
+			+ "    \n"
+			+ "    <body>\n"
+			+ "        <h1>"+index+"</h1>\n"
+			+ "        <script type=\"module\">\n"
+			//+ "            console.info(''+index+` • bit v2`,+index +'bit'));          \n"
+			//+ "            if (JSON.parse(\"{{bit}}\"))\n"
+			//+ "                document.location.href = `${document.location.origin}/{{referrer}}`;\n"
+			+ "            const favicon = document.createElement('link');\n"
+			+ "            favicon.rel = \"icon preload\";\n"
+			+ "            favicon.as = \"image\";\n"
+			+ "            favicon.type = \"image/x-icon\";\n"
+			
+            + "            favicon.href = `${window.location.host}/SuperCookie/f/favicon.svg`;\n"
+			
+			+ "            favicon.onload = favicon.onerror = () => \n"
+			+ "                document.location.href = `${document.location.origin}/"+referrer+"`;\n"
+			+ "            document.head.appendChild(favicon);\n"
+			+ "            globalThis.f = favicon;\n"
+			+ "            favicon.href = `${window.location.host}SuperCookie/f/favicon`;\n"
+			+ "        </script>\n"
+			+ "    </body>\n"
+			+ "</html>";
+	return ret;
+}
+	
+	String getLaunch(){
+		String launch="<!DOCTYPE html>\n"
+				+ "<html>\n"
+				+ "    <head>\n"
+				+ "        <meta charset=\"utf-8\"/>\n"
+				+ "        <title>supercookie</title>\n"
+				+ "        <meta name=\"author\" content=\"Jonas Strehle\"/>\n"
+				+ "        <meta name=\"robots\" content=\"noindex\"/>\n"
+				+ "        <meta name=\"viewport\" content=\"viewport-fit=cover, user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1\">\n"
+				+ "        <link rel=\"shortcut icon\" href=\"/l/{{favicon}}\" type=\"image/x-icon\"/>\n"
+				+ "    </head>\n"
+				+ "    \n"
+				+ "    <body>\n"
+				+ "        <h1>...</h1>\n"
+				+ "        <script type=\"module\">\n"
+				+ "            window.onload = async () => {\n"
+				+ "                await new Promise((resolve) => setTimeout(resolve, 500));\n"
+				+ "                const mid = (document.cookie.match(new RegExp(`(^| )mid=([^;]+)`)) || [])[2];\n"
+				+ "                const route = !!mid ? `/write/${mid}` : \"/read\";\n"
+				+ "                document.cookie.split(\";\").forEach((c) => document.cookie = c.replace(/^ +/, \"\").replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`));\n"
+				+ "                window.location.href ='/SuperCookie'+route;\n"
+				+ "            }\n"
+				+ "        </script>\n"
+				+ "    </body>\n"
+				+ "</html>";
+		
+		return launch;
+	}
 	
 	
 	/*
@@ -103,8 +346,21 @@ public class SuperCookieFilter implements Filter {
 	        ImageIO.write(bufImg, "png", outputStream);
 	    }
 	*/
+	
+	
+void WriteCooce( HttpServletResponse response) {
+		
+	response.addCookie(new Cookie("foo", "bar"));
+	}
+	
 	private void connectRelay(String remoteAddress, HttpServletResponse response) throws IOException {
 		System.out.println("target Address : " + remoteAddress);
+		
+		
+		response.sendError(HttpServletResponse.SC_NOT_FOUND);
+		if(true==true)
+		return;
+		
 		
 		
 		String str="<?xml version=\"1.0\" encoding=\"utf-8\"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->\n"
@@ -119,28 +375,11 @@ public class SuperCookieFilter implements Filter {
 		
 		//response.setContentType("image/ico");
 		response.setContentType("image/svg+xml");
-		//response.setHeader("Pragma", "");
-		//response.setHeader("Cache-Control", "");
 		
-		response.addHeader("Cache-Control", "public, max-age=31536000");
+		response.addHeader("Cache-Control", "max-age=2592000");
 		response.addHeader("Expires", "Tue, 03 Jul 2031 06:00:00 GMT");
 		response.addHeader("Content-Type", "image/svg+xml");
-		response.addHeader("Content-Length", ""+str.length());
-		
-	    /*
-	          "Cache-Control": "public, max-age=31536000",
-        "Expires": new Date(Date.now() + 31536000000).toUTCString(),
-        "Content-Type": "image/png",
-        "Content-Length": str.length
-	     */
-		
-
-		response.setHeader("Content-Disposition", "inline; fileName=image.ico");
-		
-		response.setHeader("Expires", "Tue, 03 Jul 2026 06:00:00 GMT");         
-		response.setHeader("Last-Modified", new Date().toString());   
-		
-		
+		response.addHeader("Last-Modified","Tue, 03 Jul 2030 06:00:00 GMT");
 		//response.setStatus(BUFFER_SIZE)
 		
 		ServletOutputStream outputStream = response.getOutputStream();

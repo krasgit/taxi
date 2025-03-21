@@ -12,7 +12,7 @@
 	<link rel="icon" type="image/x-icon" href="./resources/sc/favicon.ico">
 	<link rel="icon" type="image/x-icon" href="/SuperCookie/sc1/favicon.ico">
 	-->
-	<link rel="icon" type="image/svg+xml" href="/SuperCookie/sc1/favicon.svg" >
+	<link rel="icon" type="image/svg+xml" href="/SuperCookie/sc1/favicon.svg?1" >
 
 	<link rel="stylesheet" href="/resources/openlayers/ol-debug.css" type="text/css" />
 	<!--
@@ -139,7 +139,7 @@
 	function initMap (mode ){
 	
 	const source = new ol.source.XYZ({url: 'https://' + hostname + ':8443/tile/{z}/{x}/{y}.png'});
-	const tileLayer = new ol.layer.Tile({source: source});
+	const tileLayer = new ol.layer.Tile({maxZoom: 14,source: source});
 	
 	const vectorLayer = new ol.layer.Vector({source: vectorSource})
 
