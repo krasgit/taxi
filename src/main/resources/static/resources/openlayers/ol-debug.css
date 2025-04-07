@@ -72,8 +72,8 @@
   left: .5em;
 }
 .ol-full-screen {
-  right: .5em;
-  top: .5em;
+  /*right: .5em; top: .5em;*/
+  right: .1em; top: 0.1em;
 }
 @media print {
   .ol-control {
@@ -83,6 +83,7 @@
 
 .ol-control button {
   display: block;
+  /*margin: 1px;*/
   margin: 1px;
   padding: 0;
   color: white;
@@ -90,8 +91,8 @@
   font-weight: bold;
   text-decoration: none;
   text-align: center;
-  height: 1.375em;
-  width: 1.375em;
+  /*height: 1.375em;  width: 1.375em;*/
+  height: 1.345em;  width: 1.355em;
   line-height: .4em;
   background-color: rgba(0,60,136,0.5);
   border: none;
