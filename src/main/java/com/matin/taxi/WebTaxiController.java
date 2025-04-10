@@ -10,5 +10,13 @@ class WebTaxiController {
 		return "last/taxi";
 	}
 
+/*
+	@GetMapping("/supercookie/launch")
+	public String launch() {
+		return "supercookie/launch";
+	}
+	
+	*/
+	
 	
 }

@@ -370,4 +370,35 @@ public class PersonDAOImpl implements PersonDAO {
 		// TODO Auto-generated method stub
 		return jdbcTemplate;
 	}
+	
+	public boolean createPosition(Long personId, String position) {
+		String SQL="INSERT INTO taxi.position (  personid, position)		VALUES( ?,  ?);";
+		return jdbcTemplate.update(SQL, personId, position) > 0;
+	}
+
+	public Position getLastPosition(Long personId) {
+		String SQL="SELECT * FROM taxi.position		WHERE id = (SELECT MAX(ID) FROM taxi.position where personId=? );";
+		return jdbcTemplate.queryForObject(SQL, new Object[] { personId }, new PositionMapper());
+	}
+
+/*
+	public Person getPersonByToken(String token) {
+		String sql = "SELECT * FROM person WHERE token = ?";
+		try {
+			return jdbcTemplate.queryForObject(sql, new Object[] { token }, new PersonMapper());
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+		// (sql, Integer.class, name,token);
+		//
+
+		// this.jdbcTemplate.queryForObject(sql, Integer.class, user, token);
+		// this.jdbcTemplate.queryForObject( sql, Integer.class, new Object[] {
+		// user,token });
+	}
+*/
+	
+	//get
+	
+	
 }

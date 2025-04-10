@@ -15,10 +15,14 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 
@@ -32,6 +36,60 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 	 */
 	private final Map<String, WebSocketSession> connectedUsers = new HashMap<>();
 
+	
+	
+	public void command(String sentdToClientByToken, String command ) {
+		
+		ResultMessage resultMessage = new ResultMessage(null, command,null);
+		
+			WebSocketSession webSocket = connectedUsers.get(sentdToClientByToken);
+			//webSocket.getPrincipal().s
+			try {
+				
+				if(webSocket!=null)
+					   webSocket.sendMessage(new TextMessage(Utils.getString(resultMessage)));
+					else 
+						LOG.error("null webSocket");
+			} catch (Exception e) {
+				LOG.warn("Error while message sending.", e);
+			}
+		
+
+	}
+
+	
+	
+  public SignalingSocketHandlerRPC() {
+    	
+    ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
+    Runnable periodicTask = new Runnable() {
+    		    public void run() {
+    		    	 connectedUsers.values().forEach(webSocketSession -> {
+    		             try {
+    		            	 final SignalMessage updateInfo = new SignalMessage();
+    		            	 updateInfo.setType("UpdateInfo");
+    		            	 updateInfo.setSender("app");
+    		            	 
+    		            	 //updateInfo.setData(getCurrentDateTime()+" online "+connectedUsers.size());
+    		            	// LOG.info(updateInfo.toString())  ;  	 
+    		                 webSocketSession.sendMessage(new TextMessage(Utils.getString(updateInfo)));
+    		             } catch (Exception e) {
+    		                 LOG.warn("Error while message sending.", e);
+    		             }
+    		         });
+    		    	
+    		    }
+    		};
+    		executor.scheduleAtFixedRate(periodicTask, 0, 10, TimeUnit.SECONDS);    
+	}
+	
+	public Map<String, WebSocketSession> getConnectedUsers() {
+	
+		return connectedUsers;
+	}
+	
+	
 	public static Map<String, String> splitQuery(String query) throws UnsupportedEncodingException {
 	    Map<String, String> query_pairs = new LinkedHashMap<String, String>();
 	    
@@ -332,6 +390,8 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 		}
 
 	}
+
+	
 
 	
 }

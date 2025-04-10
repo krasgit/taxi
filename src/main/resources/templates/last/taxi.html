@@ -5,156 +5,30 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Open Taxi</title>
-	<!-- <link rel="icon" type="image/x-icon" href="/resources/images/favicon.png">-->
-	<link rel="icon" type="image/x-icon" href="./resources/images/favicon.ico">
+		<link rel="icon" type="image/x-icon" href="./resources/images/favicon.ico">
 	<link rel="icon" type="image/x-icon" href="./resources/sc/favicon.ico">
-	<link rel="icon" type="image/x-icon" href="./resources/sc1/favicon.ico">
 	
-
 	<link rel="stylesheet" href="/resources/openlayers/ol-debug.css" type="text/css" />
-	<!--
-	<link rel="stylesheet" href="/resources/openlayers/w3.css"    />
-				 
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-	-->
-	<script src="/resources/openlayers/ol-debug.js"></script>
-
 	
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="/resources/openlayers/ol-debug.js"></script>
 	
 	<script src="SignalMessage.js"                   th:src="@{/resources/openlayers/SignalMessage.js}" ></script>	
 	<script src="webSocketClient.js"           th:src="@{/resources/openlayers/webSocketClient.js}" ></script>
 	<script src="autoComplete.js"           th:src="@{/resources/openlayers/autoComplete.js}" ></script>
-		
-	<!--
-	<script src="interaction.js"           th:src="@{/resources/openlayers/interaction.js}" ></script>
-	-->
+	
 	<script src="routeControlTaxi.js"           th:src="@{/resources/openlayers/routeControlTaxi.js}" ></script>
 	<script src="route.js"           th:src="@{/resources/openlayers/route.js}" ></script>
 	<script src="utils.js"           th:src="@{/resources/openlayers/utils.js}" ></script>
 	<script src="geoLocation.js"           th:src="@{/resources/openlayers/geoLocation.js}" ></script>
 	<script src="superCookie.js"           th:src="@{/resources/openlayers/superCookie.js}" ></script>
 	
+	<script src="cookie.js"          th:src="@{/resources/openlayers/cookie.js}" ></script>
+	<script src="RpcMain.js"  type="module" defer  th:src="@{/resources/openlayers/RpcMain.js}" ></script>
+	
 	<link rel="stylesheet" href="/resources/openlayers/bulma.css" type="text/css" />	
 	
 </head>
-<style>
-	html,body {height: 100%;padding: 0;margin: 0;font-size: 14px; background: #c9c9ce;}
-	#map {width: 100%;height: 100%;}
-</style>
-<style name="">
-	.kelement {	position: fixed; left: 0px;	right: 0px;	bottom: 8px; width: 300px; max-width: calc(	100vw - 4px ); margin-inline: auto; } 
-	/* Full-width input fields */
-    k_input[type=text], input[type=password] {   width: 100%;  padding: 4px 4px;  margin: 2px 0;  display: inline-block;  border: 1px solid #ccc;}
-    /* Set a style for all buttons */
-    k_button {  background-color: #04AA6D;  color: white;  padding: 4px 4px;  margin: 2px 0;  border: none;  cursor: pointer;}
-</style>
-<style>
-	.geolocation_marker { color: white; padding: 8px 9px; text-align: center; text-decoration: none; display: inline-block; background-size: contain; background-repeat: no-repeat;
-		background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABYgAAAWIBXyfQUwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAK6SURBVDiNtdXPa9NwGMfxd9KsWxhJHWx1C1h/DIa7OCaiiDt68CB4KELn8KB3ETz5D0TUQ4+exB12WEF6GHgZjIEBKaiXiTBBh1hph50wm2izLW0eD34zdhE7oQ98IAk8r3zzDTxfTUTQNE0DkqRU+gBDJQXo/KkY6ABtlUjddwABRETkIKgrIK0yAPSrGLOzsyMAi4uLWwrcVdkB9lQ66sWCAg0FZYBR4JTjONOVSqVYq9W8VqvVEFWtVqtRq9W8SqVSdBxnGjilejLKMJKvS6lVZYAxYMJ13RvNZvOTHKhW1JFW1Dn4SJrN5ifXdW8AE6o3o6wU6rMt9dYJz/MexXEciYjU/D25s/xFzj59L8aDN2I8eCNnn76XO8tfpObviYhIHMeR53mPFD6qrHSy2gHAcl33/Nzc3GNN04z5te9ce/4Rrxqw+TMiFogFNn9GvK7/4tnaFkcH+5geHdRzudyFdDr9enV19Zva/1gDbMByHCe7vr7+3Lbt8fm179x+8Zlu6tnVk9yaGsb3/Y3Jycnr9Xq9AQTJj+svl8s3bdserwcR91aqXaEA91aq1IMI27bHy+XyTbUDxj6cy+XOATysbPJjp9M1/GOnw8PKJgDK2IdTgDE0NHQa4NXXoGs0qaRHGQaQ0gGtUChkTdMcCdsx7xrhoeF3jZCwHWOa5kihUMgCmv7Prv8sHZBSqdQIw3DLNHTOZM1DI2eyJqahE4bhVqlUagCiowbK9vb2B4BLx6xDw0mPMtpAR1cXu9Vq9S3A/YtjHBlIdY0eGUhx/+IYAMrYBdr7cD6fX/B9f8Ox+iheznUNFy/ncKw+fN/fyOfzCwmczF4tCAIsy/o4MzNzbXp0UD+e6edlNWCnLX9d6ZMrJ7g1NYyItIvF4t2lpaUN4Bd/RmhvhhD0cGz2ZND37GjSenWY/ga+vttOWmiJZgAAAABJRU5ErkJggg==");
-	}
-</style>
-
-<style>
-	* {box-sizing: border-box;}
-
-	/*the container must be positioned relative:*/
-	.autocomplete {		position: relative;		display: inline-block;	}
-	input {	border: 1px solid transparent; background-color: #f1f1f1;	--padding: 10px; font-size: 13px; }
-	input[type=text] { background-color: #f1f1f1; width: 100%; } 
-	input[type=submit] { background-color: DodgerBlue; color: #fff; cursor: pointer; }
-	.autocomplete-items { position: absolute; border: 1px solid #d4d4d4; border-bottom: none; border-top: none; z-index: 99;
-		/*position the autocomplete items to be the same width as the container:*/
-		top: 100%; left: 0; right: 0; 
-	}
-	.autocomplete-items div { padding: 10px; cursor: pointer; background-color: #fff; border-bottom: 1px solid #d4d4d4; }
-
-	/*when hovering an item:*/
-	.autocomplete-items div:hover { background-color: #e9e9e9; }
-
-	/*when navigating through the items using the arrow keys:*/
-	.autocomplete-active { background-color: DodgerBlue !important; color: #ffffff; }
- 	.ref1::before { content: "bg "; } 
-	.ref2::before {	content: "cart ";}
-	.refX::before {	content: "X "; 	}
-	.refDistance::before { content: "Distance "; }
-	.refAdd::before { content: " + "; }
-</style>
-
-
-<script name="auto complete ">
 	
-	class Cookie {
-		constructor( ) {	}
-		
-		static updateRouteInfo(json){
-			
-		}
-		
-		static setCookie(cname, cvalue, exdays) {
-		  const d = new Date();
-		  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-		  let expires = "expires="+d.toUTCString();
-		  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-		}
-
-		static getCookie(cname) {
-		  let name = cname + "=";
-		  let ca = document.cookie.split(';');
-		  for(let i = 0; i < ca.length; i++) {
-		    let c = ca[i];
-		    while (c.charAt(0) == ' ') {
-		      c = c.substring(1);
-		    }
-		    if (c.indexOf(name) == 0) {
-		      return c.substring(name.length, c.length);
-		    }
-		  }
-		  return "";
-		}
-
-		
-	}
-	
-	</script>	
-	
-	
-	<script type="text/javascript">
-		
-		console.clear();
-		/*
-		console.time();
-		for (let i = 0; i < 100000; i++) {
-		  // some code
-		}
-		console.timeEnd();
-		
-		console.table({param1:"1n", param2:"hello"});
-            var msg='fgdfg';
-			console.log(	"%c"+msg,		"color: fuchsia");
-			
-			// The same CSS styling can be used with many of the other console methods, like the .group() method.
-			console.group(		"%cGrouped Output",		"background-color: #e0005a ; color: #ffffff ; font-weight: bold ; padding: 4px ;"	);
-			console.log( "Groups are cool for grouped stuff." );
-			console.log( "Totes magotes" );
-			
-			console.groupCollapsed(		"%cGrouped Output1",		"background-color: #e0005a ; color: #ffffff ; font-weight: bold ; padding: 4px ;"	);
-						console.log( "Groups are cool for grouped stuff.1" );
-						console.log( "Totes magotes1" );
-						console.groupEnd();
-			
-			console.groupEnd();
-			
-			console.log("Hello world!");
-			console.groupCollapsed();
-			console.log("Hello again, this time inside a collapsed group!");
-			console.clear();
-			*/
-		</script>
-		
-
-</script>	
 <script name="auto complete ">
 	const log = console.log;
 
@@ -181,128 +55,9 @@
 
 </script>
 
-<section id='loginsection' class="section" style="display:qaz ">
-  <div class="container">
-
-
-    <div class="card" id="log-in-card">
-      <header class="card-header">
-        <h1 class="card-header-title">
-          Log In
-        </h1>
-      </header>
-      <div class="card-content">
-        <div class="content">
-
-          <div class="field">
-            <label class="label">Username</label>
-            <div class="control">
-              <input id="username" class="input" type="email" placeholder="user@example.com">
-            </div>
-          </div>          
-
-          <div class="field">
-            <label class="label">Password</label>
-            <div class="control">
-              <input id="password" class="input" type="password">
-            </div>
-          </div>
-
-          <p style="text-align: right;"><a href="#" id="open-userinfo">Forgot your password?</a></p>
-
-        </div>
-      </div>
-      <footer class="card-footer">
-        <div class="card-footer-item"><a href="#" onclick='initMap();' class="button is-primary" id="log-in-button">Log In</a></div>
-      </footer>
-    </div>
-
-  </div>
-</section>
 
 <div id="map" class="map"></div>
 
-<div id='loginCont' style=' background-color: rgb(114, 159, 207); border:1px solid' jstyle=' background-color: rgb(114, 159, 207); border:1px solid black;max-width: fit-content;  margin-left: auto;  margin-right: auto;'>
-  <div class="ontainer">
-    <label for="uname"><b>Username</b></label>
-    <input type="text" placeholder="Enter Username" name="uname" >
-	<br>	
-	<div class="input-group -1 mt-1">
-	      <span class="input-group-text" style="display:none1" >
-	         <img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" alt="Red dot" />
-	      </span>
-	      <input type="text" class="form-control" placeholder="Start">
-	         <button type="button" class=" btn btn-primary btn-sm">
-	          <img class="geolocation_marker" />
-	         </button>
-
-	      <button type="button" class="btn btn-primary btn-sm">
-	          <i class="fa fa-trash"></i>
-	      </button>
-	  </div>
-<br>
-    <label for="psw"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" name="psw" >
-<br>
-    <button type="submit">Login</button>
- <button type="submit">Register</button>
-<span  style="float: right;  ">
- <button type="button" class="">Cancel</button>
-</span>
-</div>
-
-
-<style>
-.ol-popupdbl {
-  position: absolute;
-  background-color: white;
-  -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
-  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid #cccccc;
-  bottom: 12px;
-  left: -50px;
-  min-width: 250px;
-}
-
-.ol-popup1 {
-  position: absolute;
-  left: 50%;    
-  top:50%;   
-
-  width: 250px;  
-  height:100px;  
-
-
-  margin-left:-125px; 
-  margin-top:-50px; 
-
-  background-color:#000000;  
-}
-
-.ol-popup {
-position: absolute;
- left: 50%;     
- top:50%;   
-
- width: 250px; 
- height:100px;  
-
-
- margin-left:-125px; 
- margin-top:-50px;  
-
- background-color:#000000;  
-}
-.center1 {
-  margin: auto;
-  width: 50%;
-  border: 3px solid green;
-  padding: 10px;
-}
-
-</style>
 
 <script>
 		
@@ -311,7 +66,7 @@ position: absolute;
 	var map;
 	function initMap (){
 	
-		document.getElementById('loginsection').style.display='none';
+	
 		
 	const source = new ol.source.XYZ({url: 'https://' + hostname + ':8443/tile/{z}/{x}/{y}.png'});
 	const tileLayer = new ol.layer.Tile({source: source});
@@ -330,301 +85,100 @@ position: absolute;
 		view: view,
 	});
 
-	var rc = new RouteControlTaxi();
-
-	map.addControl(rc);
-	rc.init();
-
-	var sc = new SuperCookie();
-		map.addControl(sc);
 	
-	map.on('click', function (e) {
-		var coordinate = ol.proj.toLonLat(e.coordinate).map(function (val) {
-			return val.toFixed(6);
-		});
-		var lon = coordinate[0];
-		var lat = coordinate[1];
-		simpleReverseGeocoding(lon, lat);
-	});
 		
 	
-	initGeo(); //depends of map
+//	initGeo(); //depends of map
 	
-	
-	function create()
-	{
-		var node_1 = document.createElement('DIV');
-			  node_1.setAttribute('id', 'popupdbl');
-			  node_1.setAttribute('class', 'ol-popup center'); //ol-popupdbl
-
-			  var node_2 = document.createElement('A');
-			  node_2.setAttribute('href', '#');
-			  node_2.setAttribute('id', 'popupdbl-closer');
-			  node_2.setAttribute('class', 'ol-popupdbl-closer');
-			  node_1.appendChild(node_2);
-
-			  var node_3 = document.createElement('DIV');
-			  node_3.setAttribute('id', 'popupdbl-content');
-			  node_1.appendChild(node_3);
-			  
-			  node_3.innerHTML = '<p>Original popup (Double click)</p><code>' + "hdms" +
-			       '</code>';
-			  
-    return node_1;
-	}
-	
-	
-	var dblcontainer =create();
-	
-	var dbloverlay = new ol.Overlay(/** @type {olx.OverlayOptions} */ ({
-	  element: dblcontainer,
-	  autoPan: true,
-	  autoPanAnimation: {
-	    duration: 250
-	  }
-	}));	
-	
-	map.addOverlay(dbloverlay);
-
-	dbloverlay.on('change:position', function(evt) {
-	  var width=document.getElementsByClassName('ol-popup')[0].offsetWidth;
-	  var centerX=-width/2;
-	  var position=[centerX,0];
-	  this.setOffset(position);
-	});
-	
-	map.on('dblclick', function(evt) {
-	  var coordinate = evt.coordinate;
-	  
-	  var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(
-	      coordinate, 'EPSG:3857', 'EPSG:4326'));
-
-
 		
-		  
-		  
-	  //node_1.innerHTML = '<p>Original popup (Double click)</p><code>' + hdms +	      '</code>';
-	  dbloverlay.setPosition(coordinate);
-	});
-		
+			
 	}
 	
 	initMap ();
-//-----------------------------------------------------------------------------
-	var markerImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAApCAYAAADAk4LOAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAUlSURBVFjDrZdLiBxVFIb/e289uqt6kkx6zIiIoKgLRReKuMhCcaOIAUEIiCCE4CIPggZ8kBjooPgM0TiYEUUjqBGchZqAQlyYRTA+kJiJQiJGMjN5zYzT3dP1rrr3HBeTjDGTSfc8Dvyruud89Z9z6kIJdBj31763MivsJXKuZYF6dak5++2mh7NOcsXVHq6sHbhOK/24kOJJMO4AE1vKygwZhxlKSHGKiD+RSu09vOXB43OCrHz96y6T2lsh+OmKXzFdlbLne2UopSAupBhjECcZgjDMgiiSxPhcK/nCr1sfOtcWcm/tq9uEsL4rl0vdK67pKVu2jUwTMk0wBBAzpBCQAnAtiZIlwWQwPlHPglZQAFj1Y23VwVkh92zbd59U+Kanp+p2L12mooKQ5AbcpuclS6LiKoRhxOfHzhXMcs3PtVV7Z0DufXH/LSzpSG9vr1/p6kIz0dDUrvx/IYXAsrJCkWc4e/Z0Zpgf+KX26A/TkNtrXziesY9Xq8tvWNZdVfVYg7hzwKVv3O3ZiKMWj46OTrq5fdOh1x5pSADwjdzo2nbv0u6qqkca2jCIMGcZAuqRhu8vEX7ZK2V2WgMAcXdtvyeKbPS662+osCohzMycHVweniNREoShoZO5KYobpciSh23bFq7rIUgNiLFghRkBlg2v7GlpiccsCHrcryzxUk3zmsNskeYGvt/lxVH4hMWEu9xSWaQFYQ7L1B6iGZ5bBoy+zWKiHiltFHpqeIsVhWaosg1iqlgg4wAAEYEXsV3EmNppJmExMFYUxfVSuIs6E0sI5FkBBhLJzH9laQxLSjBj0WQJgSJPweDTkknvS4JGbCuxKOt7UY4lEQfNnAu9TzLxN2nUdAQTLAEw8YIlAVgAkmDCSBL75eCutSeY+GTUqqNkqUVxUbIl4qgJo4vWzecrhyQAMJldYf1MXLLl1EIsYBZgoGwpRI2zMTPtGBhYbSQAlJF9lieRzNMIriVBzPOWawvoIkYaNC0u9IcAIAHgp75NLQl8ENbPZJ6jgAU48RyFqHEuZyE+Pda/vjENAQBD5s209Y+kPJlyM4+r3lUS0AWSyVEhpHnjYu1pyO+7N4ywwPvhxHDiuwo8j1b5rkQwMZIziYHBXetPzIAAgIV8exZOSMoieI6aU5vKtgR0jqw1JtiYbZfW/R/kSN+mcWbxdtwYjn1XTd9B7cQAfNdCWB/OhBR7jvWv/3tWCAAoO3ktjyZZJ0HHbsq2AooERVQXzPKly2vOgPz29jNNBr+e1IcSz5YAM4hmFzPDtyWS+lDK4N2DfU+dbgsBAFHyd+oszE3agt/GjWcrUBEjj5sQBb96pXpXhAzueDJi4u1p41TsuQpCiFln4bkKeXMoJeadg++tG+sYAgBBXOo3RRrruAnfkWDmGfIdCeQhiiQgQbxjtlqzQk59vCZlNluL5lDiORLyMjcA4DsKeXM4AfDKxa97ThAAqPaMfaR1Nq6jOiqOAhOm5TsKJg1QZGGRedY7V6tzVcjBWk1D0JZ8cigt2RJSimkXnqOgW8MxQLUTb6wN5g0BgGPV0c9BekTH41xx5YXrQ8FkTRgdpxU7ea9djbYQ1GokmJ43wUhWtgRcS04tQjAcw9CWw29tThYOAXD03XVfMps/TTTOy30blDZgiqxFK6p7OsnvCDJ1UD9LyUjORoPDkUQyPfdHbXW+qJCjfRsOwOAoNY4z6Xz01rHq3k5zO4ZMHTabYSIhJD87MLB64f8Ys8WdG/tfBljMJedfwY+s/2P4Pv8AAAAASUVORK5CYII="
-
-	function getFeatureStyle(text) {
-		var defaultStyle = new ol.style.Style({
-			image: new ol.style.Icon({anchor: [12, 41], anchorXUnits: 'pixels', anchorYUnits: 'pixels', src: markerImage}),
-			text: new ol.style.Text({
-				offsetY: -24, offsetX: 0, text: text, placement: 'point', textAlign: 'center', fill: new ol.style.Fill({color: 'rgb(255, 255, 255)'}),
-				//        backgroundFill: new ol.style.Fill({color: 'black'}),
-				padding: [3, 5, 3, 5]
-			})
-		});
-		return defaultStyle;
-	}
-
-	var defaultStyle = new ol.style.Style({
-		image: new ol.style.Icon({anchor: [12, 41], anchorXUnits: 'pixels', anchorYUnits: 'pixels', src: markerImage}),
-		text: new ol.style.Text({
-			offsetY: -24, offsetX: 0, text: 'A', placement: 'point', textAlign: 'center', fill: new ol.style.Fill({color: 'rgb(255, 255, 255)'}),
-			//        backgroundFill: new ol.style.Fill({color: 'black'}),
-			padding: [3, 5, 3, 5]
-		})
-	});
-
-	var routeStyle = new ol.style.Style({stroke: new ol.style.Stroke({width: 3, color: [40, 40, 40, 0.8], }), });
-
-
-	//"address":{"road":"Тодор Хаджистанчев","neighbourhood":"Дълбокото дере","suburb":"кв. Виница","city":"Варна","county":"Приморски","state_district":"Варна","state":"Варна","ISO3166-2-lvl4":"BG-03","postcode":"9022","country":"България","country_code":"bg"}
-
-	//building: "Бл.209" city: "Варна" ​​country: "България"​​country_code: "bg" county: "Владислав Варненчик"house_number: "бл. 209"​​postcode: "9023"​​state: "Варна" state_district: "Варна"​​suburb: "кв. Кайсиева градина"
-	//Бл.209, бл. 209, кв. Кайсиева градина, Варна, Владислав Варненчик, Варна, 9023, България"
-
-
-	//TODO
-	function formatAddress(json) {
-
-		return json.display_name;
-		var address = json.address;
-		var ret = '';
-		if (!(address.road === undefined))
-			ret += address.road + ', ';
-
-		if (!(address.neighbourhood === undefined))
-			ret += +address.neighbourhood + ', ';
-
-		if (!(address.suburb === undefined))
-			ret += +address.suburb;
-		return ret;
-	}
-
-	function callbackSetInputElVal(el, value) {
-		el.value = value;
-	}
-
-	//reverseGeocoding(lon, lat,el,callbackSetInputElVal)
-	function reverseGeocoding(lon, lat, el, callbackFN) {
-
-		var url = 'https://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
-		
-		console.groupCollapsed(		"%c"+"ReverseGeocoding callbackFN " + url,		"background-color: #e0005a ; color: #ffffff ; font-weight: bold ; padding: 4px ;"	);
-		fetch(url).then(function (response) {
-			return response.json();
-		}).then(function (json) {
-			//          alert(json.display_name);
-			callbackFN(el, json.display_name);
-		console.log( json.display_name );
-		console.groupEnd();	
-		})
-	}
-
-	function simpleReverseGeocoding(lon, lat) {
-
-		var url = 'https://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
-		console.groupCollapsed(		"%c"+"ReverseGeocoding lon lat " + url,		"background-color: #e0005a ; color: #ffffff ; font-weight: bold ; padding: 4px ;"	);
-		fetch(url).then(function (response) {
-			return response.json();
-		}).then(function (json) {
-			console.log( json.display_name );
-					console.groupEnd();	
-		})
-	}
-
-	function simpleReverseGeocodingByWaypoint(waypoint) {
-
-		var lngLat = waypoint.lngLat;
-		var lon = lngLat[0];
-		var lat = lngLat[1];
-		var url = 'https://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
-
-		log("simpleReverseGeocodingByWaypoint" + url);
-		fetch(url).then(function (response) {
-			return response.json();
-		}).then(function (json) {
-			waypoint.name = formatAddress(json);
-			const targetId = "bnt" + waypoint.featureId;
-			const el = document.getElementById(targetId);
-			el.value = waypoint.name + '(' + lon.toFixed(6) + ';' + lat.toFixed(6) + ')';
-
-		})
-	}
 	
-
-
-	//rc.handleRotateNorth();
 	
 	class LoginControlOLD extends ol.control.Control {
-	  /**
-	   * @param {Object} [opt_options] Control options.
-	   */
-	  constructor(opt_options) {
-	    const options = opt_options || {};
+		  /**
+		   * @param {Object} [opt_options] Control options.
+		   */
+		  constructor(opt_options) {
+		    const options = opt_options || {};
 
-	    const button = document.createElement('button');
-		button.setAttribute("id", "b1");
-	    button.innerHTML ='<i class="fa fa-sign-in"></i>';// 'Login';
-		////button.innerHTML ='<i class="fa fa-sign-out"></i>';// 'Loginout';
-		//button.style.width="3.875em";
-	    
-		//button.style.backgroundColor ="#4CAF50";
-		
-		
-		const element = document.createElement('span');
-		element.setAttribute("id", "d1");
-	    element.className = 'rotate-north ol-unselectable o l-control kelement';
-		
-		//element.style.backgroundColor = " rgba(0,0,136,0.5)";
-		//element.style.backgroundColor ="#4CAF50";
-		
-		const loginCont = document.getElementById('loginCont');
-		
-		//element.style.top = "95px"; 
-	    element.appendChild(loginCont);
-
-	    super({
-	      element: element,
-	      target: options.target,
-	    });
-
-	    button.addEventListener('click', this.handleRotateNorth.bind(this), false);
-	  }
-
-	  //https://www.joshwcomeau.com/css/center-a-div/
-	  setState(state) {
-
-	  }
-	  
-	  handleRotateNorth(e) {
-		
-		
-		var pos = map.getView().getCenter();  
-		
-		const loginCont = document.getElementById('loginCont');
-		//dialog=document.getElementById('id01')
-		//loginCont.style.display='block'
-		//  var pos = map.getView().getCenter(); 
-		//  const loginOverlay = new ol.Overlay({position: pos,  element: loginCont,   positioning: 'bottom-center',   stopEvent: true, });
-		//  map.addOverlay(loginOverlay);
-		
-		//loginOverlay.setPosition(pos);
-		const button = document.getElementById("b1");
-		//button.innerHTML = 'A';
-		//const button=document.getElementById("di");
-		button.parentNode.appendChild(loginCont);
-	//	var innerHTML=button.innerHTML;
-		
-		if(innerHTML==='<i class="fa fa-sign-out"></i>')
-			{
-			//button.setAttribute("id", "b1");
-			//TODO MAKE CALL
-		    button.innerHTML = '<i class="fa fa-sign-in"></i>';
-		 return;
-			}
+		    const button = document.createElement('button');
+			button.setAttribute("id", "b1");
+		    button.innerHTML ='@';// 'Login';
+			////button.innerHTML ='<i class="fa fa-sign-out"></i>';// 'Loginout';
+			//button.style.width="3.875em";
+		    
+			//button.style.backgroundColor ="#4CAF50";
 			
-		loginCont.style.display='block'
+			
+			const element = document.createElement('span');
+			element.setAttribute("id", "d1");
+		    element.className = 'ol-unselectable ol-control';
+			
+			element.style.backgroundColor = " rgba(0,0,136,0.5)";
+			element.style.backgroundColor ="#4CAF50";
+			
+			//const loginCont = document.getElementById('loginCont');
+			
+			element.style.top="0px";
+			element.style.left=".5em";
+		    element.appendChild(button);
+
+		    super({
+		      element: element,
+		      target: options.target,
+		    });
+
+		    button.addEventListener('click', this.handleRotateNorth.bind(this), false);
+		  }
+
+		  //https://www.joshwcomeau.com/css/center-a-div/
+		  setState(state) {
+
+		  }
+		  
+		  handleRotateNorth(e) {
+			
 		
-	    //this.getMap().getView().setRotation(0);
-	  }
-	}
-	//var lc = new LoginControl();
-		//map.addControl(lc);
-	//import {Control, defaults as defaultControls} from './ol/control.js';
+				callRPC("getAllConnectedUser","").then((result) => 
+						{	
+						RouteControl.render(result); 
+					});
+		
+			
+			
+			var pos = map.getView().getCenter();  
+			
+			
+			
+			//loginOverlay.setPosition(pos);
+			const button = document.getElementById("b1");
+			//button.innerHTML = 'A';
+			//const button=document.getElementById("di");
+			button.parentNode.appendChild(loginCont);
+		//	var innerHTML=button.innerHTML;
+			
+			if(innerHTML==='<i class="fa fa-sign-out"></i>')
+				{
+				//button.setAttribute("id", "b1");
+				//TODO MAKE CALL
+			    button.innerHTML = '<i class="fa fa-sign-in"></i>';
+			 return;
+				}
+				
+			
+			
+		    //this.getMap().getView().setRotation(0);
+		  }
+		}
+		var lc = new LoginControlOLD();
+		map.addControl(lc);
 	
-	// export default RotateNorthControl;
-	//var lc = new LoginControl();
-	//map.addControl(lc);
-	// export default RotateNorthControl;
+//-----------------------------------------------------------------------------
 
-	//search?q=Тодор Хаджистанчев&limit=20&format=json&addressdetails=1&city=Варна&accept-language=bg-BG&limit=2
-	// https://localhost:8443/api?&q=%D0%92%D0%B8%D0%BD%D0%B8%D1%86%D0%B0&limit=2
-	async function fetchMAddress(q) {
-		//var url='http://127.0.0.1:8181/search?q='+q+'&limit=5&format=json&addressdetails=1&city=varna&accept-language=bg-BG'
-		var url = 'https://' + hostname + ':8443/api?&q=' + q;
-		// const response = await fetch();
-		const response = await fetch(url);
-
-		const json = await response.json();
-
-		var df = await JSON.stringify(json);
-		return df;
-	}
-	var res = fetchMAddress('Тодор Хаджистанчев');
-	log(res);
-
-	function fetchMAddresscb(q) {
-
-		var url = 'https://' + hostname + ':8443/api?&q=Варна ' + q;
-		var url = 'https://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
-		fetch(url).then(function (response) {
-			return response.json();
-		}).then(function (json) {
-			var name = formatAddress(json);
-		})
-	}
-</script>
-
+	</script>
 
 
 </body>

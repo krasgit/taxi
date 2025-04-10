@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Array;
 import java.sql.CallableStatement;
@@ -13,11 +14,14 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
 import org.json.simple.JSONObject;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.web.socket.WebSocketSession;
+
 import com.matin.taxi.AppConfig;
 import com.matin.taxi.db.model.HikariCPDataSource;
 import com.matin.taxi.db.model.Orders;
@@ -25,7 +29,16 @@ import com.matin.taxi.db.model.Person;
 import com.matin.taxi.db.model.PersonDAO;
 import com.matin.taxi.db.model.PersonDAOImpl;
 import com.matin.taxi.db.model.PersonMapper;
+import com.matin.taxi.db.model.Position;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+
+// org.json
 public class ProcedureRPC {
 
 	SignalingSocketHandlerRPC signalingSocketHandlerRPC = null;
@@ -187,10 +200,54 @@ public class ProcedureRPC {
 		
 		boolean res = personDAO.createOrders(order);
 
-		signalingSocketHandlerRPC.acceptOrderClientCB(person, order); // notify current and taxis
+		
+		
+		
+		
+		Position plp = personDAO.getLastPosition(personId);
+		
+		String pos=getLocation(plp.getPosition());
+		
+		
+		String pos1= getOrderStartPosition(order.getRoute());
+		
+		
+		int distance=getDistance(pos,pos1);
+		
+		
+		signalingSocketHandlerRPC.command(sessionId, "alert('"+order.getId()+"')");
+		
+		//signalingSocketHandlerRPC.acceptOrderClientCB(person, order); // notify current and taxis
 
+		
+		
+		
 		return res;
 	}
+	
+	
+	
+	
+	void getActivePersons(Map<String, WebSocketSession>  connectedUsers)
+	{
+		connectedUsers.values().forEach(webSocketSession -> {
+			try {
+				//webSocketSession.getId();
+				
+				
+				Person person =getPersonByToken(webSocketSession.getId());
+				
+				//pro.
+				//person.
+				
+				
+			} catch (Exception e) {
+				
+			}
+		});	
+	
+	}
+	
 
 	public boolean acceptOrder(ArrayList arg, String sessionId) {
 
@@ -377,6 +434,33 @@ public class ProcedureRPC {
 		// user,token });
 	}
 
+	public String getTaxuOrdersById(Long Id) {
+		// String sql = "SELECT json_agg(orders) FROM orders where clientId = ? ";
+		String sql = "SELECT json_agg( json_build_object(\n" + "'id', orders.id\n" + ",'state', orders.state\n"
+				+ ",'taxiId',persontaxi.id,'taxiName',persontaxi.name\n"
+				+ ",'createpersonId',person.id,'personName',person.name\n"
+				+ ",'',orders.createtime ,'acepted',orders.createtime \n" + ",'route', orders.route  \n" + "))\n"
+				+ "FROM orders\n" + "left join person on person.id =orders.clientid\n"
+				+ "left join person persontaxi on persontaxi.id =orders.taxiid \n" + "\n" + "\n"
+				+ "where  orders.state not in(0,4,2) --NOT temporal ,finish\n"
+				+ "		or  ( state=1)			--all Active	 \n" + " or ( persontaxi.id=0 and state=2) " // not
+																												// asigned
+				+ " or ( persontaxi.id=? and state=2) ";
+		// + " order by state";
+
+		String cnt = personDAO.geJjdbcTemplate().queryForObject(sql, String.class, new Object[] { Id });
+
+		return cnt;
+
+		// this.jdbcTemplate.queryForObject(sql, Integer.class, user, token);
+		// this.jdbcTemplate.queryForObject( sql, Integer.class, new Object[] {
+		// user,token });
+	}
+
+	
+	
+	
+	
 	public String loadTaxiOrders(ArrayList arg, String sessionId) {
 
 		String user = (String) arg.get(0);
@@ -417,13 +501,29 @@ public class ProcedureRPC {
 
 		String user = (String) arg.get(0);
 		String token = (String) arg.get(1);
-		Object postion = (Object) arg.get(2);
+		String postion = (String) arg.get(2);
 		System.out.println(postion);
 		
 			
 		Long clientId = personDAO.getPersonIdByUserToken(user, token);
 		
 
+		personDAO.createPosition(clientId,postion);
+		
+		Position pos = personDAO.getLastPosition(clientId);
+		
+		
+
+		
+		
+		
+		
+		//String loc1=getLocation(pos.getPosition());
+		
+		//getDistance(loc1);
+		
+		
+		
 		Person sendFrom = personDAO.getPersonByPrincipal(user);
 		List<Person> sendTo = getActiveOrdersByTaxiId(clientId);
 		
@@ -477,5 +577,147 @@ public class ProcedureRPC {
 		httpConn.disconnect();
 
 	}
+	
+	/**
+	 * 
+	 * @param start
+	 * @param end
+	 */
+	int getDistance(String start,String end)  {
+	
+		int distance=-1;
+		  
+		  String urlg="http://127.0.0.1:5000/route/v1/driving/"+start+";"+end+"?alternatives=false";
+		  
+		  int BUFFER_SIZE = 4096;
+			
+			try {
+				URL url = new URL(urlg);
+			
+			HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+			int responseCode = httpConn.getResponseCode();
+			if (responseCode == HttpURLConnection.HTTP_OK) {
+				InputStream inputStream = httpConn.getInputStream();
+				
+				
+				//ServletOutputStream outputStream = response.getOutputStream();
+				
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				
+				int bytesRead = -1;
+				byte[] buffer = new byte[BUFFER_SIZE];
+				while ((bytesRead = inputStream.read(buffer)) != -1) {
+					baos.write(buffer, 0, bytesRead);
+				}
 
+				baos.close();
+				inputStream.close();
+
+				 String json = baos.toString(); 
+				  
+
+				 distance=  getRouteDistance(json); 
+				
+			} else {
+				System.out.println("Server replied HTTP code: " + responseCode);
+				return -1;
+			}
+			httpConn.disconnect();
+
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	return distance;
+	}
+	
+//json utils
+	
+	
+	int  getRouteDistance(String route){
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			
+			JsonNode routeObj = mapper.readTree(route);
+			
+			JsonNode coords = routeObj.path("routes");
+			
+			JsonNode coord =coords.get(0);
+					
+			// long duration = coord.path("duration").asLong();
+			 int distance = coord.path("distance").asInt();
+	
+			
+			return distance;
+			
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (JsonProcessingException e) {
+			
+			e.printStackTrace();
+		}
+		return -1;
+		}
+
+	
+	
+	
+	String getLocation(String position){
+	try {
+		ObjectMapper mapper = new ObjectMapper();
+		//JsonNode yourObj = mapper.readTree("{\"timestamp\":1744117809345,\"coords\":{\"accuracy\":16.348,\"latitude\":43.2206817,\"longitude\":27.8976221}}");
+		JsonNode yourObj = mapper.readTree(position);
+		
+		JsonNode coords = yourObj.path("coords");
+		String latitude = coords.path("latitude").asText();
+		String longitude = coords.path("longitude").asText();
+		
+		return longitude+","+latitude;
+		
+	} catch (JsonMappingException e) {
+		e.printStackTrace();
+	} catch (JsonProcessingException e) {
+		
+		e.printStackTrace();
+	}
+	return null;
+	}
+
+
+	String getOrderStartPosition(String positions) {
+		
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			//JsonNode yourObj = mapper.readTree("{\"timestamp\":1744117809345,\"coords\":{\"accuracy\":16.348,\"latitude\":43.2206817,\"longitude\":27.8976221}}");
+			JsonNode yourObj = mapper.readTree(positions);
+			
+			
+			JsonNode coords = yourObj.path("coord");
+			
+			JsonNode coord =coords.get(0);
+			
+			String latitude = coord.path("lat").asText();
+			String longitude = coord.path("lon").asText();
+			
+			System.out.println(latitude+""+longitude);
+			
+			return longitude+","+latitude;
+			
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (JsonProcessingException e) {
+			
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	
+	Person getPersonByToken(String token)
+	{
+		return personDAO.getPersonByToken(token);
+	}
+	
+	
 }
