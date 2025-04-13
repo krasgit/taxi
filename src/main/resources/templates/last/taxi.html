@@ -23,12 +23,15 @@
 	<script src="superCookie.js"           th:src="@{/resources/openlayers/superCookie.js}" ></script>
 	
 	<script src="cookie.js"          th:src="@{/resources/openlayers/cookie.js}" ></script>
-	<script src="RpcMain.js"  type="module" defer  th:src="@{/resources/openlayers/RpcMain.js}" ></script>
+	<script src="RpcMain.js"  type="module" defer  th:src="@{/resources/openlayers/RpcMain2.js}" ></script>
 	
 	<link rel="stylesheet" href="/resources/openlayers/bulma.css" type="text/css" />	
 	
 </head>
-	
+<style>
+	html,body {height: 100%;padding: 0;margin: 0;font-size: 12px; background: #c9c9ce;}
+	#map {width: 100%;height: 100%;}
+</style>
 <script name="auto complete ">
 	const log = console.log;
 
@@ -55,25 +58,55 @@
 
 </script>
 
-
 <div id="map" class="map"></div>
 
-
 <script>
-		
+  //todo move to utils	
+	function timeConverter(UNIX_timestamp){
+	  var a = new Date(UNIX_timestamp );
+	  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+	  var year = a.getFullYear();
+	  var month = months[a.getMonth()];
+	  var date = a.getDate();
+	  var hour = a.getHours();
+	  var min = a.getMinutes();
+	  var sec = a.getSeconds();
+	  var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+	  return time;
+	}
+
+	
+	function styleFunction() {
+	  return [
+	    new ol.style.Style({
+	        fill: new ol.style.Fill({
+	        color: 'rgba(255,255,255,0.4)'
+	      }),
+	      stroke: new ol.style.Stroke({
+	        color: '#3399CC',
+	        width: 1.25
+	      }),
+	      text: new ol.style.Text({
+	        font: '12px Calibri,sans-serif',
+	        fill: new ol.style.Fill({ color: '#000' }),
+	        stroke: new ol.style.Stroke({
+	          color: '#fff', width: 2
+	        }),
+	        // get the text from the feature - `this` is ol.Feature
+	        // and show only under certain resolution
+	        text: map.getView().getZoom() > 12 ? this.get('description') : ''
+	      })
+	    })
+	  ];
+	}
 	//--------
 	const vectorSource = new ol.source.Vector(); //!!!GLOBAL
 	var map;
 	function initMap (){
-	
-	
 		
 	const source = new ol.source.XYZ({url: 'https://' + hostname + ':8443/tile/{z}/{x}/{y}.png'});
 	const tileLayer = new ol.layer.Tile({source: source});
-
-	
 	const vectorLayer = new ol.layer.Vector({source: vectorSource})
-
 	const view = new ol.View({center: ol.proj.fromLonLat([27.953315566702816, 43.3520584446037]), zoom: 12})
 
 	 map = new ol.Map({
@@ -84,20 +117,12 @@
 		target: 'map',
 		view: view,
 	});
-
-	
-		
-	
-//	initGeo(); //depends of map
-	
-		
-			
 	}
 	
 	initMap ();
 	
 	
-	class LoginControlOLD extends ol.control.Control {
+	class WaitTaxi extends ol.control.Control {
 		  /**
 		   * @param {Object} [opt_options] Control options.
 		   */
@@ -106,10 +131,7 @@
 
 		    const button = document.createElement('button');
 			button.setAttribute("id", "b1");
-		    button.innerHTML ='@';// 'Login';
-			////button.innerHTML ='<i class="fa fa-sign-out"></i>';// 'Loginout';
-			//button.style.width="3.875em";
-		    
+		    button.innerHTML ='@';
 			//button.style.backgroundColor ="#4CAF50";
 			
 			
@@ -119,9 +141,7 @@
 			
 			element.style.backgroundColor = " rgba(0,0,136,0.5)";
 			element.style.backgroundColor ="#4CAF50";
-			
-			//const loginCont = document.getElementById('loginCont');
-			
+						
 			element.style.top="0px";
 			element.style.left=".5em";
 		    element.appendChild(button);
@@ -134,49 +154,202 @@
 		    button.addEventListener('click', this.handleRotateNorth.bind(this), false);
 		  }
 
-		  //https://www.joshwcomeau.com/css/center-a-div/
-		  setState(state) {
-
-		  }
-		  
-		  handleRotateNorth(e) {
-			
-		
-				callRPC("getAllConnectedUser","").then((result) => 
+		   handleRotateNorth(e) {
+				callRPC("getAllConnectedUser","1","2").then((result) => 
 						{	
-						RouteControl.render(result); 
+							for (let i = 0; i < result.length; i++) {
+								  var value=result[i];
+								
+								 var  evJSON=value.position;
+								  log(evJSON);
+								  let ev=JSON.parse(evJSON);
+								  		
+								  			var coordss = ev.coords;
+								  			//log(coordss);
+								  			const projectedPosition = ol.proj.fromLonLat([coordss.longitude, coordss.latitude]);
+								  			var heading = coordss.heading;
+											
+											//
+											const positionFeature = new ol.Feature();
+											positionFeature.setStyle(
+											  new ol.style.Style({
+											    image: new ol.style.Circle({
+											      radius: 6,
+											      fill:  new ol.style.Fill({
+											        color: '#3399CC',
+											      }),
+											      stroke:   new ol.style.Stroke({
+											        color: '#fff',
+											        width: 2,
+											      }),
+											    }),
+											  }),
+											); 
+											
+										var p=new ol.geom.Point(ol.proj.fromLonLat([coordss.longitude, coordss.latitude]));
+											
+											
+										//	var p= new ol.geom.Point(ol.proj.transform([coordss.longitude, coordss.latitude], 'EPSG:4326', 'EPSG:3857'));
+											
+											//var p = new ol.geom.Point(ol.proj.fromLonLat(coordss));
+											positionFeature.setGeometry(p);
+										
+											vectorSource.addFeature(positionFeature);
+								  }
+							
+							log(result); 
 					});
-		
-			
-			
-			var pos = map.getView().getCenter();  
-			
-			
-			
-			//loginOverlay.setPosition(pos);
-			const button = document.getElementById("b1");
-			//button.innerHTML = 'A';
-			//const button=document.getElementById("di");
-			button.parentNode.appendChild(loginCont);
-		//	var innerHTML=button.innerHTML;
-			
-			if(innerHTML==='<i class="fa fa-sign-out"></i>')
-				{
-				//button.setAttribute("id", "b1");
-				//TODO MAKE CALL
-			    button.innerHTML = '<i class="fa fa-sign-in"></i>';
-			 return;
-				}
-				
-			
-			
-		    //this.getMap().getView().setRotation(0);
 		  }
 		}
-		var lc = new LoginControlOLD();
-		map.addControl(lc);
+		
+		class WaitControl extends ol.control.Control {
+				  /**
+				   * @param {Object} [opt_options] Control options.
+				   */
+				  constructor(opt_options) {
+				    const options = opt_options || {};
+
+				    const button = document.createElement('button');
+					button.setAttribute("id", "b11");
+				    button.innerHTML ='#';// 'Login';
+					
+					
+					const element = document.createElement('span');
+					element.setAttribute("id", "d1");
+				    element.className = 'ol-unselectable ol-control';
+					
+					element.style.backgroundColor = " rgba(0,0,136,0.5)";
+					element.style.backgroundColor ="#4CAF50";
+					
+					//const loginCont = document.getElementById('loginCont');
+					
+					element.style.top="32px";
+					element.style.left=".5em";
+				    element.appendChild(button);
+
+				    super({
+				      element: element,
+				      target: options.target,
+				    });
+
+				    button.addEventListener('click', this.handleRotateNorth.bind(this), false);
+				  }
+
+				  
+				  handleRotateNorth(e) {
+				
+						callRPC("getAllOpenOrders","1","2").then((result) => 
+								{	
+									for (let i = 0; i < result.length; i++) {
+										  var value=result[i];
+										
+										  
+										 var  evJSON=value.position;
+										  log(evJSON);
+										  let ev=JSON.parse(evJSON);
+										  		
+										  			var coordss = ev.coords;
+										  			//log(coordss);
+										  			const projectedPosition = ol.proj.fromLonLat([coordss.longitude, coordss.latitude]);
+										  			var heading = coordss.heading;
+													
+													
+													//var positionFeature=styleFunction();
+													//
+													const positionFeature = new ol.Feature();
+													
+													const iconStyle = new ol.style.Style({
+												/*
+															  image: new Icon({
+													    anchor: [0.5, 1],
+													    src: 'data/world.png',
+													  }),
+													*/
+													  text: new ol.style.Text({
+													    text: 'id:'+timeConverter(value.created_at)+" "+value.id,
+													    font: 'bold 10px Calibri,sans-serif',
+													    fill: new ol.style.Fill({
+													      color: 'black',
+													    }),
+													    stroke: new ol.style.Stroke({
+													      color: 'white',
+													      width: 2,
+													    }),
+													  }),
+													});
+													
+													const pointStyle = new ol.style.Style({
+													  image: new  ol.style.Circle({
+													    radius: 7,
+													    fill: new ol.style.Fill({
+													      color: 'black',
+													    }),
+													    stroke: new ol.style.Stroke({
+													      color: 'white',
+													      width: 2,
+													    }),
+													  }),
+													});
+													
+													positionFeature.setStyle([pointStyle ,iconStyle]);
+												
+													
+										//			positionFeature.getStyle().getText().setText('new content');
+												var p=new ol.geom.Point(ol.proj.fromLonLat([coordss.longitude, coordss.latitude]));
+													
+													
+												//	var p= new ol.geom.Point(ol.proj.transform([coordss.longitude, coordss.latitude], 'EPSG:4326', 'EPSG:3857'));
+													
+													//var p = new ol.geom.Point(ol.proj.fromLonLat(coordss));
+													positionFeature.setGeometry(p);
+												
+													vectorSource.addFeature(positionFeature);
+													
+												//	  
+												//	map.addOverlay(geoPositionOverlay);
+													
+													//geoPositionOverlay.setPosition(projectedPosition);
+										  			//map.render();
+										  
+										   
+										  }
+										  /*
+										  var layerExtent = vectorSource.getExtent();
+
+										  	if (layerExtent) {
+										  	    map.getView().fit(layerExtent);
+										  	}
+											*/
+									log(result); 
+							});
+				
+					
+					var pos = map.getView().getCenter();  
+					
+					
+				  }
 	
+										
+				}
+				
+				var wt = new WaitTaxi();
+					map.addControl(wt);
+				var wc = new WaitControl();
+				   map.addControl(wc);
+
+				  
 //-----------------------------------------------------------------------------
+
+setInterval(myTimer, 1000);
+
+function myTimer() {
+  const d = new Date();
+  vectorSource.clear();
+  
+  wc.handleRotateNorth();
+  wt.handleRotateNorth();
+//  document.getElementById("demo").innerHTML = d.toLocaleTimeString();
+} 
 
 	</script>
 

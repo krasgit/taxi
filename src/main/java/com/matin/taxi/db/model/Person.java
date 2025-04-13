@@ -108,7 +108,7 @@ public class Person {
 
 		@Override
 		public String toString() {
-			return "Person{" + "id=" + id + ", age=" + age + ", name='" + name +  ", passw='" + passw +  ", token='" + token + '}';
+			return "Person{" + "id=" + id + ", name='" + name +  ", token='" + token + ", passw='" + passw +  '}';
 		}
 	}
 

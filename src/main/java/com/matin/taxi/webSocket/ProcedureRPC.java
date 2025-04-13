@@ -20,6 +20,7 @@ import javax.sql.DataSource;
 
 import org.json.simple.JSONObject;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import com.matin.taxi.AppConfig;
@@ -64,6 +65,7 @@ public class ProcedureRPC {
 			} else {
 				if (!sessionId.equals(token)) {
 					ret.setToken(sessionId);
+					System.out.println("Update Token "+ret);
 					personDAO.updatePerson(ret);
 
 				}
@@ -215,9 +217,9 @@ public class ProcedureRPC {
 		int distance=getDistance(pos,pos1);
 		
 		
-		signalingSocketHandlerRPC.command(sessionId, "alert('"+order.getId()+"')");
+		//signalingSocketHandlerRPC.command(sessionId, "alert('"+order.getId()+"')");
 		
-		//signalingSocketHandlerRPC.acceptOrderClientCB(person, order); // notify current and taxis
+		signalingSocketHandlerRPC.acceptOrderClientCB(person, order); // notify current and taxis
 
 		
 		
@@ -719,5 +721,107 @@ public class ProcedureRPC {
 		return personDAO.getPersonByToken(token);
 	}
 	
+	
+	//{"coord":[{"lon":27.846524698242188,"lat":43.24471167931782,"name":"кв. Владиславово, Владислав Варненчик","waypointName":"Start"},{"lon":27.94437168310547,"lat":43.25946508662122,"name":"Дупката-Куманово, Куманово, Аксаково","waypointName":"End"}]}
+	public List<Position> getAllOpenOrders(ArrayList arg, String sessionId)
+	{
+		 ArrayList<Position> positions = new ArrayList<Position>();
+		 
+		 List<Orders> orders = personDAO.getAllOrdersByState(1);
+		 
+		 for(Orders order:orders)
+		 {
+			 
+			
+			 
+			 Position p = new Position();
+			 
+			 ObjectMapper mapper = new ObjectMapper();
+				//JsonNode yourObj = mapper.readTree("{\"timestamp\":1744117809345,\"coords\":{\"accuracy\":16.348,\"latitude\":43.2206817,\"longitude\":27.8976221}}");
+				JsonNode yourObj;
+				try {
+					yourObj = mapper.readTree(order.getRoute());
+					JsonNode coords = yourObj.path("coord");
+					
+					JsonNode coord =coords.get(0);
+					
+					String latitude = coord.path("lat").asText();
+					String longitude = coord.path("lon").asText();
+					
+					
+					String gg="{\"timestamp\":1744117809345,\"coords\":{\"accuracy\":16.348,\"latitude\":"+latitude+",\"longitude\":"+longitude+"}}";
+					
+					p.setPosition(gg);
+					//todo 
+					p.setId(order.getId());
+					
+					p.setCreated_at(  order.getCreateTime());
+					
+					positions.add(p);
+					
+				} catch (JsonMappingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
+				
+			 
+				//return longitude+","+latitude;
+			 System.out.println(order);
+		 }
+		 
+			return positions;
+	}
+	
+	//{"coord":[{"lon":27.846524698242188,"lat":43.24471167931782,"name":"кв. Владиславово, Владислав Варненчик","waypointName":"Start"},{"lon":27.94437168310547,"lat":43.25946508662122,"name":"Дупката-Куманово, Куманово, Аксаково","waypointName":"End"}]}
+	
+	public List<Position> getAllConnectedUser(ArrayList arg, String sessionId)
+	{
+		 ArrayList<Position> positions = new ArrayList<Position>();
+		System.out.println("getAllConnectedUser sessionId:"+sessionId);
+		
+		signalingSocketHandlerRPC.getConnectedUsers().values().forEach(webSocketSession -> {
+			try {
+				
+				String id = webSocketSession.getId();
+				
+				System.out.println("webSocketSession id"+id);
+				
+				if(sessionId!=id)
+				{
+				Person p=getPersonByToken(id);
+				
+				
+				if(p==null) {
+					System.out.println("not found person by ssee:"+id);
+				}
+				
+				if(p!=null) {
+				
+					Position plp = personDAO.getLastPosition(p.getId());
+					
+					positions.add(plp);
+			//		String pos=getLocation(plp.getPosition());
+					
+			//	ResultMessage resultMessage = new ResultMessage(null, "LoginControlOLD.addPosition("+pos+")", null);
+
+			//	final String resendingMessage = Utils.getString(resultMessage);
+
+			//	webSocketSession.sendMessage(new TextMessage(resendingMessage));
+				}
+				}
+			} catch (Exception e) {
+				//LOG.warn("Error while message sending.", e);
+			}
+		});
+		
+		//signalingSocketHandlerRPC.getConnectedUsers();
+		
+		return positions;
+	}
 	
 }

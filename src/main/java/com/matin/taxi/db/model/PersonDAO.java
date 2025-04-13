@@ -26,6 +26,7 @@ public interface PersonDAO {
 	boolean createPosition(Long clientId, String postion);
 	
 	public Position getLastPosition(Long personId);
+	public List<Orders> getAllOrdersByState(int state) ;
 	
 	
 }

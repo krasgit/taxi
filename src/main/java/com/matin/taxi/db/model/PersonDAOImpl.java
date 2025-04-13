@@ -381,6 +381,14 @@ public class PersonDAOImpl implements PersonDAO {
 		return jdbcTemplate.queryForObject(SQL, new Object[] { personId }, new PositionMapper());
 	}
 
+	
+	
+	public List<Orders> getAllOrdersByState(int state) {
+		String SQL_FIND_ORDERS_STATE = "select * from Orders  where  state=? ";
+		return jdbcTemplate.query(SQL_FIND_ORDERS_STATE,new Object[] { state }, new OrdersMapper());
+	}
+	
+	
 /*
 	public Person getPersonByToken(String token) {
 		String sql = "SELECT * FROM person WHERE token = ?";

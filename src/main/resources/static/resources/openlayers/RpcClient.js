@@ -37,6 +37,12 @@ export class RpcClient {
     }
   
 	
+	reOpenNoSesion() {
+		
+	
+		this.open(this.reconnectURL);
+		
+	    }
 
  #onOpen(event) {
 	
@@ -66,6 +72,14 @@ export class RpcClient {
 		{
 			//alert("reconnectURL");
 			console.log(`try reconnect`);
+			if(procedure=='getAllConnectedUser'){
+				this.reOpenNoSesion();
+				return;
+			}
+			if(procedure=='getAllOpenOrders'){
+						this.reOpenNoSesion();
+						return;
+					}
 			this.reOpen();
 			return;
 		}
