@@ -842,6 +842,16 @@ static createOrdersEx()
 					});
 					
 				}
+				
+		static sendMessageFromOrder(id){
+				callRPC("sendMessageFromOrder",id).then((result) => 
+						{	
+							RouteControl.render(result); 
+						});
+				}
+				
+				
+				
 
   static TaxiRender(orders){
     const InnerOrders1= RouteControl.createOrdersEx();//1 STATE_CLIENT_START
@@ -876,12 +886,10 @@ static createOrdersEx()
 			innerOrders1.addRow(order,icon,button);	break;
 	    case 2: 
 			icon='<i class="fa fa-check" aria-hidden="true"></i>';
-			button=`
-			
-			<a href="#" onclick="RouteControl.startOrder(${order.id});" class="button is-primary" id="log-in-button">
-								<i class="fa fa-" aria-hidden="true"></i>
-									Mesasage 
-											</a>
+			button=`<a href="#" onclick="RouteControl.sendMessageFromOrder(${order.id});" class="button is-primary" id="log-in-button">
+						<i class="fa fa-" aria-hidden="true"></i>
+						Mesasage 
+					</a>
 			<a href="#" onclick="RouteControl.startOrder(${order.id});" class="button is-primary" id="log-in-button">
 					<i class="fa fa-" aria-hidden="true"></i>
 						Start 

@@ -51,6 +51,8 @@
 	
 	<script src="RpcMain.js"  type="module" defer  th:src="@{/resources/openlayers/RpcMain.js}" ></script>
 	<script src="loginControl.js"    th:src="@{/resources/openlayers/loginControl.js}" ></script>
+	
+	<script src="loginControl.js"    th:src="@{/resources/openlayers/MessageControl.js}" ></script>
 	<!--
 	<script src="mylib.js"           th:src="@{/resources/openlayers/mylib.js}" ></script>
 	-->
@@ -156,53 +158,18 @@
 	});
 
 	//---------------------------------------------------------------
-	
-	class MessageControl extends ol.control.Control {
-					  /**
-					   * @param {Object} [opt_options] Control options.
-					   */
-					  constructor(opt_options) {
-					    const options = opt_options || {};
-
-					    const button = document.createElement('button');
-						button.setAttribute("id", "b11");
-					    button.innerHTML ='#';// 'Login';
-						
-						
-						const element = document.createElement('span');
-						element.setAttribute("id", "d1");
-					    element.className = 'ol-unselectable ol-control';
-						
-						element.style.backgroundColor = " rgba(0,0,136,0.5)";
-						element.style.backgroundColor ="#4CAF50";
-						
-						//const loginCont = document.getElementById('loginCont');
-						
-						element.style.top="32px";
-						element.style.left=".5em";
-					    element.appendChild(button);
-
-					    super({
-					      element: element,
-					      target: options.target,
-					    });
-
-					    button.addEventListener('click', this.handleRotateNorth.bind(this), false);
-					  }
-
-					  
-					  handleRotateNorth(e) {
-						
-					  }
-		
-											
-					}
 					
 					var  messageControl= new MessageControl({mode:mode});
 							map.addControl(messageControl);
 	//-------------------------------------------------------------
+
+
+	window.addEventListener('resize', 
+		() => map.getViewPort().resize());
+
+
 	
-	
+	//
 	
 	
 	
