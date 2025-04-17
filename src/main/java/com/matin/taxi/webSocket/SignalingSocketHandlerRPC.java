@@ -38,7 +38,7 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 
 	
 	
-	public void command(String sentdToClientByToken, String command ) {
+	public boolean command(String sentdToClientByToken, String command ) {
 		
 		ResultMessage resultMessage = new ResultMessage(null, command,null);
 		
@@ -46,15 +46,15 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 			//webSocket.getPrincipal().s
 			try {
 				
-				if(webSocket!=null)
+				if(webSocket!=null) {
 					   webSocket.sendMessage(new TextMessage(Utils.getString(resultMessage)));
-					else 
-						LOG.error("null webSocket");
+					   return true;
+				}
 			} catch (Exception e) {
 				LOG.warn("Error while message sending.", e);
+			
 			}
-		
-
+		return false;
 	}
 
 	

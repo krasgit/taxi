@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -15,7 +14,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -386,6 +384,28 @@ public class PersonDAOImpl implements PersonDAO {
 	public List<Orders> getAllOrdersByState(int state) {
 		String SQL_FIND_ORDERS_STATE = "select * from Orders  where  state=? ";
 		return jdbcTemplate.query(SQL_FIND_ORDERS_STATE,new Object[] { state }, new OrdersMapper());
+	}
+
+	
+	//-----------------------------------------
+	@Override
+	public boolean createMessage(Messages message) {
+		String SQL_INSERT =""; 
+			return jdbcTemplate.update(SQL_INSERT, message.getMessage()) > 0;
+		
+		
+	}
+
+	@Override
+	public Messages getMessage(Long Id) {
+		String SQL="SELECT * FROM taxi.Message		WHERE id =? );";
+		
+		return jdbcTemplate.queryForObject(SQL, new Object[] { Id }, new MessagesMapper());
+	}
+
+	public List<Messages> getMessagesByState(int state) {
+		String SQL_FIND_ORDERS_STATE = "select * from taxi.Messages  where  state=? ";
+		return jdbcTemplate.query(SQL_FIND_ORDERS_STATE,new Object[] { state }, new MessagesMapper());
 	}
 	
 	

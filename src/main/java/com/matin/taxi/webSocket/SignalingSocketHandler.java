@@ -60,8 +60,9 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
     		            	 updateInfo.setSender("app");
     		            	 
     		            	 updateInfo.setData(getCurrentDateTime()+" online "+connectedUsers.size());
-    		            	// LOG.info(updateInfo.toString())  ;  	 
-    		                 webSocketSession.sendMessage(new TextMessage(Utils.getString(updateInfo)));
+
+    		            	 //todo uncomment
+    		                 //webSocketSession.sendMessage(new TextMessage(Utils.getString(updateInfo)));
     		             } catch (Exception e) {
     		                 LOG.warn("Error while message sending.", e);
     		             }

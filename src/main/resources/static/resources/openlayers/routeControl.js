@@ -842,12 +842,14 @@ static createOrdersEx()
 					});
 					
 				}
-				
-		static sendMessageFromOrder(id){
-				callRPC("sendMessageFromOrder",id).then((result) => 
-						{	
-							RouteControl.render(result); 
-						});
+		//context from to 		
+		static sendMessageFromOrder(id,fromId,from,toId,to){
+			
+			MessageControl.init(id,fromId,from,toId,to);
+			//	callRPC("sendMessageFromOrder",id).then((result) => 
+			//			{	
+			//				RouteControl.render(result); 
+			//			});
 				}
 				
 				
@@ -886,7 +888,13 @@ static createOrdersEx()
 			innerOrders1.addRow(order,icon,button);	break;
 	    case 2: 
 			icon='<i class="fa fa-check" aria-hidden="true"></i>';
-			button=`<a href="#" onclick="RouteControl.sendMessageFromOrder(${order.id});" class="button is-primary" id="log-in-button">
+			//			taxiId: 1			taxiName: "qaz"
+			//			createpersonId: 1	personName: "qaz"
+			
+			
+			let onc=`RouteControl.sendMessageFromOrder(${order.id}	,${order.taxiId},'${order.taxiName}'  ,${order.createpersonId},'${order.personName}');`;
+			
+			button=`<a href="#" onclick="${onc};" class="button is-primary" id="log-in-button">
 						<i class="fa fa-" aria-hidden="true"></i>
 						Mesasage 
 					</a>
