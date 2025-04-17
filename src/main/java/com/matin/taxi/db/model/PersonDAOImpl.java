@@ -399,7 +399,8 @@ public class PersonDAOImpl implements PersonDAO {
 	@Override
 	public Messages getMessage(Long Id) {
 		String SQL="SELECT * FROM taxi.Message		WHERE id =? );";
-		
+	
+		return  jdbcTemplate.queryForObject("select * from student_id = ?",			studentRowMapper, Id );
 		return jdbcTemplate.queryForObject(SQL, new Object[] { Id }, new MessagesMapper());
 	}
 
