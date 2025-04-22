@@ -1,10 +1,5 @@
 package com.matin.taxi.webSocket;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

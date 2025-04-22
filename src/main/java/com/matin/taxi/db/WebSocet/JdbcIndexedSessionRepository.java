@@ -1,14 +1,8 @@
 package com.matin.taxi.db.WebSocet;
 
 
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.StringUtils;
 
@@ -29,7 +23,7 @@ public class JdbcIndexedSessionRepository {
 
 
 
-	private static final Log logger = LogFactory.getLog(JdbcIndexedSessionRepository.class);
+	//private static final Log logger = LogFactory.getLog(JdbcIndexedSessionRepository.class);
 	
 	
 	

@@ -14,6 +14,7 @@ class MessageControl extends ol.control.Control {
 						
 	let template=`
 		<div class="ccontainer">
+		   <audio id="audio" src="" /*preload="auto"*/  ></audio>
 			<msg id="msg"  />
 			<div class="card" id="log-in-card1">
 			<!-- 
@@ -75,6 +76,15 @@ class MessageControl extends ol.control.Control {
     }
 	
 	static Send(){
+		
+		
+		
+		var audio=document.getElementById("audio");	
+		
+		//audio.src="https://www.sousound.com/music/healing/healing_01.mp3";
+		audio.src="../resources/audio/hihat.mp3";
+		
+		audio.play();
 			var el=document.getElementById("msg");
 			
 			var context=el.getAttribute('context');

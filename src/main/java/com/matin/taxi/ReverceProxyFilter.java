@@ -1,6 +1,5 @@
 package com.matin.taxi;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -57,7 +56,7 @@ public class ReverceProxyFilter implements Filter {
 
 			// opens input stream from the HTTP connection
 			InputStream inputStream = httpConn.getInputStream();
-			String saveFilePath = remoteAddress + File.separator + fileName;
+			//String saveFilePath = remoteAddress + File.separator + fileName;
 
 			// opens an output stream to save into file
 

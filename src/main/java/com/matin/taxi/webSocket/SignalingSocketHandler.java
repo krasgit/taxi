@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 
 import com.matin.taxi.AppConfig;
 import com.matin.taxi.db.*;
-import com.matin.taxi.db.model.Orders;
 import com.matin.taxi.db.model.Person;
 import com.matin.taxi.db.model.PersonDAO;
 public class SignalingSocketHandler extends TextWebSocketHandler {
@@ -221,23 +220,23 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
 
      String type = signalMessage.getType();
      
-     if(signalMessage.getType().equals("updatePostion"))
+     if(type.equals("updatePostion"))
      {
      	handleUpdatePostion(session,signalMessage);
      	return ;
      }
      
-     if(signalMessage.getType().equals("PrincipalRegistration"))
+     if(type.equals("PrincipalRegistration"))
      {
      	handlePrincipalRegistration(session,signalMessage);
      	return ;
      }
      
      
-     if(signalMessage.getType().equals("ping"))
+     if(type.equals("ping"))
      	signalMessage.setType("pong");
      
-     if(signalMessage.getType().equals("logPosition"))
+     if(type.equals("logPosition"))
      {
      	handleLogPosition(signalMessage,session.getId());
      	return;

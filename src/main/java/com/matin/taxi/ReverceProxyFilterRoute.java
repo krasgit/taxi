@@ -37,9 +37,8 @@ public class ReverceProxyFilterRoute implements Filter {
 	public static String getFullURL(HttpServletRequest request) throws Exception {
 		StringBuilder requestURL = new StringBuilder(request.getRequestURL().toString());
 
-		URL url = new URL(requestURL.toString());
-
-		URI u = url.toURI();
+		//URL url = new URL(requestURL.toString());
+		//URI u = url.toURI();
 
 		String queryString = request.getQueryString();
 
@@ -54,10 +53,6 @@ public class ReverceProxyFilterRoute implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		//System.out.println("Procces UrlPatterns "+urlPatterns);
-
-		// Get remote data
-
-		HttpServletRequest dd = (HttpServletRequest) request;
 
 		String bb = getURL((HttpServletRequest) request);
 

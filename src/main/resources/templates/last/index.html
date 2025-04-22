@@ -121,7 +121,17 @@
 	}
 
 	const hostname = url.hostname;
-
+	//const protocol = url.protocol;
+	
+	
+	function getProtocolSuffix()
+	{
+		
+	//	var ret=url.protocol.replace("ttp"")
+		//alert(protocol);
+		return url.protocol.replace("http", "").replace(":","");
+	}
+	
 	function getLastGeoLocationEvent() {
 		return lastGeoLocationEvent;
 	}
@@ -140,7 +150,7 @@
 	var map;
 	function initMap (mode ){
 	
-	const source = new ol.source.XYZ({url: 'https://' + hostname + ':8443/tile/{z}/{x}/{y}.png'});
+	const source = new ol.source.XYZ({url: 'http'+getProtocolSuffix()+'://' + hostname + ':8443/tile/{z}/{x}/{y}.png'});
 	const tileLayer = new ol.layer.Tile({maxZoom: 14,source: source});
 	
 	const vectorLayer = new ol.layer.Vector({source: vectorSource})
@@ -384,7 +394,7 @@
 	
 	function reverseGeocoding(lon, lat, el, callbackFN) {
 
-		var url = 'https://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
+		var url = 'http'+getProtocolSuffix()+'://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
 		
 		console.groupCollapsed(		"%c"+"ReverseGeocoding callbackFN " + url,		"background-color: #e0005a ; color: #ffffff ; font-weight: bold ; padding: 4px ;"	);
 		fetch(url).then(function (response) {
@@ -407,7 +417,7 @@
 			
 	function simpleReverseGeocoding(lon, lat) {
 
-		var url = 'https://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
+		var url = 'http'+getProtocolSuffix()+'://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
 		console.groupCollapsed(		"%c"+"ReverseGeocoding lon lat " + url,		"background-color: #e0005a ; color: #ffffff ; font-weight: bold ; padding: 4px ;"	);
 		fetch(url).then(function (response) {
 			return response.json();
@@ -421,7 +431,7 @@
 	
 	async function fetchMAddress(q) {
 		//var url='http://127.0.0.1:8181/search?q='+q+'&limit=5&format=json&addressdetails=1&city=varna&accept-language=bg-BG'
-		var url = 'https://' + hostname + ':8443/api?&q=' + q;
+		var url = 'http'+getProtocolSuffix()+'://' + hostname + ':8443/api?&q=' + q;
 		// const response = await fetch();
 		const response = await fetch(url);
 
@@ -437,8 +447,8 @@
 
 	function fetchMAddresscb(q) {
 
-		var url = 'https://' + hostname + ':8443/api?&q=Варна ' + q;
-		var url = 'https://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
+		
+		var url = 'http'+getProtocolSuffix()+'://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
 		fetch(url).then(function (response) {
 			return response.json();
 		}).then(function (json) {

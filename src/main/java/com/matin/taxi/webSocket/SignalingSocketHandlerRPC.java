@@ -12,10 +12,8 @@ import com.matin.taxi.db.model.Person;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -198,7 +196,6 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 
 		String sessionId = session.getId();
 		
-		String dd = session.getUri().getQuery();
 		
 		LOG.info("SignalingSocketHandlerRPC::handleTextMessage sessionID " + sessionId + " : {}", message.getPayload());
 
@@ -262,7 +259,7 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 
 	public void acceptOrderClientCB(Person p, Orders o) {
 
-		String sessionId = p.getToken();
+		//String sessionId = p.getToken();
 
 		// WebSocketSession webSocket = connectedUsers.get(sessionId);
 

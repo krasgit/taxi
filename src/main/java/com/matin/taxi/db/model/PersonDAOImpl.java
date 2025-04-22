@@ -20,12 +20,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
-
 
 @Component
 public class PersonDAOImpl implements PersonDAO {
@@ -48,7 +43,11 @@ public class PersonDAOImpl implements PersonDAO {
 	}
 
 	public Person getPersonById(Long id) {
-		return jdbcTemplate.queryForObject(SQL_FIND_PERSON, new Object[] { id }, new PersonMapper());
+		
+	//	return jdbcTemplate.queryForObject(SQL_FIND_PERSON, new Object[] { id }, new PersonMapper());
+		return  jdbcTemplate.queryForObject(SQL_FIND_PERSON,		new	PersonMapper(), id );
+		
+		
 	}
 
 	public List<Person> getAllPersons() {
@@ -72,7 +71,8 @@ public class PersonDAOImpl implements PersonDAO {
 	}
 
 	public Person getPersonByPrincipal(String principal) {
-		return jdbcTemplate.queryForObject(SQL_FIND_PRINCIPAL, new Object[] { principal }, new PersonMapper());
+		//return jdbcTemplate.queryForObject(SQL_FIND_PRINCIPAL, new Object[] { principal }, new PersonMapper());
+		return  jdbcTemplate.queryForObject(SQL_FIND_PRINCIPAL,		new	PersonMapper(), principal );
 	}
 
 	//
@@ -98,7 +98,8 @@ public class PersonDAOImpl implements PersonDAO {
 	public Person getLognned(String name, String token) {
 		String sql = "SELECT * FROM person WHERE name = ? AND token = ?";
 		try {
-			return jdbcTemplate.queryForObject(sql, new Object[] { name, token }, new PersonMapper());
+			//return jdbcTemplate.queryForObject(sql, new Object[] { name, token }, new PersonMapper());
+			return  jdbcTemplate.queryForObject(sql,		new	PersonMapper(),  name, token );
 		} catch (EmptyResultDataAccessException e) {
 			return null;
 		}
@@ -130,8 +131,9 @@ public class PersonDAOImpl implements PersonDAO {
 	public Orders getOrdersByClientIdState(Long clientId, int state) {
 		
 		try {
-			return jdbcTemplate.queryForObject(SQL_FIND_ORDERS_CLIENTID_STATE, new Object[] { clientId, state },
-					new OrdersMapper());
+			//return jdbcTemplate.queryForObject(SQL_FIND_ORDERS_CLIENTID_STATE, new Object[] { clientId, state },					new OrdersMapper());
+			return  jdbcTemplate.queryForObject(SQL_FIND_ORDERS_CLIENTID_STATE,		new	OrdersMapper(),  clientId, state );
+			
 		}catch (Exception e)
 		{
 			return null;
@@ -169,7 +171,9 @@ public class PersonDAOImpl implements PersonDAO {
 	private final String SQL_FIND_TAXI = "select * from taxi where id = ?";
 
 	public Taxi getTaxiById(Long id) {
-		return jdbcTemplate.queryForObject(SQL_FIND_TAXI, new Object[] { id }, new TaxiMapper());
+		//return jdbcTemplate.queryForObject(SQL_FIND_TAXI, new Object[] { id }, new TaxiMapper());
+		return  jdbcTemplate.queryForObject(SQL_FIND_TAXI,		new	TaxiMapper(),  id );
+		
 	}
 
 	private final String SQL_UPDATE_TAXI = "update taxi set name = ?, email = ?, passw  = ?,token= ?,state= ? where id = ?";
@@ -212,16 +216,15 @@ public class PersonDAOImpl implements PersonDAO {
 		}, generatedKeyHolder);
 
 		// Get auto-incremented ID
-		Integer id = generatedKeyHolder.getKey().intValue();
+	//	Integer id = generatedKeyHolder.getKey().intValue();
 		return true;
 	}
 
 	@Transactional
 	public boolean createOrders(Orders orders) {
 
-		GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
-
-		String sql = "insert into Orders( clientId, taxiId, state,route,createTime) values(?,?,?,?,?)";
+		//GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+		//String sql = "insert into Orders( clientId, taxiId, state,route,createTime) values(?,?,?,?,?)";
 		SimpleJdbcInsert insertIntoUser = new SimpleJdbcInsert(jdbcTemplate).withTableName("Orders")
 				.usingGeneratedKeyColumns("id");
 
@@ -280,7 +283,9 @@ public class PersonDAOImpl implements PersonDAO {
 	
 	public Orders getOrderById(Long id) {
 		String SQL_FIND_PERSON = "select * from Orders where id = ?";
-		return jdbcTemplate.queryForObject(SQL_FIND_PERSON, new Object[] { id }, new OrdersMapper());
+//		return jdbcTemplate.queryForObject(SQL_FIND_PERSON, new Object[] { id }, new OrdersMapper());
+		return  jdbcTemplate.queryForObject(SQL_FIND_PERSON,		new	OrdersMapper(),  id );
+		
 	}
 	
 	public boolean deleteOrderById(Long id) {
@@ -295,7 +300,8 @@ public class PersonDAOImpl implements PersonDAO {
 		
 		
 		try {
-			return jdbcTemplate.queryForObject(sql, new Object[] { token }, new PersonMapper());
+			//return jdbcTemplate.queryForObject(sql, new Object[] { token }, new PersonMapper());
+			return jdbcTemplate.queryForObject(sql,		new	PersonMapper(),  token );
 		}catch (Exception e)
 		{
 			return null;
@@ -323,8 +329,8 @@ public class PersonDAOImpl implements PersonDAO {
 				+ "and  orders.clientId=?";
 			//	+ " order by state";		
 
-		String  cnt = jdbcTemplate.queryForObject(sql, String.class, new Object[] { clientId });
-
+		//String  cnt = jdbcTemplate.queryForObject(sql, String.class, new Object[] { clientId });
+		String  cnt =  jdbcTemplate.queryForObject(sql,		String.class,  clientId );
 		return cnt;
 
 		// this.jdbcTemplate.queryForObject(sql, Integer.class, user, token);
@@ -375,8 +381,9 @@ public class PersonDAOImpl implements PersonDAO {
 	}
 
 	public Position getLastPosition(Long personId) {
-		String SQL="SELECT * FROM taxi.position		WHERE id = (SELECT MAX(ID) FROM taxi.position where personId=? );";
-		return jdbcTemplate.queryForObject(SQL, new Object[] { personId }, new PositionMapper());
+		String sql="SELECT * FROM taxi.position		WHERE id = (SELECT MAX(ID) FROM taxi.position where personId=? );";
+		//return jdbcTemplate.queryForObject(SQL, new Object[] { personId }, new PositionMapper());
+		return  jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
 	}
 
 	
@@ -384,6 +391,7 @@ public class PersonDAOImpl implements PersonDAO {
 	public List<Orders> getAllOrdersByState(int state) {
 		String SQL_FIND_ORDERS_STATE = "select * from Orders  where  state=? ";
 		return jdbcTemplate.query(SQL_FIND_ORDERS_STATE,new Object[] { state }, new OrdersMapper());
+		//return  jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
 	}
 
 	
@@ -398,36 +406,17 @@ public class PersonDAOImpl implements PersonDAO {
 
 	@Override
 	public Messages getMessage(Long Id) {
-		String SQL="SELECT * FROM taxi.Message		WHERE id =? );";
+		String SQL="SELECT * FROM taxi.Message	WHERE id =? );";
 	
-		return  jdbcTemplate.queryForObject("select * from student_id = ?",			studentRowMapper, Id );
-		return jdbcTemplate.queryForObject(SQL, new Object[] { Id }, new MessagesMapper());
+		return  jdbcTemplate.queryForObject(SQL,		new	MessagesMapper(), Id );
+	//	return jdbcTemplate.queryForObject(SQL, new Object[] { Id }, new MessagesMapper());
 	}
 
 	public List<Messages> getMessagesByState(int state) {
 		String SQL_FIND_ORDERS_STATE = "select * from taxi.Messages  where  state=? ";
 		return jdbcTemplate.query(SQL_FIND_ORDERS_STATE,new Object[] { state }, new MessagesMapper());
+		
+		
 	}
-	
-	
-/*
-	public Person getPersonByToken(String token) {
-		String sql = "SELECT * FROM person WHERE token = ?";
-		try {
-			return jdbcTemplate.queryForObject(sql, new Object[] { token }, new PersonMapper());
-		} catch (EmptyResultDataAccessException e) {
-			return null;
-		}
-		// (sql, Integer.class, name,token);
-		//
-
-		// this.jdbcTemplate.queryForObject(sql, Integer.class, user, token);
-		// this.jdbcTemplate.queryForObject( sql, Integer.class, new Object[] {
-		// user,token });
-	}
-*/
-	
-	//get
-	
 	
 }

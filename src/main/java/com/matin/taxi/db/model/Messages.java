@@ -1,10 +1,6 @@
 package com.matin.taxi.db.model;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
-
-import org.springframework.jdbc.core.RowMapper;
 
 /*
  drop table  taxi.Message

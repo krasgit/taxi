@@ -35,7 +35,7 @@ public class ReverceProxyFilterReverse implements Filter {
 		//System.out.println("Procces UrlPatterns "+urlPatterns);
 		HttpServletRequest dd = (HttpServletRequest) request;
 
-		String bb = getFullURL((HttpServletRequest) request);
+		//String bb = getFullURL((HttpServletRequest) request);
 		String queryString = dd.getQueryString();
 		String url = "http://localhost:8181/reverse?" + queryString;
 		//String url = "http://localhost:2322/reverse?" + queryString;

@@ -8,7 +8,7 @@ export const remoteProcedures = new RemoteProcedures();
 const PORT = 8443;
 const MAPPING = "/rpc";
 
-const url='wss://' + window.location.hostname + ':' + PORT + MAPPING;
+const url='ws://' + window.location.hostname + ':' + PORT + MAPPING;
 
 remoteProcedures.reconnectURL=url;
 

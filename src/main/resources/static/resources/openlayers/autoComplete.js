@@ -3,8 +3,8 @@ var br = 2;
 
 function fetchMAddresscbb(inputEl, autocompleteList) {
 	var q = inputEl.value;
-	var url = 'https://' + hostname + ':8443/api?q=Varna ' + q;
-	log("fetchMAddresscbb url" + url)
+	var url = 'http'+getProtocolSuffix()+'://' + hostname + ':8443/api?q=Varna ' + q;
+	log("fetchMAddresscbb url:" + url)
 	fetch(url)
 		.then(function (response) {
 			return response.json();
@@ -55,8 +55,8 @@ function getAddressProton(address)
 	*/
 	function reverseGeocodingProton(lon, lat, el, callbackFN) {
 
-			var url = 'https://' + hostname + ':8443/reverse?lon=' + lon + '&lat=' + lat+'&radius=1' ;
-			log("fetchMAddresscbb url" + url)
+			var url = 'http+getProtocolSuffix()+://' + hostname + ':8443/reverse?lon=' + lon + '&lat=' + lat+'&radius=1' ;
+			log("reverseGeocodingProton url:" + url)
 			fetch(url)
 				.then(function (response) {
 					return response.json();

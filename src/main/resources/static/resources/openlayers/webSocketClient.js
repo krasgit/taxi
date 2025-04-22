@@ -24,7 +24,7 @@ function init() {
         console.log("Stream OK");
         localStream = stream;
         selfView.srcObject = localStream;
-        ws = new WebSocket('wss://' + window.location.hostname + ':' + PORT + MAPPING);
+        ws = new WebSocket('ws'+getProtocolSuffix()+'://' + window.location.hostname + ':' + PORT + MAPPING);
         ws.onmessage = processWsMessage;
         ws.onopen = logMessage;
         ws.onclose = logMessage;
@@ -246,7 +246,7 @@ var ws=null;
 function wsconect() {
 try{
     // get a local stream, show it in a self-view and add it to be sent
-        ws = new WebSocket('wss://' + window.location.hostname + ':' + PORT + MAPPING);
+        ws = new WebSocket('ws'+getProtocolSuffix()+'://' + window.location.hostname + ':' + PORT + MAPPING);
 	        ws.onmessage = processWsMessage;
         ws.onopen = logMessage;
 	    ws.onclose = logMessage;

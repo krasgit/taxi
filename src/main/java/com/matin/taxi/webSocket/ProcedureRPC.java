@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Array;
 import java.sql.CallableStatement;
@@ -253,7 +252,7 @@ public class ProcedureRPC {
 
 		Person person = personDAO.getPersonByToken(sessionId);
 
-		Long personId = person.getId();
+		//Long personId = person.getId();
 
 		Orders order = personDAO.getOrderById(id.longValue());
 
@@ -273,7 +272,9 @@ public class ProcedureRPC {
 
 		Person person = personDAO.getPersonByToken(sessionId);
 
-		Long taxiId = person.getId();
+		if(person==null)
+			return false;
+		//Long taxiId = person.getId();
 
 		Orders order = personDAO.getOrderById(id.longValue());
 
@@ -468,7 +469,7 @@ public class ProcedureRPC {
 
 		personDAO.createPosition(clientId, postion);
 
-		Position pos = personDAO.getLastPosition(clientId);
+		//Position pos = personDAO.getLastPosition(clientId);
 
 		// String loc1=getLocation(pos.getPosition());
 
@@ -788,7 +789,7 @@ public class ProcedureRPC {
 		
 		boolean res=signalingSocketHandlerRPC.command(personTo.getToken(), "MessageControl.OnMessage('"+message+"')");
 		
-		System.out.println("getAllConnectedUser sessionId:" + sessionId);
+		System.out.println("getAllConnectedUser sessionId:" + sessionId + "isOK: "+res);
 
 		return "OK";
 	}

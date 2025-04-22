@@ -6,15 +6,10 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportRuntimeHints;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 @SpringBootApplication
 @ImportRuntimeHints(TaxiRuntimeHints.class)
 public class TaxiApplication {
-	private static int port = 8282;;
+	//private static int port = 8282;;
 
 	public static void main(String[] args) {
 

@@ -1,8 +1,6 @@
 package com.matin.taxi.db.model;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
-
 /*
  create schema taxi
 drop table  taxi.position

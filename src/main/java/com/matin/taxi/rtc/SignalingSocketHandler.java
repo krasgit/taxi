@@ -19,13 +19,8 @@ import java.util.Map;
 public class SignalingSocketHandler extends TextWebSocketHandler {
 
 	private static final Logger LOG = LoggerFactory.getLogger(SignalingSocketHandler.class);
-
-	private static final String TYPE_INIT = "init";
-	private static final String TYPE_LOGOUT = "logout";
-
-	/**
-	 * Cache of sessions by users.
-	 */
+	// Cache of sessions by users.
+	 
 	private final Map<String, WebSocketSession> connectedUsers = new HashMap<>();
 
 	@Override
@@ -67,7 +62,7 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 		LOG.info("handleTextMessage : {}", message.getPayload());
 
-		SignalMessage signalMessage = Utils.getObject(message.getPayload());
+		//SignalMessage signalMessage = Utils.getObject(message.getPayload());
 
 		// with the destinationUser find the targeted socket, if any
 		// kmi String destinationUser = signalMessage.getReceiver();
@@ -76,7 +71,7 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
 		// kmi if (destSocket != null && destSocket.isOpen()) {
 		// set the sender as current sessionId.
 		// kmi signalMessage.setSender(session.getId());
-		final String resendingMessage = Utils.getString(signalMessage);
+		//final String resendingMessage = Utils.getString(signalMessage);
 		// kmi LOG.info("send message {} to {}", resendingMessage, destinationUser);
 		// kmi destSocket.sendMessage(new TextMessage(resendingMessage));
 		// kmi }
