@@ -231,7 +231,7 @@ static visible(mode)
 static createContainer(options) {
 		var node_1 = document.createElement('DIV');
  			node_1.setAttribute('name', 'LoginControlContainer');
-  			node_1.setAttribute('id', '');
+  			node_1.setAttribute('id', 'LoginControlContainerId');
   			node_1.setAttribute('class', '     border w3-border-red  ');
   			//node_1.setAttribute('style', ' background-color: lightblue; min-width: 350;position: absolute; right : 0em; bottom : 0em ');
 			//node_1.setAttribute('style', ' background-color: lightblue; min-width: 350;position: absolute; right : 0em; top : 0em ');
