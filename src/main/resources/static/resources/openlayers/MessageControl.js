@@ -1,4 +1,7 @@
 class MessageControl extends ol.control.Control {
+	
+	
+	
   constructor(opt_options) {
 	const options = opt_options || {};
     const button = document.createElement('button');
@@ -6,11 +9,16 @@ class MessageControl extends ol.control.Control {
     button.innerHTML ='#';// 'Login';
 						
 	const element = document.createElement('span');
-	element.setAttribute("id", "d1");
+	element.setAttribute("id", "MessageControlId");
 	element.className = 'border w3-border-red  ';
-						
+	
+				
+//	z-index: 999;
 	//element.style="background-color: lightblue; position: absolute;border: solid 1px black;top: 90px;left: 560px;min-width: 20em;   min-height:50px;";
 	element.style="background-color: lightblue; position: absolute;border: solid 1px black;top: 0px;left: 0px;min-width: 20em;   min-height:50px;";
+	
+//	element.style.display="none";
+	element.style.zIndex = "99";
 						
 	let template=`
 		<div class="ccontainer">
@@ -21,6 +29,38 @@ class MessageControl extends ol.control.Control {
 				<header class="card-header">header</header>
 			-->				
 					        <div id="MessageControlContainer">
+							
+							
+							<div id="videos">
+							      <video class="video-player" id="user-1" autoplay= playsinline width="200"></video>
+							      <video class="video-player" id="user-2" autoplay playsinline width="200"></video>
+							  </div>
+							  <!---
+							<div>
+							
+							<table><tr>
+							  <td><video id="v1" autoplay width=200></video></td>
+							  <td><video id="v2" autoplay></video></td></tr>
+							  <tr><td id="v1info">0x0</td>
+							  		<td id="v2info">0x0</td></tr>
+							</table>
+							
+							</div>
+							--->
+							<div>
+							
+							<button onclick="MessageControl.createOffer();">createOffer</button>
+							<button onclick="createAnswer();">createAnswer</button>
+							<button onclick="addAnswer();">addAnswer</button>
+							
+							
+							
+							
+							<button onclick="MessageControl.init()">Start!</button>
+							
+							<button onclick="MessageControl.start()">Start!</button>
+					
+							</div>
 					           <div class="card-content" style="padding: 0.3rem;">
 					              <div class="content">
 					                 <div id="userName" class="field">
@@ -63,7 +103,48 @@ class MessageControl extends ol.control.Control {
 						
 					  }
 	
+
+				
+			static createOffer()		{
+				var el=document.getElementById("msg");
+				_createOffer(el.getAttribute('fromId' ),el.getAttribute('toId'));
+				
+			}  
+			
+			
+			static Call(from, offerSDP )
+			{
+	
+			}			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+					  
+					  static init(){
+										  }
+					  	  
+					  static start()
+					  {
+						
+					  }					  
+					  
+					  
+					  
+					  
+					  
 	static init(context,fromId,from,toId,to){
+		
+		//todo
+		document.getElementById('user-1').srcObject = localStream
+		document.getElementById('user-2').srcObject = remoteStream
+		
+		
 		var el=document.getElementById("msg");
 		
 		el.setAttribute('context', context);
@@ -73,8 +154,14 @@ class MessageControl extends ol.control.Control {
 		el.setAttribute('to', toId);
 		let fmt=`context ${context} ,fromId ${fromId},from ${from},toId ${toId},to ${to} `;
 		log(fmt);
+		var el=document.getElementById("MessageControlId");
+			el.style.display="";
     }
 	
+	static Close(){
+		var el=document.getElementById("MessageControlId");
+					el.style.display="none";
+		} 
 	static Send(){
 		
 		
@@ -107,5 +194,7 @@ class MessageControl extends ol.control.Control {
 			log("OnMessage"+ message );
 		var el=document.getElementById("histrory");	
 		el.value=message;
+		var el=document.getElementById("MessageControlId");
+					el.style.display="";
 		}
 }

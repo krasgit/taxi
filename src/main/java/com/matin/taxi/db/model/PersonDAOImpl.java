@@ -398,8 +398,8 @@ public class PersonDAOImpl implements PersonDAO {
 	//-----------------------------------------
 	@Override
 	public boolean createMessage(Messages message) {
-		String SQL_INSERT =""; 
-			return jdbcTemplate.update(SQL_INSERT, message.getMessage()) > 0;
+		String SQL_INSERT ="INSERT INTO taxi.message ( state,  personid, taxiid, message) VALUES(?,?,?,?);"; 
+			return jdbcTemplate.update(SQL_INSERT, message.getState(),message.getTo(),message.getFrom(),message.getMessage()) > 0;
 		
 		
 	}
