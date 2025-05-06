@@ -15,7 +15,7 @@ class MessageControl extends ol.control.Control {
 				
 //	z-index: 999;
 	//element.style="background-color: lightblue; position: absolute;border: solid 1px black;top: 90px;left: 560px;min-width: 20em;   min-height:50px;";
-	element.style="background-color: lightblue; position: absolute;border: solid 1px black;top: 0px;left: 0px;min-width: 20em;   min-height:50px;";
+	element.style="background-color: lightblue; position: absolute;border: solid 1px black;top: 50px;left: 0px;min-width: 20em;   min-height:50px;";
 	
 //	element.style.display="none";
 	element.style.zIndex = "99";
@@ -32,8 +32,9 @@ class MessageControl extends ol.control.Control {
 							
 							
 							<div id="videos">
-							      <video class="video-player" id="user-1" autoplay= playsinline width="200"></video>
-							      <video class="video-player" id="user-2" autoplay playsinline width="200"></video>
+							      <video class="video-player" id="user-1"  muted="muted" autoplay= playsinline width="64"></video>
+								  <br/>
+							      <video class="video-player" id="user-2" autoplay playsinline width="64"></video>
 							  </div>
 							  <!---
 							<div>
@@ -49,23 +50,23 @@ class MessageControl extends ol.control.Control {
 							--->
 							<div>
 							
-							<button onclick="MessageControl.createOffer();">createOffer</button>
-							<button onclick="createAnswer();">createAnswer</button>
+							<button onclick="MessageControl.createOffer();">call</button>
+							<button onclick="MessageControl.createAnswer();">answer</button>
+							<!--
 							<button onclick="addAnswer();">addAnswer</button>
-							
-							
-							
-							
 							<button onclick="MessageControl.init()">Start!</button>
 							
 							<button onclick="MessageControl.start()">Start!</button>
-					
+							-->
 							</div>
 					           <div class="card-content" style="padding: 0.3rem;">
 					              <div class="content">
 					                 <div id="userName" class="field">
 					                    <div class="control">
 					                       <input id="histrory" class="input" type="" placeholder="fdasfds">
+										   
+										   <textarea class="textarea" id="text_box" rows="4" cols="30"></textarea>
+										   
 					                    </div>
 					                 </div>
 					                 <div class="field">
@@ -105,36 +106,45 @@ class MessageControl extends ol.control.Control {
 	
 
 				
-			static createOffer()		{
+			static createOffer(){
+				
+				talog("MsgCtr::createOffer{");
 				var el=document.getElementById("msg");
-				_createOffer(el.getAttribute('fromId' ),el.getAttribute('toId'));
+			//	talog("MsgCtr::createOffer el"+el);	
+				_createOffer(el);
+				talog("MsgCtr::createOffer }");
 				
 			}  
 			
-			
 			static Call(from, offerSDP )
-			{
-	
-			}			
+						{
+							
+							//talog("MsgCtr::Call");	
+							
+							var el=document.getElementById("msg");
+							el.setAttribute('data-offerSDP',offerSDP);
+							el.setAttribute('callFrom',from);
+							
+						}
 			
-			
-			
-			
-			
-			
-			
-			
-			
-					  
-					  static init(){
-										  }
-					  	  
-					  static start()
-					  {
 						
-					  }					  
-					  
-					  
+			static createAnswer()
+						{
+					//		talog("MsgCtr::createAnswer");
+							var el=document.getElementById("msg");
+							
+							_createAnswer(el);
+						}		
+			
+			static addAnswer(from, offerSDP)
+				{
+			var el=document.getElementById("msg");
+			
+					el.setAttribute('data-answer-sdp', offerSDP); 
+			_addAnswer(el);
+			}				
+			
+			
 					  
 					  
 					  

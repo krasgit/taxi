@@ -816,11 +816,45 @@ public class ProcedureRPC {
 		
 		
 		
-		boolean res=signalingSocketHandlerRPC.command(personTo.getToken(), "MessageControl.Call('+from+','"+message+"')");
+		boolean res=signalingSocketHandlerRPC.command(personTo.getToken(), "MessageControl.Call('"+from+"','"+message+"')");
 		
 		
 		
 		return "OK";
 		
 	}
+
+	public String createAnswer(java.util.ArrayList arg ,String sessionId) 
+	{
+		String from = (String) arg.get(0);
+		String to = (String) arg.get(1);
+		String message = (String) arg.get(2);
+		
+		if(message.isEmpty())
+			return "Empty message";
+		
+		Person personFrom = personDAO.getPersonById(Long.parseLong(to));
+		
+		if(personFrom==null)
+			return "Empty personFrom";
+		
+		Person personTo = personDAO.getPersonById(Long.parseLong(to));
+		
+		if(personTo==null)
+			return "Empty personTo";
+		
+		
+		
+		boolean res=signalingSocketHandlerRPC.command(personTo.getToken(), "MessageControl.addAnswer('"+from+"','"+message+"')");
+		
+		
+		
+		return "OK";
+		
+	}
+
+	
+
+	
 }
+

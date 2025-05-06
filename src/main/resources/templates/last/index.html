@@ -495,19 +495,34 @@
   	  return new Promise(resolve => setTimeout(() => resolve(null), time))
   	}
 
+	
+	function talog(text) {
+	    var txtArea;
+
+	    txtArea = document.getElementById("text_box");
+	    txtArea.value += text + '\r\n';
+	}
+
+
   	</script>
   
   <script>
 	
+	const peerConnectionConfig = {
+	    'iceServers': [
+	        {'urls': 'stun:stun.l.google.com:19302'}
+	    ]
+	};
+
 	
 	
-	
-  let peerConnection = new RTCPeerConnection()
+  let peerConnection = new RTCPeerConnection(peerConnectionConfig)
   let localStream;
   let remoteStream;
 
   let init = async () => {
-      localStream = await navigator.mediaDevices.getUserMedia({video:true, audio:false})
+      localStream = await navigator.mediaDevices.getUserMedia({video:true, audio:true})
+	  //localStream = await navigator.mediaDevices.getUserMedia({video:false, audio:true})
       remoteStream = new MediaStream()
 	  //to controll
       //document.getElementById('user-1').srcObject = localStream
@@ -525,16 +540,57 @@
   }
 
 
-  let _createOffer = async (fromId,toId) => {
 
+let _kcreateOffer = async (el) => {
+	peerConnection.onicecandidate = async (event) => {
+              if(event.candidate){
+                const offer= JSON.stringify(peerConnection.localDescription)
+  				var encodedOffer = btoa(offer);
+				var el=document.getElementById("msg");
+					el.setAttribute('data-offerSDP',encodedOffer);
+            }
+          };
 
+          const offer = await peerConnection.createOffer();
+          await peerConnection.setLocalDescription(offer);
+      }
+  
+let _kcreateAnswer = async (el) => {
+	    peerConnection.onicecandidate = async (event) => {
+	  	        if(event.candidate){
+	  	           // console.log('Adding answer candidate...:', event.candidate)
+	  	           // document.getElementById('answer-sdp').value = JSON.stringify(peerConnection.localDescription)
+	  			   const _offer= JSON.stringify(peerConnection.localDescription)
+	  			   			
+	  			   var encodedOffer = btoa(_offer);
+				   var el=document.getElementById("msg");
+				   	el.setAttribute('data-offerSDP',encodedOffer);
+	  			   		
+	  	        }
+	  	    };
+	  	  	}
+  
+  
+  let _createOffer = async (el) => {
+
+	//talog("RTC::_createOffer{");
+	
+	var el=document.getElementById("msg");
+	var fromId=el.getAttribute('fromId' );
+	var toId=el.getAttribute('toId');
+	//talog("fromId:"+fromId +"toId:"+toId);
         peerConnection.onicecandidate = async (event) => {
             //Event that fires off when a new offer ICE candidate is created
             if(event.candidate){
                 const _offer= JSON.stringify(peerConnection.localDescription)
 				
-				callRPC("createOffer",fromId,toId,_offer).then((result) => 
+				
+				var encodedOffer = btoa(_offer);
+				
+				callRPC("createOffer",fromId,toId,encodedOffer).then((result) => 
 									{	
+										
+										talog("createOffer res" +result);
 										log(result);//RouteControl.render(result);
 										document.getElementById("message").value=""; 
 									});
@@ -547,15 +603,33 @@
     }
 
     
-	let _createAnswer = async () => {
+	let _createAnswer = async (el) => {
+//	    let offer = JSON.parse(document.getElementById('offer-sdp').value)
+     	
+        var toId=el.getAttribute('callFrom' );
+        var fromId="";//el.getAttribute('toId');
 
-	    let offer = JSON.parse(document.getElementById('offer-sdp').value)
-
-	    peerConnection.onicecandidate = async (event) => {
+		var offerSDP=el.getAttribute('data-offerSDP' );
+		
+		var offerSDPDecode = atob(offerSDP);		
+		let offer = JSON.parse(offerSDPDecode);
+		
+		
+ 
+			    peerConnection.onicecandidate = async (event) => {
 	        //Event that fires off when a new answer ICE candidate is created
 	        if(event.candidate){
-	            console.log('Adding answer candidate...:', event.candidate)
-	            document.getElementById('answer-sdp').value = JSON.stringify(peerConnection.localDescription)
+	           // console.log('Adding answer candidate...:', event.candidate)
+	           // document.getElementById('answer-sdp').value = JSON.stringify(peerConnection.localDescription)
+			   const _offer= JSON.stringify(peerConnection.localDescription)
+			   			
+			   var encodedOffer = btoa(_offer);
+			   
+			   			callRPC("createAnswer",fromId,toId,encodedOffer).then((result) => 
+			   								{	
+			   									log(result);//RouteControl.render(result);
+			   								//	document.getElementById("message").value=""; 
+			   								});
 	        }
 	    };
 
@@ -565,9 +639,18 @@
 	    await peerConnection.setLocalDescription(answer); 
 	}
 
-	let _addAnswer = async () => {
+	let _addAnswer = async (el) => {
 	    console.log('Add answer triggerd')
-	    let answer = JSON.parse(document.getElementById('answer-sdp').value)
+		
+	    //let answer = JSON.parse(document.getElementById('answer-sdp').value)
+		
+		var dav=el.getAttribute('data-answer-sdp' );
+		var answerSDPDecode = atob(dav);	
+		
+		let answer = JSON.parse(answerSDPDecode);
+		
+		
+		
 	    console.log('answer:', answer)
 	    if (!peerConnection.currentRemoteDescription){
 	        peerConnection.setRemoteDescription(answer);
@@ -627,6 +710,66 @@
       }
   }
 
+  
+  
+  
+  let kcreateOffer = async () => {
+
+
+      peerConnection.onicecandidate = async (event) => {
+          //Event that fires off when a new offer ICE candidate is created
+          if(event.candidate){
+              document.getElementById('offer-sdp').value = JSON.stringify(peerConnection.localDescription)
+          }
+      };
+
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+  }
+
+  let kcreateAnswer = async () => {
+
+      let offer = JSON.parse(document.getElementById('offer-sdp').value)
+
+      peerConnection.onicecandidate = async (event) => {
+          //Event that fires off when a new answer ICE candidate is created
+          if(event.candidate){
+              console.log('Adding answer candidate...:', event.candidate)
+              document.getElementById('answer-sdp').value = JSON.stringify(peerConnection.localDescription)
+          }
+      };
+
+      await peerConnection.setRemoteDescription(offer);
+
+      let answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer); 
+  }
+
+  let kaddAnswer = async () => {
+      console.log('Add answer triggerd')
+      let answer = JSON.parse(document.getElementById('answer-sdp').value)
+      console.log('answer:', answer)
+      if (!peerConnection.currentRemoteDescription){
+          peerConnection.setRemoteDescription(answer);
+      }
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   init()
 /*
   document.getElementById('create-offer').addEventListener('click', createOffer)
