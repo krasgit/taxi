@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.validation.Valid;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -61,7 +62,9 @@ class WebIndexController {
 	}
 
 	@GetMapping("/last/index")
-	public String initFindForm() {
+	public String initFindForm(@RequestParam(required = false, defaultValue = "") String user) {
+		System.out.print("user="+user);
+		
 		return "last/index";
 	}
 

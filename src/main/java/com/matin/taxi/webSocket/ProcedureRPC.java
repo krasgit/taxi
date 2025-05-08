@@ -816,11 +816,19 @@ public class ProcedureRPC {
 		
 		
 		
+		
+		System.out.println("createOffer from :" + personFrom.getName() + " > "+personTo.getName());
+		
+		WebSocketSession webSocketSession = signalingSocketHandlerRPC.getWebSocketByClientByToken(personTo.getToken());
+		
+		if(webSocketSession==null)
+		  return "Not active connection";
+		
 		boolean res=signalingSocketHandlerRPC.command(personTo.getToken(), "MessageControl.Call('"+from+"','"+message+"')");
 		
 		
 		
-		return "OK";
+		return "";
 		
 	}
 
@@ -844,6 +852,8 @@ public class ProcedureRPC {
 			return "Empty personTo";
 		
 		
+		
+		System.out.println("createOffer from :" + personFrom.getName() + " > "+personTo.getName());
 		
 		boolean res=signalingSocketHandlerRPC.command(personTo.getToken(), "MessageControl.addAnswer('"+from+"','"+message+"')");
 		

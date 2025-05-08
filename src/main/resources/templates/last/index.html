@@ -119,6 +119,18 @@
 
 	var url = new URL(location.origin);
 
+	let searchParams = new URLSearchParams(location.search);
+	
+	var user=searchParams.get('user');
+	
+	if(user!=null)
+	  Cookie.setPrefix(user);
+	
+	
+	console.log(user);  
+	
+	
+	
 	try {
 		url = new URL(location.origin);
 	} catch (error) {
@@ -590,6 +602,9 @@ let _kcreateAnswer = async (el) => {
 				callRPC("createOffer",fromId,toId,encodedOffer).then((result) => 
 									{	
 										
+										
+										
+										
 										talog("createOffer res" +result);
 										log(result);//RouteControl.render(result);
 										document.getElementById("message").value=""; 
@@ -757,7 +772,15 @@ let _kcreateAnswer = async (el) => {
   
   
   
-  
+  function hangup() {
+    console.log('Ending call');
+    pc1.close();
+    pc2.close();
+    pc1 = null;
+    pc2 = null;
+    hangupButton.disabled = true;
+    callButton.disabled = false;
+  }
   
   
   
@@ -777,6 +800,59 @@ let _kcreateAnswer = async (el) => {
   document.getElementById('add-answer').addEventListener('click', addAnswer)
 */
 
+  </script>
+  
+  
+  <script>
+  	
+	
+/*	
+	class Audio{
+		
+		
+		
+		
+	} 
+	
+	*/
+	
+	
+	
+	
+	
+	function audioStart(res, repead,callEnded)
+	{
+		var audio = new Audio(res);
+		audio.play();
+		
+		audio.onended = function() {
+			repead--
+				   if(repead>0)
+				   	{
+						audio.play();
+					}
+					else 
+					{
+						callEnded();
+					}
+				}; 
+		return audio;
+	}
+	
+	
+	//Event Hack
+function removeAllelementlictners(el)	
+	{
+	var new_element = el.cloneNode(true);
+	el.parentNode.replaceChild(new_element, el);
+	return new_element; 
+}
+	
+
+	
+//	call('../resources/audio/incoming-call.wav',3,callEnded);
+	  
+	  
   </script>
   
 

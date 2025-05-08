@@ -56,6 +56,11 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 	}
 
 	
+	public WebSocketSession getWebSocketByClientByToken(String sentdToClientByToken)
+	{
+		return connectedUsers.get(sentdToClientByToken);
+	}
+	
 	
   public SignalingSocketHandlerRPC() {
     	
@@ -188,7 +193,7 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 			System.out.print("" + arg.getClass().getSimpleName() + " " + arg);
 			System.out.print(", ");
 		}
-		System.out.print(")");
+		System.out.println(")");
 	}
 
 	@Override

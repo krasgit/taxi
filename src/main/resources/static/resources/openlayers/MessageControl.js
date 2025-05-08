@@ -50,8 +50,9 @@ class MessageControl extends ol.control.Control {
 							--->
 							<div>
 							
-							<button onclick="MessageControl.createOffer();">call</button>
-							<button onclick="MessageControl.createAnswer();">answer</button>
+							<button id='callButton' onclick="MessageControl.createOffer();">call</button>
+							<button id='hangup' onclick="MessageControl.hangup();">hangup</button>
+							<button id='answerButton' onclick="MessageControl.createAnswer();">answer</button>
 							<!--
 							<button onclick="addAnswer();">addAnswer</button>
 							<button onclick="MessageControl.init()">Start!</button>
@@ -104,26 +105,71 @@ class MessageControl extends ol.control.Control {
 						
 					  }
 	
-
+			 static hangup(){
 				
+				MessageControl.audio.pause();
+				MessageControl.audio.currentTime = 0;
+				document.getElementById("answerButton").style.display = "none";
+				
+			log("hangup");
+				}
+		static audio=null;
+								
 			static createOffer(){
 				
-				talog("MsgCtr::createOffer{");
+				//talog("MsgCtr::createOffer{");
 				var el=document.getElementById("msg");
-			//	talog("MsgCtr::createOffer el"+el);	
+			//	talog("MsgCtr::createOffer el"+el);
+			
+	
+			//var	callButton=removeAllelementlictners(document.getElementById("callButton"));
+			
+			
+			 MessageControl.audio=audioStart('../resources/audio/incoming-call.wav',3,MessageControl.callEnded);
+		//	callButton.innerHTML='hangup'
+		//	el.addEventListener('click', function () {
+		//			  MessageControl.hangup(audio);
+		//			}, false);
+					
+			
 				_createOffer(el);
-				talog("MsgCtr::createOffer }");
+				//talog("MsgCtr::createOffer }");
 				
 			}  
+			
+			
+			static callEnded()
+			{
+					document.getElementById("answerButton").style.display = "none";
+			}
+			
+			static audio = null;
+
 			
 			static Call(from, offerSDP )
 						{
 							
-							//talog("MsgCtr::Call");	
+							talog("MsgCtr::Call call from "+from);	
 							
 							var el=document.getElementById("msg");
 							el.setAttribute('data-offerSDP',offerSDP);
 							el.setAttribute('callFrom',from);
+							
+							
+							document.getElementById("answerButton").style.display = ""; 
+						
+							/*
+							var audio=document.getElementById("audio");	
+									
+									//audio.src="https://www.sousound.com/music/healing/healing_01.mp3";
+									audio.src="../resources/audio/outgoing-call2.ogg";
+									
+									
+									audio.loop=true;
+									
+									audio.play();
+							
+							*/
 							
 						}
 			
@@ -149,6 +195,9 @@ class MessageControl extends ol.control.Control {
 					  
 					  
 	static init(context,fromId,from,toId,to){
+	
+		
+		document.getElementById("answerButton").style.display = "none";
 		
 		//todo
 		document.getElementById('user-1').srcObject = localStream

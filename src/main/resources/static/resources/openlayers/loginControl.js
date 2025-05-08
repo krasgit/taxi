@@ -120,6 +120,9 @@ static logIn() {
 					
 					let result=JSON.parse(resultJson);
 					
+					log("logIn username:"+username +document.title);
+					
+					
 					Cookie.setCookie("user",username);
 					Cookie.setCookie("token",result.sessionId);
 					Cookie.setCookie("isTaxi",result.isTaxi);
