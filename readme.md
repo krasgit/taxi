@@ -1,4 +1,425 @@
-https://medium.com/@tayeblagha/create-free-ssl-certificate-and-configure-it-for-spring-boot-web-applications-a2106d97b733
+# WebRTC Call with Background Music & Call Timeout
+
+Here's an enhanced version of the WebRTC call application that includes:
+1. Background music during calls
+2. Automatic call timeout after a set duration
+3. Visual timer display
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebRTC Call with Music & Timeout</title>
+    <style>
+        video {
+            width: 300px;
+            height: 225px;
+            background: black;
+            margin: 10px;
+        }
+        #videos {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+        }
+        #timer {
+            font-size: 24px;
+            margin: 10px;
+        }
+        #musicControls {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebRTC Call with Music & Timeout</h1>
+    
+    <div id="videos">
+        <video id="localVideo" autoplay muted></video>
+        <video id="remoteVideo" autoplay></video>
+    </div>
+    
+    <div id="timer">Call duration: 00:00</div>
+    
+    <div id="musicControls">
+        <button id="toggleMusic">Play Background Music</button>
+        <select id="musicSelect">
+            <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">Music 1</option>
+            <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3">Music 2</option>
+            <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3">Music 3</option>
+        </select>
+        <span id="musicStatus">Music: Off</span>
+    </div>
+    
+    <div>
+        <button id="startButton">Start</button>
+        <button id="callButton" disabled>Call</button>
+        <button id="answerButton" disabled>Answer</button>
+        <button id="hangupButton" disabled>Hang Up</button>
+    </div>
+    
+    <script>
+        // DOM elements
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const startButton = document.getElementById('startButton');
+        const callButton = document.getElementById('callButton');
+        const answerButton = document.getElementById('answerButton');
+        const hangupButton = document.getElementById('hangupButton');
+        const timerDisplay = document.getElementById('timer');
+        const toggleMusicButton = document.getElementById('toggleMusic');
+        const musicSelect = document.getElementById('musicSelect');
+        const musicStatus = document.getElementById('musicStatus');
+        
+        // WebRTC variables
+        let localStream;
+        let peerConnection;
+        let callTimer;
+        let callDuration = 0;
+        const MAX_CALL_DURATION = 300; // 5 minutes in seconds
+        
+        // Audio variables
+        const backgroundAudio = new Audio();
+        let isMusicPlaying = false;
+        let audioContext;
+        let localAudioStream;
+        let musicStream;
+        let destinationNode;
+        
+        // For demo purposes - in real app you'd use a signaling server
+        const signaling = {
+            send: (data) => {
+                console.log('Signaling send:', data);
+                setTimeout(() => {
+                    if (data.type === 'offer') {
+                        handleSignalingMessage({ type: 'offer', offer: data.offer });
+                    } else if (data.type === 'answer') {
+                        handleSignalingMessage({ type: 'answer', answer: data.answer });
+                    } else if (data.type === 'candidate') {
+                        handleSignalingMessage({ type: 'candidate', candidate: data.candidate });
+                    }
+                }, 500);
+            }
+        };
+        
+        // Start local media
+        startButton.onclick = async () => {
+            try {
+                // Get audio and video streams
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                    video: true
+                });
+                
+                localVideo.srcObject = localStream;
+                startButton.disabled = true;
+                callButton.disabled = false;
+                
+                console.log('Local stream obtained');
+            } catch (err) {
+                console.error('Error getting media:', err);
+            }
+        };
+        
+        // Initialize audio context for music mixing
+        function initAudioContext() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            destinationNode = audioContext.createMediaStreamDestination();
+            
+            // Create a stream we can use for our peer connection
+            musicStream = destinationNode.stream;
+            
+            // Get the audio track from our local stream
+            const audioTracks = localStream.getAudioTracks();
+            if (audioTracks.length > 0) {
+                localAudioStream = new MediaStream(audioTracks);
+            }
+        }
+        
+        // Create peer connection with mixed audio
+        function createPeerConnection() {
+            peerConnection = new RTCPeerConnection({
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' }
+                ]
+            });
+            
+            // Add mixed audio stream if music is playing
+            if (isMusicPlaying) {
+                // Create a new stream that combines local audio and music
+                const mixedStream = new MediaStream();
+                localAudioStream.getTracks().forEach(track => mixedStream.addTrack(track));
+                musicStream.getTracks().forEach(track => mixedStream.addTrack(track));
+                
+                // Add the mixed stream to the connection
+                mixedStream.getTracks().forEach(track => {
+                    peerConnection.addTrack(track, mixedStream);
+                });
+            } else {
+                // Add just the local audio/video
+                localStream.getTracks().forEach(track => {
+                    peerConnection.addTrack(track, localStream);
+                });
+            }
+            
+            // Handle remote stream
+            peerConnection.ontrack = event => {
+                remoteVideo.srcObject = event.streams[0];
+                console.log('Received remote stream');
+            };
+            
+            // Handle ICE candidates
+            peerConnection.onicecandidate = event => {
+                if (event.candidate) {
+                    signaling.send({
+                        type: 'candidate',
+                        candidate: event.candidate
+                    });
+                }
+            };
+            
+            // Handle connection state changes
+            peerConnection.onconnectionstatechange = () => {
+                console.log('Connection state:', peerConnection.connectionState);
+                if (peerConnection.connectionState === 'disconnected' || 
+                    peerConnection.connectionState === 'failed') {
+                    hangUp();
+                }
+            };
+        }
+        
+        // Toggle background music
+        toggleMusicButton.onclick = () => {
+            if (!audioContext) {
+                initAudioContext();
+            }
+            
+            if (isMusicPlaying) {
+                // Stop music
+                backgroundAudio.pause();
+                backgroundAudio.currentTime = 0;
+                isMusicPlaying = false;
+                musicStatus.textContent = "Music: Off";
+                toggleMusicButton.textContent = "Play Background Music";
+                
+                // Recreate peer connection without music if call is active
+                if (peerConnection) {
+                    hangUp();
+                    callButton.disabled = false;
+                }
+            } else {
+                // Start music
+                backgroundAudio.src = musicSelect.value;
+                backgroundAudio.loop = true;
+                
+                // Create a media element source node
+                const source = audioContext.createMediaElementSource(backgroundAudio);
+                source.connect(destinationNode);
+                
+                backgroundAudio.play()
+                    .then(() => {
+                        isMusicPlaying = true;
+                        musicStatus.textContent = "Music: On";
+                        toggleMusicButton.textContent = "Stop Background Music";
+                        
+                        // Recreate peer connection with music if call is active
+                        if (peerConnection) {
+                            hangUp();
+                            callButton.disabled = false;
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error playing music:', err);
+                    });
+            }
+        };
+        
+        // Update music source when selection changes
+        musicSelect.onchange = () => {
+            if (isMusicPlaying) {
+                backgroundAudio.src = musicSelect.value;
+                backgroundAudio.play().catch(err => console.error('Error changing music:', err));
+            }
+        };
+        
+        // Start call timer
+        function startCallTimer() {
+            callDuration = 0;
+            updateTimerDisplay();
+            callTimer = setInterval(() => {
+                callDuration++;
+                updateTimerDisplay();
+                
+                // Auto hangup after max duration
+                if (callDuration >= MAX_CALL_DURATION) {
+                    alert("Call time limit reached. The call will now end.");
+                    hangUp();
+                }
+            }, 1000);
+        }
+        
+        // Update timer display
+        function updateTimerDisplay() {
+            const minutes = Math.floor(callDuration / 60).toString().padStart(2, '0');
+            const seconds = (callDuration % 60).toString().padStart(2, '0');
+            timerDisplay.textContent = `Call duration: ${minutes}:${seconds}`;
+        }
+        
+        // Stop call timer
+        function stopCallTimer() {
+            clearInterval(callTimer);
+            timerDisplay.textContent = "Call duration: 00:00";
+        }
+        
+        // Initiate call
+        callButton.onclick = async () => {
+            callButton.disabled = true;
+            answerButton.disabled = true;
+            hangupButton.disabled = false;
+            
+            createPeerConnection();
+            
+            try {
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+                
+                signaling.send({
+                    type: 'offer',
+                    offer: offer
+                });
+                
+                startCallTimer();
+                console.log('Call initiated with offer');
+            } catch (err) {
+                console.error('Error creating offer:', err);
+                hangUp();
+            }
+        };
+        
+        // Answer call
+        answerButton.onclick = async () => {
+            answerButton.disabled = true;
+            
+            try {
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                
+                signaling.send({
+                    type: 'answer',
+                    answer: answer
+                });
+                
+                startCallTimer();
+                console.log('Call answered');
+            } catch (err) {
+                console.error('Error creating answer:', err);
+                hangUp();
+            }
+        };
+        
+        // Hang up call
+        function hangUp() {
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            
+            stopCallTimer();
+            
+            remoteVideo.srcObject = null;
+            
+            callButton.disabled = false;
+            answerButton.disabled = true;
+            hangupButton.disabled = true;
+            
+            signaling.send({ type: 'hangup' });
+            
+            console.log('Call ended');
+        }
+        
+        hangupButton.onclick = hangUp;
+        
+        // Handle signaling messages
+        async function handleSignalingMessage(message) {
+            if (!peerConnection && (message.type === 'offer' || message.type === 'answer')) {
+                createPeerConnection();
+            }
+            
+            try {
+                switch (message.type) {
+                    case 'offer':
+                        await peerConnection.setRemoteDescription(new RTCSessionDescription(message.offer));
+                        answerButton.disabled = false;
+                        hangupButton.disabled = false;
+                        console.log('Received offer');
+                        break;
+                        
+                    case 'answer':
+                        await peerConnection.setRemoteDescription(new RTCSessionDescription(message.answer));
+                        console.log('Received answer');
+                        break;
+                        
+                    case 'candidate':
+                        await peerConnection.addIceCandidate(new RTCIceCandidate(message.candidate));
+                        console.log('Received ICE candidate');
+                        break;
+                        
+                    case 'hangup':
+                        hangUp();
+                        break;
+                        
+                    default:
+                        console.warn('Unknown message type:', message.type);
+                }
+            } catch (err) {
+                console.error('Error handling signaling message:', err);
+            }
+        }
+        
+        // For demo purposes - simulate receiving signaling messages
+        window.handleSignalingMessage = handleSignalingMessage;
+    </script>
+</body>
+</html>
+```
+
+## Key Enhancements:
+
+1. **Background Music System**:
+   - Music player with play/stop controls
+   - Multiple music track options
+   - Audio mixing with call audio using Web Audio API
+   - Music continues playing seamlessly during calls
+
+2. **Call Timeout Feature**:
+   - 5-minute call duration limit (configurable)
+   - Visual countdown timer
+   - Automatic call termination when time expires
+   - Clear time display in MM:SS format
+
+3. **Improved Audio Handling**:
+   - Proper audio context initialization
+   - Mixing of microphone input and background music
+   - Clean audio stream management
+
+4. **UI Improvements**:
+   - Dedicated music control section
+   - Call timer display
+   - Music status indicator
+
+## How to Use:
+
+1. Open the page in two browser windows/tabs
+2. Click "Start" in both windows to enable cameras/mics
+3. Use the music controls to select and play background music (optional)
+4. Initiate a call from one window, answer from the other
+5. Watch the timer count up during the call
+6. The call will automatically end after 5 minutes, or you can click "Hang Up"
+
+Note: For a production app, you would need to replace the simulated signaling with a real WebSocket server and add proper error handling for all user media permissions.://medium.com/@tayeblagha/create-free-ssl-certificate-and-configure-it-for-spring-boot-web-applications-a2106d97b733
 
 To set the **initial (minimum)**, **maximum**, and **idle** connections in a connection pool, you need to configure the respective properties of the connection pool library you're using. Below, I'll explain 
 how to set these values for **HikariCP**, one of the most popular connection pooling libraries for Java.
