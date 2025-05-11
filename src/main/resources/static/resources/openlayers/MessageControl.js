@@ -33,7 +33,7 @@ class MessageControl extends ol.control.Control {
 							
 							<div id="videos">
 							      <video class="video-player" id="user-1"  muted="muted" autoplay= playsinline width="64"></video>
-								  <br/>
+								  
 							      <video class="video-player" id="user-2" autoplay playsinline width="64"></video>
 							  </div>
 							  <!---
@@ -51,7 +51,7 @@ class MessageControl extends ol.control.Control {
 							<div>
 							
 							<button id='callButton' onclick="MessageControl.createOffer();">call</button>
-							<button id='hangup' onclick="MessageControl.hangup();">hangup</button>
+							<button id='hangup' onclick="MessageControl.hangUp();">hangup</button>
 							<button id='answerButton' onclick="MessageControl.createAnswer();">answer</button>
 							<!--
 							<button onclick="addAnswer();">addAnswer</button>
@@ -104,16 +104,22 @@ class MessageControl extends ol.control.Control {
 					  handleRotateNorth(e) {
 						
 					  }
-	
-			 static hangup(){
-				
-				MessageControl.audio.pause();
-				MessageControl.audio.currentTime = 0;
+					  static audio=null;
+					  
+					  
+					  
+			 static hangUp(){
+					
+			    document.getElementById("callButton").style.display = "";	
 				document.getElementById("answerButton").style.display = "none";
+				document.getElementById("hangup").style.display = "none";
 				
-			log("hangup");
-				}
-		static audio=null;
+				var el=document.getElementById("msg");
+				
+				hangUp(el);
+				console.log('Ending call');
+								}
+		
 								
 			static createOffer(){
 				
@@ -157,20 +163,8 @@ class MessageControl extends ol.control.Control {
 							
 							
 							document.getElementById("answerButton").style.display = ""; 
-						
-							/*
-							var audio=document.getElementById("audio");	
-									
-									//audio.src="https://www.sousound.com/music/healing/healing_01.mp3";
-									audio.src="../resources/audio/outgoing-call2.ogg";
-									
-									
-									audio.loop=true;
-									
-									audio.play();
-							
-							*/
-							
+							MessageControl.audio=audioStart('../resources/audio/incoming-call.wav',3,MessageControl.callEnded);
+								
 						}
 			
 						

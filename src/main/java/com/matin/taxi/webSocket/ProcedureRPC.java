@@ -864,7 +864,34 @@ public class ProcedureRPC {
 	}
 
 	
-
+	public String hangUp(java.util.ArrayList arg ,String sessionId) 
+	{
+		//String from = (String) arg.get(0);
+		String to = (String) arg.get(0);
+		//String message = (String) arg.get(2);
+		
+		//if(message.isEmpty())
+		//	return "Empty message";
+		
+	
+		
+		
+		Person personTo = personDAO.getPersonById(Long.parseLong(to));
+		
+		if(personTo==null)
+			return "Empty personTo";
+		
+		
+		
+		System.out.println("hangUp to :" + personTo.getName( ));
+		
+		boolean res=signalingSocketHandlerRPC.command(personTo.getToken(), "MessageControl.hangUp()");
+		
+		
+		
+		return "OK";
+		
+	}
 	
 }
 

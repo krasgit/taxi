@@ -493,8 +493,8 @@
               var logTxt=`Height: ${height}px, Width: ${width}px`;
 			  var logTxt1=`H: ${height}px, W: ${width}px`;
 			  
-              histrory.value = logTxt1;
-          log(logTxt);
+           //   histrory.value = logTxt1;
+          //log(logTxt);
           }
       });
 
@@ -512,7 +512,7 @@
 	    var txtArea;
 
 	    txtArea = document.getElementById("text_box");
-	    txtArea.value += text + '\r\n';
+	    txtArea.value = text + '\r\n'+txtArea.value;
 	}
 
 
@@ -520,6 +520,38 @@
   
   <script>
 	
+	//------------------------------------------
+	let callTimer;
+	let callDuration = 0;
+	const MAX_CALL_DURATION = 10; // in seconds
+	
+	function startCallTimer() {
+	        callDuration = 0;
+	        updateTimerDisplay();
+	        callTimer = setInterval(() => {
+	            callDuration++;
+	            updateTimerDisplay();
+	            
+	            // Auto hangup after max duration
+	            if (callDuration >= MAX_CALL_DURATION) {
+	                log("Call time limit reached. The call will now end.");
+	                MessageControl.hangUp();
+	            }
+	        }, 1000);
+	    }
+	
+		function updateTimerDisplay() {
+		       const minutes = Math.floor(callDuration / 60).toString().padStart(2, '0');
+		       const seconds = (callDuration % 60).toString().padStart(2, '0');
+		       log(`Call duration: ${minutes}:${seconds}`);
+		   }
+	
+		   // Stop call timer
+		           function stopCallTimer() {
+		               clearInterval(callTimer);
+		           log("Call duration: 00:00");
+		           }
+	//------------------------------------------------------------------------------
 	const peerConnectionConfig = {
 	    'iceServers': [
 	        {'urls': 'stun:stun.l.google.com:19302'}
@@ -528,7 +560,7 @@
 
 	
 	
-  let peerConnection = new RTCPeerConnection(peerConnectionConfig)
+  let peerConnection;
   let localStream;
   let remoteStream;
 
@@ -539,10 +571,10 @@
 	  //to controll
       //document.getElementById('user-1').srcObject = localStream
       //document.getElementById('user-2').srcObject = remoteStream
-
-      localStream.getTracks().forEach((track) => {
-          peerConnection.addTrack(track, localStream);
-      });
+	  createPeerConnection();
+     // localStream.getTracks().forEach((track) => {
+      //    peerConnection.addTrack(track, localStream);
+      //});
 
       peerConnection.ontrack = (event) => {
           event.streams[0].getTracks().forEach((track) => {
@@ -551,41 +583,17 @@
       };
   }
 
-
-
-let _kcreateOffer = async (el) => {
-	peerConnection.onicecandidate = async (event) => {
-              if(event.candidate){
-                const offer= JSON.stringify(peerConnection.localDescription)
-  				var encodedOffer = btoa(offer);
-				var el=document.getElementById("msg");
-					el.setAttribute('data-offerSDP',encodedOffer);
-            }
-          };
-
-          const offer = await peerConnection.createOffer();
-          await peerConnection.setLocalDescription(offer);
-      }
   
-let _kcreateAnswer = async (el) => {
-	    peerConnection.onicecandidate = async (event) => {
-	  	        if(event.candidate){
-	  	           // console.log('Adding answer candidate...:', event.candidate)
-	  	           // document.getElementById('answer-sdp').value = JSON.stringify(peerConnection.localDescription)
-	  			   const _offer= JSON.stringify(peerConnection.localDescription)
-	  			   			
-	  			   var encodedOffer = btoa(_offer);
-				   var el=document.getElementById("msg");
-				   	el.setAttribute('data-offerSDP',encodedOffer);
-	  			   		
-	  	        }
-	  	    };
-	  	  	}
+  init();
+
+
+
   
+ 
   
   let _createOffer = async (el) => {
 
-	//talog("RTC::_createOffer{");
+	createPeerConnection();
 	
 	var el=document.getElementById("msg");
 	var fromId=el.getAttribute('fromId' );
@@ -595,30 +603,38 @@ let _kcreateAnswer = async (el) => {
             //Event that fires off when a new offer ICE candidate is created
             if(event.candidate){
                 const _offer= JSON.stringify(peerConnection.localDescription)
-				
-				
+				/*
 				var encodedOffer = btoa(_offer);
-				
-				callRPC("createOffer",fromId,toId,encodedOffer).then((result) => 
-									{	
-										
-										
-										
-										
-										talog("createOffer res" +result);
-										log(result);//RouteControl.render(result);
-										document.getElementById("message").value=""; 
-									});
+				callRPC("createOffer",fromId,toId,encodedOffer).then((result) => {	
+				log("createOffer res" +result);
+				document.getElementById("message").value=""; 
+				 });
+                   */									
 				
             }
         };
 
         const offer = await peerConnection.createOffer();
+		
+		const _offer= JSON.stringify(offer)
+		var encodedOffer = btoa(_offer);
+						
+						callRPC("createOffer",fromId,toId,encodedOffer).then((result) => 
+											{	
+												log("createOffer res" +result);
+												document.getElementById("message").value=""; 
+											});
+		
+		
+		startCallTimer();
+		
+		
         await peerConnection.setLocalDescription(offer);
     }
 
     
 	let _createAnswer = async (el) => {
+		createPeerConnection();
 //	    let offer = JSON.parse(document.getElementById('offer-sdp').value)
      	
         var toId=el.getAttribute('callFrom' );
@@ -656,7 +672,7 @@ let _kcreateAnswer = async (el) => {
 
 	let _addAnswer = async (el) => {
 	    console.log('Add answer triggerd')
-		
+		createPeerConnection();
 	    //let answer = JSON.parse(document.getElementById('answer-sdp').value)
 		
 		var dav=el.getAttribute('data-answer-sdp' );
@@ -671,129 +687,77 @@ let _kcreateAnswer = async (el) => {
 	        peerConnection.setRemoteDescription(answer);
 	    }
 	}
+  
+  
 
 	
+	function createPeerConnection() {
+		
+		if(peerConnection)
+           return;		
+		
+	            peerConnection = new RTCPeerConnection({
+	                iceServers: [
+	                    { urls: 'stun:stun.l.google.com:19302' }
+	                ]
+	            });
+	            
+	            // Add mixed audio stream if music is playing
+	            
+	                // Add just the local audio/video
+	                localStream.getTracks().forEach(track => {
+	                    peerConnection.addTrack(track, localStream);
+	                });
+	            
+	            
+	            // Handle remote stream
+	            peerConnection.ontrack = event => {
+					
+					//todo
+					var remoteVideo=document.getElementById("user-2");	
+					
+	                remoteVideo.srcObject = event.streams[0];
+	                console.log('Received remote stream');
+	            };
+	            
+	            // Handle ICE candidates
+	            peerConnection.onicecandidate = event => {
+	                if (event.candidate) {
+					//TODO	
+	                  //  signaling.send({type: 'candidate', candidate: event.candidate    });
+	                }
+	            };
+	            
+	            // Handle connection state changes
+	            peerConnection.onconnectionstatechange = () => {
+	                console.log('Connection state:', peerConnection.connectionState);
+	                if (peerConnection.connectionState === 'disconnected' || 
+	                    peerConnection.connectionState === 'failed') {
+	                    //TODO
+							MessageControl.hangUp();
+	                }
+	            };
+	        }  
+  
+  let hangUp =  (el) => 
+  {
+	var fromId=el.getAttribute('fromId' );
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	if (peerConnection) {
+	   peerConnection.close();
+	   peerConnection = null;
+	  }
+	  
+	  stopCallTimer();
+	  var toId=el.getAttribute('callFrom' );
+	  callRPC("hangUp",fromId).then((result) => 
+		{	
+		log(result);//RouteControl.render(result);
+	  	});
+	  
+	}
   
-  let createOffer = async () => {
 
-
-      peerConnection.onicecandidate = async (event) => {
-          //Event that fires off when a new offer ICE candidate is created
-          if(event.candidate){
-              document.getElementById('offer-sdp').value = JSON.stringify(peerConnection.localDescription)
-          }
-      };
-
-      const offer = await peerConnection.createOffer();
-      await peerConnection.setLocalDescription(offer);
-  }
-
-  let createAnswer = async () => {
-
-      let offer = JSON.parse(document.getElementById('offer-sdp').value)
-
-      peerConnection.onicecandidate = async (event) => {
-          //Event that fires off when a new answer ICE candidate is created
-          if(event.candidate){
-              console.log('Adding answer candidate...:', event.candidate)
-              document.getElementById('answer-sdp').value = JSON.stringify(peerConnection.localDescription)
-          }
-      };
-
-      await peerConnection.setRemoteDescription(offer);
-
-      let answer = await peerConnection.createAnswer();
-      await peerConnection.setLocalDescription(answer); 
-  }
-
-  let addAnswer = async () => {
-      console.log('Add answer triggerd')
-      let answer = JSON.parse(document.getElementById('answer-sdp').value)
-      console.log('answer:', answer)
-      if (!peerConnection.currentRemoteDescription){
-          peerConnection.setRemoteDescription(answer);
-      }
-  }
-
-  
-  
-  
-  let kcreateOffer = async () => {
-
-
-      peerConnection.onicecandidate = async (event) => {
-          //Event that fires off when a new offer ICE candidate is created
-          if(event.candidate){
-              document.getElementById('offer-sdp').value = JSON.stringify(peerConnection.localDescription)
-          }
-      };
-
-      const offer = await peerConnection.createOffer();
-      await peerConnection.setLocalDescription(offer);
-  }
-
-  let kcreateAnswer = async () => {
-
-      let offer = JSON.parse(document.getElementById('offer-sdp').value)
-
-      peerConnection.onicecandidate = async (event) => {
-          //Event that fires off when a new answer ICE candidate is created
-          if(event.candidate){
-              console.log('Adding answer candidate...:', event.candidate)
-              document.getElementById('answer-sdp').value = JSON.stringify(peerConnection.localDescription)
-          }
-      };
-
-      await peerConnection.setRemoteDescription(offer);
-
-      let answer = await peerConnection.createAnswer();
-      await peerConnection.setLocalDescription(answer); 
-  }
-
-  let kaddAnswer = async () => {
-      console.log('Add answer triggerd')
-      let answer = JSON.parse(document.getElementById('answer-sdp').value)
-      console.log('answer:', answer)
-      if (!peerConnection.currentRemoteDescription){
-          peerConnection.setRemoteDescription(answer);
-      }
-  }
-  
-  
-  
-  
-  function hangup() {
-    console.log('Ending call');
-    pc1.close();
-    pc2.close();
-    pc1 = null;
-    pc2 = null;
-    hangupButton.disabled = true;
-    callButton.disabled = false;
-  }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  init()
 /*
   document.getElementById('create-offer').addEventListener('click', createOffer)
   document.getElementById('create-answer').addEventListener('click', createAnswer)
@@ -854,7 +818,10 @@ function removeAllelementlictners(el)
 	  
 	  
   </script>
-  
+  <script>
+
+	
+  </script>
 
 </body>
 </html>

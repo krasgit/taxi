@@ -187,6 +187,7 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 	}
 
 	public void listProcedureArgs(String name, ArrayList args) {
+		
 		System.out.print(name);
 		System.out.print("(");
 		for (Object arg : args) {
