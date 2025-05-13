@@ -12,7 +12,7 @@ public class SuperCookieFilter implements Filter {
 
 	static String urlPatterns = "/SuperCookie/*";
 
-	static int version = 8;
+	static int version = 9;
 	
 	public class Bits {
 
@@ -93,7 +93,11 @@ public class SuperCookieFilter implements Filter {
 			String uid = getCookieValue(httpRequest, "uid");
 
 			try {
-				int index = Integer.valueOf(queryString);
+				String ss=ff.replace("/SuperCookie/"+version+"/", "");
+				
+				String ind=ss.replace("/favicon.ico", "");
+				
+				int index = Integer.valueOf(ind);
 
 				System.err.println("Get favicon.svg  uid " + uid + " qs" + index);
 
@@ -103,8 +107,12 @@ public class SuperCookieFilter implements Filter {
 						httpResponse.sendError(HttpServletResponse.SC_NOT_FOUND);
 						bs.bs.clear(index); 
 					} else {
-					if (bs.bs.get(index) == true)
+					if (bs.bs.get(index) == true) {
 						sendFav(httpResponse);
+						System.err.println("send  favicon.svg  uid " + uid + " qs" + index);
+					}
+					else 
+						httpResponse.sendError(HttpServletResponse.SC_NOT_FOUND);
 				}
 
 			}
@@ -132,7 +140,7 @@ public class SuperCookieFilter implements Filter {
 
 		if (ff.equals("/SuperCookie/write")) {
 			String uuid = UUID.randomUUID().toString();
-			visited.put(uuid, new BitSetMode(BitSetMode.WRITE, 3));
+			visited.put(uuid, new BitSetMode(BitSetMode.WRITE, 11));
 			httpResponse.addCookie(new Cookie("uid", uuid));
 			System.err.println("new Cookie uid " + uuid);
 
@@ -165,6 +173,7 @@ public class SuperCookieFilter implements Filter {
         
         var index=0;  
         const favicon = document.createElement('link');
+
         favicon.rel = "icon preload";
         favicon.as = "image";
         favicon.type = "image/x-icon";
@@ -176,7 +185,7 @@ public class SuperCookieFilter implements Filter {
             return;
            }
 	
-    favicon.href = location.origin+'/SuperCookie/%version%/favicon.ico?'+index;
+    favicon.href = location.origin+'/SuperCookie/%version%/'+index+'/favicon.ico';
     index++;
     };  
   
@@ -200,14 +209,20 @@ public class SuperCookieFilter implements Filter {
 		byte[] decodedBytes = Base64.getDecoder().decode(FILE);
 		String decodedString = new String(decodedBytes);
 
-		response.setContentType("image/svg+xml");
-
-		response.addHeader("Cache-Control", "max-age=2592000");
+		//response.setContentType("image/svg+xml");
+		response.setContentType("image/png");
+		
+		response.addHeader("Cache-Control", "max-age=2592000, public");
 		response.addHeader("Expires", "Tue, 03 Jul 2031 06:00:00 GMT");
 		response.addHeader("Content-Type", "image/png");
 		response.addHeader("Last-Modified", "Tue, 03 Jul 2030 06:00:00 GMT");
 
 		response.addHeader("Content-Length", "" + decodedString.length());
+		
+		//Header set Cache-Control "max-age=84600, public"
+		response.addHeader("cache-control", "max-age=315360000");
+		
+				
 		ServletOutputStream outputStream = response.getOutputStream();
 		PrintStream printStream = new PrintStream(outputStream);
 		printStream.print(decodedString);
