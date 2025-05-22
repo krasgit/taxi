@@ -1,147 +1,70 @@
 <!DOCTYPE html>
 
-<html xmlns:th="https://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'home')}">
+<htm xmlns:th="https://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'home')}">
 
-
-
-
+<head>
+</head>
   <body>
-	<div>
-		<script>
-		function log( log) {
-		 var div = document.getElementById('divID');
-
-		div.innerHTML = log+"\n"+div.innerHTML;
-		}
-		</script>
-		
-		<div id='divID'  style="white-space:pre;width: 200px; height: 100px; overflow-y: scroll;">
-		</div>
-		Enter some text: <input type="text" name="txt" value="Hello" onchange="log(this.value)">
-		<button type="button" onclick="log('534')">log </button>
-		
-		<button onclick="getLocation()">Try It</button>
-
-		<p id="demo"></p>
-
-		<script>
-		const x = document.getElementById("demo");
-
-		function getLocation() {
-		  if (navigator.geolocation) {
-		    navigator.geolocation.getCurrentPosition(showPosition);
-		  } else { 
-		    x.innerHTML = "Geolocation is not supported by this browser.";
-		  }
-		}
-
-		function showPosition(position) {
-		  x.innerHTML = "Latitude: " + position.coords.latitude + 
-		  "<br>Longitude: " + position.coords.longitude;
-		}
-		</script>
-		</div>
 	
-<!--	session   <p th:text="${session.mySessionAttribute}" th:unless="${session == null}">[...]</p>-->
+	<style>
+		html,body {height: 100%;padding: 0;margin: 0;font-size: 12px; background: #c9c9ce;}
+		#map {width: 100%;height: 100%;}
+	</style>
 	
-   <!--
-   <form /*th:object="${owner}" th:action="@{/owners}"*/ method="get" 	  class="form-horizontal" id="search-owner-form">
-	  <div class="form-group">
-	    <div class="control-group" id="lastNameGroup">
-	      <label th:text="#{from}" class="col-sm-5 control-label">От къде да те вземем?</label>
-		  <div class="col-sm-10">
-		  	        <input class="form-control" /*th:field="*{lastName}"*/ size="30"  maxlength="80" /> 
-					<span class="help-inline">
-						
-		  				<div  th:if="${#fields.hasAnyErrors()}">
-		  	         	   <p th:each="err : ${#fields.allErrors()}" th:text="${err}">Error</p>
-		  	          </div>
-					 
-				     </span>
-		  	      </div>
-		  
-
-	      <div class="col-sm-10">
-	        <input class="form-control" /*th:field="*{lastName}" */size="30"  maxlength="80" /> <span class="help-inline">
-				<div  th:if="${#fields.hasAnyErrors()}">
-	            <p th:each="err : ${#fields.allErrors()}" th:text="${err}">Error</p>
-	          </div></span>
-	      </div>
-
-	    </div>
+	<script src="/resources/openlayers/ol-debug.js"></script>	
+	<script src="utils.js"           th:src="@{/resources/openlayers/utils.js}" ></script>
+	<div id="mapp" class="map"></div>
+	
+	<script>
+	
+		var url = new URL(location.origin);
+		try {
+				url = new URL(location.origin);
+			} catch (error) {
+				url = new URL("https://localhost:8443");
+			}		
 		
-		<div class="form-group">
-		  <div class="control-group" id="lastNameGroup">
-		    <label th:text="#{to}" class="col-sm-5 control-label">За къде?</label>
-			<div class="col-sm-10">
-				  	        <input class="form-control" /*th:field="*{to}"*/ size="30"  maxlength="80" /> 
-							<span class="help-inline">
-					/*
-				  				<div  th:if="${#fields.hasAnyErrors()}">
-				  	         	   <p th:each="err : ${#fields.allErrors()}" th:text="${err}">Error</p>
-				  	          </div>
-						*/
-						     </span>
-				  	      </div>
-						  <p id="demo"></p>
-
-						  <script>
-
-							const url = new URL(location.origin);
-							/*
-							url.hostname;  //  'example.com'
-							url.port;      //  12345
-							url.search;    //  '?startIndex=1&pageSize=10'
-							url.pathname;  //  '/blog/foo/bar'
-							url.protocol;  //  'http:'
-							*/
-						  document.getElementById("demo").innerHTML = url.hostname;
-						  </script>
-		  </div>
+		const hostname = url.hostname;	
+		
+		function getProtocolSuffix()
+			{
+				
+			//	var ret=url.protocol.replace("ttp"")
+				//alert(protocol);
+				return url.protocol.replace("http", "").replace(":","");
+			}
 		
 		
-	  </div>
-	  <div class="form-group">
-	    <div class="col-sm-offset-2 col-sm-10">
-	      <button type="submit" class="btn btn-primary" th:text="#{оrder}">Оrder</button>
-	    </div>
-	  </div>
+		
+		
+		
+		
+		
+		
+		
+		
+		const vectorSource = new ol.source.Vector(); //!!!GLOBAL
+		var map;
+		
+		
+		const source = new ol.source.XYZ({url: 'http'+getProtocolSuffix()+'://' + hostname + ':8443/tile/{z}/{x}/{y}.png'});
+		const tileLayer = new ol.layer.Tile({maxZoom: 14,source: source});
 
-	  <a class="btn btn-primary" th:href="@{/owners/new}">Add Owner</a>
+		const vectorLayer = new ol.layer.Vector({source: vectorSource})
 
-	</form>
--->
+		//const view = new ol.View({center: ol.proj.fromLonLat(<>[27.967072, 43.362630]), zoom: 13})
+		const view = new ol.View({center: ol.proj.fromLonLat([27.947074, 43.222630]), zoom: 13})
 
-<div id="map" class="map"></div>
-
-	     	 
-	         <hr>
-	        
-	       
-	         
-	         <div id="osrm-error">
-	            <a href="#" id="osrm-error-close">×</a>
-	            
-	            <p>.</p>
-	         </div>
-	     <!--
-		  <script type="text/javascript" th:src="@{/resources/Leaflet%20Routing%20Machine_files/config.js}"></script>
-		  -->
-		  		 <script type="text/javascript" th:src="@{/resources/Leaflet%20Routing%20Machine_files/index.js}"></script>
-		  <script type="text/javascript" th:src="@{/resources/Leaflet%20Routing%20Machine_files/prism.js}"></script>
-	  
-	      <script type="text/javascript">
-	         function handleError(e) {
-	           if (e.error.status === -1) {
-	             // HTTP error, show our error banner
-	             document.querySelector('#osrm-error').style.display = 'block';
-	             L.DomEvent.on(document.querySelector('#osrm-error-close'), 'click', function(e) {
-	               document.querySelector('#osrm-error').style.display = 'none';
-	               L.DomEvent.preventDefault(e);
-	             });
-	           }
-	         }
-	      </script>
-  </body>
+		 map = new ol.Map({
+			layers: [tileLayer, vectorLayer],
+			controls: ol.control.defaults({
+				attributionOptions: {collapsed: true}
+			}).extend([new ol.control.ScaleLine()]),
+			target: 'mapp',
+			view: view,
+		});
+	</script>
+	
+ </body>
 
 </html>
