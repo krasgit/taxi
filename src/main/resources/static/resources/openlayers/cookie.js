@@ -9,11 +9,12 @@ class Cookie {
 		}
 		
 		static setPrefix(prefix) {
-			MessageControl.prefix=prefix;
+			Cookie.prefix=prefix;
 		}
 		static setCookie(cname, cvalue, exdays) {
 			
-			cname=MessageControl.prefix+cname;
+			
+			cname=Cookie.prefix+cname;
 			
 		  const d = new Date();
 		  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
@@ -22,7 +23,7 @@ class Cookie {
 		}
 
 		static getCookie(cname) {
-			cname=MessageControl.prefix+cname;
+			cname=Cookie.prefix+cname;
 		  let name = cname + "=";
 		  let ca = document.cookie.split(';');
 		  for(let i = 0; i < ca.length; i++) {

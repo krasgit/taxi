@@ -29,7 +29,7 @@ public interface PersonDAO {
 	public List<Orders> getAllOrdersByState(int state) ;
 	
 	
-	boolean createMessage(Messages messageDB);
+	Integer createMessage(Messages messageDB);
 	Messages getMessage(Long Id);
 	
 	

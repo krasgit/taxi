@@ -126,7 +126,7 @@ static logIn() {
 					Cookie.setCookie("user",username);
 					Cookie.setCookie("token",result.sessionId);
 					Cookie.setCookie("isTaxi",result.isTaxi);
-					
+					Cookie.setCookie("personId",result.personId);
 					LoginControl.showrouteControl(true);
 					
 				   }

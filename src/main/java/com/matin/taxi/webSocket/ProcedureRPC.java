@@ -121,6 +121,7 @@ public class ProcedureRPC {
 
 				jsonObject.put("sessionId", sessionId);
 				jsonObject.put("isTaxi", isTaxi);
+				jsonObject.put("personId", p.getId());
 
 				// return sessionId;
 				String ret = jsonObject.toJSONString();
@@ -761,7 +762,7 @@ public class ProcedureRPC {
 	}
 
 	public String SendMessage(ArrayList arg, String sessionId) {
-		String context = (String) arg.get(0);
+		String orderId = (String) arg.get(0);
 		String from = (String) arg.get(1);
 		String to = (String) arg.get(2);
 		String message = (String) arg.get(3);
@@ -769,7 +770,7 @@ public class ProcedureRPC {
 		
 		if(message.isEmpty())
 			return "Empty message";
-		Orders o=personDAO.getOrderById(Long.parseLong(context));
+		Orders o=personDAO.getOrderById(Long.parseLong(orderId));
 		if(o==null)
 			return "Empty context";
 		
@@ -783,11 +784,24 @@ public class ProcedureRPC {
 		if(personTo==null)
 			return "Empty personTo";
 		
-		Messages messageDB=new Messages(1,Long.parseLong(context),Long.parseLong(context),Long.parseLong(to),message);
-		personDAO.createMessage(messageDB);
+	
+		
+		Messages messageDB=new Messages(1,Long.parseLong(orderId),Long.parseLong(from),Long.parseLong(to),message);
+		Integer msgId = personDAO.createMessage(messageDB);
 		
 		
-		boolean res=signalingSocketHandlerRPC.command(personTo.getToken(), "MessageControl.OnMessage('"+message+"')");
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("msgId",msgId );
+		jsonObject.put("formId",from );
+		jsonObject.put("form",personFrom.getName() );
+		
+		jsonObject.put("context",orderId );
+		jsonObject.put("msg", message);
+
+		
+		String ret = jsonObject.toJSONString();
+		
+		boolean res=signalingSocketHandlerRPC.command(personTo.getToken(), "MessageControl.OnMessage('"+ret+"')");
 		
 		System.out.println("getAllConnectedUser sessionId:" + sessionId + "isOK: "+res);
 

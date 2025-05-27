@@ -14,7 +14,7 @@ public class MessagesMapper  implements RowMapper<Messages> {
 		messages.setState(rs.getInt("state"));
 		messages.setCreated_at(rs.getTimestamp("created_at"));
 		messages.setMessage(rs.getString("message"));
-		messages.setContext(rs.getLong("context"));
+		messages.setOrderId(rs.getLong("orderId"));
 		messages.setFrom(rs.getLong("from"));
 		messages.setTo(rs.getLong("to"));
         return messages;

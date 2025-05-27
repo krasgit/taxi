@@ -396,10 +396,37 @@ public class PersonDAOImpl implements PersonDAO {
 
 	
 	//-----------------------------------------
-	@Override
-	public boolean createMessage(Messages message) {
-		String SQL_INSERT ="INSERT INTO taxi.message ( state,  personid, taxiid, message) VALUES(?,?,?,?);"; 
-			return jdbcTemplate.update(SQL_INSERT, message.getState(),message.getTo(),message.getFrom(),message.getMessage()) > 0;
+	public Integer createMessage(Messages message) {
+		String sql ="INSERT INTO taxi.message ( orderId,state,  personid, taxiid, message) VALUES(?,?,?,?,?);"; 
+	   
+        GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+
+        int rowsAffected = jdbcTemplate.update(conn -> {
+            
+            PreparedStatement preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS );
+
+            // Set parameters//preparedStatement.setLong(0, 0)
+            preparedStatement.setLong(1, message.getOrderId());
+            preparedStatement.setInt(2, message.getState());
+            preparedStatement.setLong(3, message.getFrom());
+            preparedStatement.setLong(4, message.getTo());
+            preparedStatement.setString(5, message.getMessage());
+
+            return preparedStatement;
+            
+        }, generatedKeyHolder);
+		
+        Integer id = (Integer)generatedKeyHolder.getKeys().get("id");
+         
+     //   System.out.println("rowsAffected = {}, id={}", ""+rowsAffected, ""+id);
+        return id;
+
+       
+	}
+	
+	public boolean createMessage1(Messages message) {
+		String SQL_INSERT ="INSERT INTO taxi.message ( orderId,state,  personid, taxiid, message) VALUES(?,?,?,?,?);"; 
+			return jdbcTemplate.update(SQL_INSERT,message.getOrderId() ,message.getState(),message.getTo(),message.getFrom(),message.getMessage()) > 0;
 		
 		
 	}
