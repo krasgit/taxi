@@ -792,8 +792,8 @@ public class ProcedureRPC {
 		
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("msgId",msgId );
-		jsonObject.put("formId",from );
-		jsonObject.put("form",personFrom.getName() );
+		jsonObject.put("fromId",from );
+		jsonObject.put("from",personFrom.getName() );
 		
 		jsonObject.put("context",orderId );
 		jsonObject.put("msg", message);

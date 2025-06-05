@@ -442,6 +442,26 @@ public class PersonDAOImpl implements PersonDAO {
 	public List<Messages> getMessagesByState(int state) {
 		String SQL_FIND_ORDERS_STATE = "select * from taxi.Messages  where  state=? ";
 		return jdbcTemplate.query(SQL_FIND_ORDERS_STATE,new Object[] { state }, new MessagesMapper());
+	}
+	//-------------------------------------------------------------------------
+	public boolean createProffer(Proffer proffer) {
+		String SQL_INSERT ="INSERT INTO taxi.proffer ( orderId,state ) VALUES(?,?);"; 
+			return jdbcTemplate.update(SQL_INSERT,proffer.getOrderId() ,proffer.getState()) > 0;
+	}
+
+	
+	public Proffer getProffer(String orderId) {
+		String sql= "select * from taxi.proffer where token = ?";
+		
+		
+		
+		try {
+			//return jdbcTemplate.queryForObject(sql, new Object[] { token }, new PersonMapper());
+			return jdbcTemplate.queryForObject(sql,		new	ProfferMapper(),  orderId );
+		}catch (Exception e)
+		{
+			return null;
+		}
 		
 		
 	}
