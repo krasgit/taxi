@@ -33,4 +33,8 @@ public interface PersonDAO {
 	Messages getMessage(Long Id);
 	
 	
+	
+	public boolean createProffer(Proffer proffer); 
+	
+	
 }

@@ -445,8 +445,8 @@ public class PersonDAOImpl implements PersonDAO {
 	}
 	//-------------------------------------------------------------------------
 	public boolean createProffer(Proffer proffer) {
-		String SQL_INSERT ="INSERT INTO taxi.proffer ( orderId,state ) VALUES(?,?);"; 
-			return jdbcTemplate.update(SQL_INSERT,proffer.getOrderId() ,proffer.getState()) > 0;
+		String SQL_INSERT ="INSERT INTO taxi.proffer ( orderId,state,personId,message ) VALUES(?,?,?,?);"; 
+			return jdbcTemplate.update(SQL_INSERT,proffer.getOrderId() ,proffer.getState(),proffer.getPersonId(),proffer.getMessage()) > 0;
 	}
 
 	

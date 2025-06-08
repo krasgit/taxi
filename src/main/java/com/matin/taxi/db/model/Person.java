@@ -25,7 +25,7 @@ select * from person
 
 //firstName name
 //lastName  passw
-public class Person {
+public class Person  implements Comparable<Person> {
 	
 		private Long id;
 		private Integer age;
@@ -110,5 +110,16 @@ public class Person {
 		public String toString() {
 			return "Person{" + "id=" + id + ", name='" + name +  ", token='" + token + ", passw='" + passw +  '}';
 		}
+
+
+		@Override
+		public int compareTo(Person person) {
+			
+		  if(this.age < person.getAge()) return -1;
+		      if(this.age == person.getAge()) return 0;
+		        //if(this.age > p.getAge()) return 1;
+			        else return 1;
+			    }
+		
 	}
 

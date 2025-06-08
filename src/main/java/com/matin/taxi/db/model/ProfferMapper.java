@@ -12,7 +12,7 @@ public class ProfferMapper implements RowMapper<Proffer> {
 		Proffer proffer = new Proffer();
 		proffer.setId(rs.getInt("id"));
 		proffer.setState(rs.getInt("state"));
-		proffer.setOrderId(rs.getInt("orderId"));
+		proffer.setOrderId(rs.getLong("orderId"));
 		
 		proffer.setCreated_at(rs.getTimestamp("created_at"));
 		return proffer;

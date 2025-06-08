@@ -12,17 +12,21 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
 import org.json.simple.JSONObject;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import com.matin.taxi.AppConfig;
-import com.matin.taxi.db.model.HikariCPDataSource;
 import com.matin.taxi.db.model.*;
 
 
@@ -34,6 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 // org.json
 public class ProcedureRPC {
 
+	
 	SignalingSocketHandlerRPC signalingSocketHandlerRPC = null;
 	AnnotationConfigApplicationContext context = null;
 	PersonDAO personDAO = null;
@@ -177,7 +182,7 @@ public class ProcedureRPC {
 			return false;
 	}
 
-	public boolean acceptOrderClient(ArrayList arg, String sessionId) {
+	public boolean oldacceptOrderClient(ArrayList arg, String sessionId) {
 
 		Integer id = (Integer) arg.get(0);
 
@@ -199,6 +204,11 @@ public class ProcedureRPC {
 
 		String pos1 = getOrderStartPosition(order.getRoute());
 
+		 ArrayList<Person> allperson= getAllPerson();
+		 
+		 
+		 
+		
 		int distance = getDistance(pos, pos1);
 
 		// signalingSocketHandlerRPC.command(sessionId, "alert('"+order.getId()+"')");
@@ -208,15 +218,160 @@ public class ProcedureRPC {
 		return res;
 	}
 
+	//m
+	private static final int MAXDISTANCE = 10000;
+	public boolean acceptOrderClient(ArrayList arg, String sessionId) {
+
+		Integer id = (Integer) arg.get(0);
+
+		Person person = personDAO.getPersonByToken(sessionId);
+
+		Long personId = person.getId();
+
+		Orders order = personDAO.getOrderById(id.longValue());
+		order.setState(Orders.STATE_CLIENT_START);
+		order.setClientStartTime(new Timestamp(System.currentTimeMillis()));
+		// TODO
+		order.setId(null);
+
+		boolean res = personDAO.createOrders(order);
+
+	
+
+		String pos1 = getOrderStartPosition(order.getRoute());
+
+		 ArrayList<Person> allperson= getAllPerson();
+		 
+    ListIterator<Person> iter = allperson.listIterator();
+		 // calk distance 
+		 while(iter.hasNext()){
+			 Person p= iter.next();
+			 Position plp = personDAO.getLastPosition(p.getId());
+
+				String pos = getLocation(plp.getPosition());
+				int distance = getDistance(pos, pos1);
+				if(distance>MAXDISTANCE)
+    		         iter.remove();
+				else 
+					p.setAge(distance);
+		     }
+		//		 
+		 Collections.sort(allperson, new Comparator<Person>() {
+			 		@Override
+			 			public int compare(Person person1, Person person2) {
+			 			 if(person1.getAge() < person2.getAge()) return -1;
+					      if(person1.getAge() == person2.getAge()) return 0;
+					        //if(this.age > p.getAge()) return 1;
+						        else return 1;
+			 				//return u1.getAge().compareTo(u2.getAge());
+			 			}
+		 	});
+		 	 
+         //---------------
+		  ListIterator<Person> it = allperson.listIterator();
+		  while(it.hasNext()){
+				 Person p= it.next();
+				 Proffer proffer= new Proffer();
+					proffer.setOrderId(order.getId());
+					proffer.setState(0);
+					proffer.setPersonId(p.getId());
+					proffer.setMessage("distance "+p.getAge());
+					 personDAO.createProffer( proffer);
+			     }
+		
+		 
+		 /*
+		 
+		 
+			String sessionId = p.getToken();
+			WebSocketSession webSocket = connectedUsers.get(sessionId);
+
+			if (webSocket == null) {
+				LOG.error("Missing Connection  " + sessionId);
+				return;
+			}
+
+			ResultMessage resultMessage = new ResultMessage(null, "RouteControl.loadOrders();",null);
+
+			String resendingMessage;
+			try {
+				resendingMessage = Utils.getString(resultMessage);
+				webSocket.sendMessage(new TextMessage(resendingMessage));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+*/
+		  signalingSocketHandlerRPC.acceptOrderClientCB(person, order); // notify current and taxis
+		return res;
+	}
+	
+	
+	
+	//------------------------------
+	public interface Callback {
+        void call(String id);
+    }
+	 
+
+	
 	void getActivePersons(Map<String, WebSocketSession> connectedUsers) {
 		connectedUsers.values().forEach(webSocketSession -> {
 			try {
 				// webSocketSession.getId();
 
-				Person person = getPersonByToken(webSocketSession.getId());
+			//	Person person = getPersonByToken(webSocketSession.getId());
+		
 
-				// pro.
-				// person.
+			} catch (Exception e) {
+
+			}
+		});
+
+	}
+	
+	
+	 public void doWork(Callback callback) {
+		 
+		 Map<String, WebSocketSession> cu = signalingSocketHandlerRPC.getConnectedUsers();
+		 cu.values().forEach(webSocketSession -> {
+			 String id = webSocketSession.getId();
+	        callback.call(id);
+		 });
+	    }
+
+	 
+	 private ArrayList<Person> getAllPerson()
+	 {
+		 ArrayList<Person> personList = new ArrayList<Person>(); // Create an ArrayList object
+		 
+		 doWork(new Callback() {         
+	            @Override
+	            public void call(String id) {
+	                System.out.println("callback called arg"+id);
+	            	Person person = getPersonByToken(id);
+	            	personList.add(person);
+	            	
+	            }
+	        });
+		 return  personList;
+	 }
+	 
+
+	void getActivePersonsq(Map<String, WebSocketSession> connectedUsers) {
+		connectedUsers.values().forEach(webSocketSession -> {
+			try {
+				// webSocketSession.getId();
+
+			//	Person person = getPersonByToken(webSocketSession.getId());
+			String id = webSocketSession.getId();
+				
+	new Callback() { // implementing class            
+		            @Override
+		            public void call(String id) {
+		                System.out.println("callback called");
+		            }
+		        };//);
 
 			} catch (Exception e) {
 
@@ -225,6 +380,7 @@ public class ProcedureRPC {
 
 	}
 
+	
 	public boolean acceptOrder(ArrayList arg, String sessionId) {
 
 		Integer id = (Integer) arg.get(0);

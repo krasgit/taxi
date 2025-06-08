@@ -136,8 +136,8 @@ class MessageControl extends ol.control.Control {
 					  			
 								//formId 		form		context			msg
 		const parentElement = document.querySelector("#msgDl");
-		var parentElement1 =parentElement.querySelector("#m"+msg.formId);
-								
+		var parentElement1 =parentElement.querySelector("#m"+msg.fromId);
+		                                                         
 		if(!parentElement1)
 			{
 			parentElement1 = document.createElement("div");
@@ -156,6 +156,7 @@ class MessageControl extends ol.control.Control {
 			}
 									
 		const node = document.createElement("div");
+		node.setAttribute('class', "message from" );
 		const textnode = document.createTextNode(msg.msg);
 									
 		//a.setAttribute('class', "message from" );
