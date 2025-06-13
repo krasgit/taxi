@@ -14,7 +14,7 @@ CREATE TABLE taxi.proffer (
 	message text NULL,
 	created_at timestamp DEFAULT now() NULL,
 	CONSTRAINT fk_department FOREIGN KEY (orderId)
-	REFERENCES orders(id)
+	REFERENCES taxi.orders(id)
 );
 
 -- Permissions

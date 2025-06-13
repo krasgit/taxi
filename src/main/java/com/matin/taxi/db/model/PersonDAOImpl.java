@@ -125,7 +125,7 @@ public class PersonDAOImpl implements PersonDAO {
 		// user,token });
 	}
 
-	private final String SQL_FIND_ORDERS_CLIENTID_STATE = "select * from Orders  where clientId = ? and state=? "
+	private final String SQL_FIND_ORDERS_CLIENTID_STATE = "select * from taxi.Orders  where clientId = ? and state=? "
 			+ " ORDER BY id DESC LIMIT 1 ";
 
 	public Orders getOrdersByClientIdState(Long clientId, int state) {
@@ -220,12 +220,50 @@ public class PersonDAOImpl implements PersonDAO {
 		return true;
 	}
 
-	@Transactional
+	
 	public boolean createOrders(Orders orders) {
+		String sql ="INSERT INTO taxi.orders (clientid, taxiid, state, route, createtime, clientstarttime, acceptedtime, taxistarttime, endtime) "
+				                    + "VALUES(?       , ?     , ?    , ?    , ?         , ?              , ?           , ?            , ?);"; 
+		
+		  GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+
+	        int rowsAffected = jdbcTemplate.update(conn -> {
+	            
+	            PreparedStatement preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS );
+
+	            // Set parameters//preparedStatement.setLong(0, 0)
+	            preparedStatement.setLong(1, orders.getClientId());
+	            preparedStatement.setLong(2, orders.getTaxiId());
+	            preparedStatement.setLong(3, orders.getState());
+	            preparedStatement.setString(4, orders.getRoute());
+	            preparedStatement.setTimestamp(5, orders.getCreateTime());
+	            preparedStatement.setTimestamp(6, orders.getClientStartTime());
+	            preparedStatement.setTimestamp(7, orders.getAcceptedTime());
+	            preparedStatement.setTimestamp(8, orders.getTaxiStartTime());
+	            preparedStatement.setTimestamp(9, orders.getEndTime());
+	        	
+	            return preparedStatement;
+	            
+	        }, generatedKeyHolder);
+			
+	        Integer id = (Integer)generatedKeyHolder.getKeys().get("id");
+	        orders.setId(id.longValue());
+	     //   System.out.println("rowsAffected = {}, id={}", ""+rowsAffected, ""+id);
+			return true;
+	        
+			
+			
+			
+			
+	}
+
+	
+	@Transactional
+	public boolean createOrders_(Orders orders) {
 
 		//GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
-		//String sql = "insert into Orders( clientId, taxiId, state,route,createTime) values(?,?,?,?,?)";
-		SimpleJdbcInsert insertIntoUser = new SimpleJdbcInsert(jdbcTemplate).withTableName("Orders")
+		//String sql = "insert into taxi.Orders( clientId, taxiId, state,route,createTime) values(?,?,?,?,?)";
+		SimpleJdbcInsert insertIntoUser = new SimpleJdbcInsert(jdbcTemplate).withTableName("taxi.Orders")
 				.usingGeneratedKeyColumns("id");
 
 		final Map<String, Object> parameters = new HashMap<>();
@@ -236,6 +274,8 @@ public class PersonDAOImpl implements PersonDAO {
 		parameters.put("route", orders.getRoute());
 		parameters.put("createTime",orders.getCreateTime());
 
+		
+		
 		Number id = insertIntoUser.executeAndReturnKey(parameters);
 		orders.setId(id.longValue());
 		return true;
@@ -282,14 +322,14 @@ public class PersonDAOImpl implements PersonDAO {
 	
 	
 	public Orders getOrderById(Long id) {
-		String SQL_FIND_PERSON = "select * from Orders where id = ?";
+		String SQL_FIND_PERSON = "select * from taxi.Orders where id = ?";
 //		return jdbcTemplate.queryForObject(SQL_FIND_PERSON, new Object[] { id }, new OrdersMapper());
 		return  jdbcTemplate.queryForObject(SQL_FIND_PERSON,		new	OrdersMapper(),  id );
 		
 	}
 	
 	public boolean deleteOrderById(Long id) {
-		String SQL = "delete from Orders where id = ?";
+		String SQL = "delete from taxi.Orders where id = ?";
 		return jdbcTemplate.update(SQL, id) > 0;
 	}
 	
@@ -322,7 +362,7 @@ public class PersonDAOImpl implements PersonDAO {
 				+ ",'route', orders.route  \n"
 				+ ")\n"
 				+ "\n"
-				+ ")FROM orders\n"
+				+ ")FROM taxi.orders\n"
 				+ "left join person on person.id =orders.clientid \n"
 				+ "left join person taxiPerson on taxiPerson.id =orders.taxiid \n"
 				+ "where  orders.state not in(4) --NOT temporal ,finish\n"
@@ -399,7 +439,7 @@ public class PersonDAOImpl implements PersonDAO {
 	
 	
 	public List<Orders> getAllOrdersByState(int state) {
-		String SQL_FIND_ORDERS_STATE = "select * from Orders  where  state=? ";
+		String SQL_FIND_ORDERS_STATE = "select * from taxi.Orders  where  state=? ";
 		return jdbcTemplate.query(SQL_FIND_ORDERS_STATE,new Object[] { state }, new OrdersMapper());
 		//return  jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
 	}
@@ -517,7 +557,7 @@ public class PersonDAOImpl implements PersonDAO {
 */
 	public String getRouteName(Long id) {
 	  String sql="select STRING_AGG (p::json->>'name' , '<br/>' order  by  0 ) route\n"
-	  		+ "	FROM orders	\n"
+	  		+ "	FROM taxi.orders	\n"
 	  		+ "	cross join lateral json_array_elements( route::json -> 'coord') p\n"
 	  		+ " where id= ?";
 	  
