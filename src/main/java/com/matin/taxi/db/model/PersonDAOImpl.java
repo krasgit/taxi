@@ -28,13 +28,13 @@ public class PersonDAOImpl implements PersonDAO {
 	JdbcTemplate jdbcTemplate;
 	DataSourceTransactionManager transactionManager;
 
-	private final String SQL_FIND_PERSON = "select * from person where id = ?";
-	private final String SQL_DELETE_PERSON = "delete from person where id = ?";
 	
-	private final String SQL_GET_ALL = "select * from person";
-	private final String SQL_INSERT_PERSON = "insert into person( name, passw, age) values(?,?,?)";
+	
+	
+	
+	
 
-	private final String SQL_FIND_PRINCIPAL = "select * from person where name = ?";
+	
 
 
 	public PersonDAOImpl(DataSource dataSource) {
@@ -44,47 +44,51 @@ public class PersonDAOImpl implements PersonDAO {
 
 	public Person getPersonById(Long id) {
 		
-	//	return jdbcTemplate.queryForObject(SQL_FIND_PERSON, new Object[] { id }, new PersonMapper());
+		final String SQL_FIND_PERSON = "select * from taxi.person where id = ?";
 		return  jdbcTemplate.queryForObject(SQL_FIND_PERSON,		new	PersonMapper(), id );
 		
 		
 	}
 
 	public List<Person> getAllPersons() {
+		 final String SQL_GET_ALL = "select * from taxi.person";
 		return jdbcTemplate.query(SQL_GET_ALL, new PersonMapper());
 	}
 
 	public boolean deletePerson(Person person) {
+		final String SQL_DELETE_PERSON = "delete from taxi.person where id = ?";
 		return jdbcTemplate.update(SQL_DELETE_PERSON, person.getId()) > 0;
 	}
 
 	public boolean updatePerson(Person person) {
 		
-		String SQL_UPDATE_PERSON = "update person set name = ?, passw = ?, age  = ?, token=? where id = ?";
+		String SQL_UPDATE_PERSON = "update taxi.person set name = ?, passw = ?, age  = ?, token=? where id = ?";
 		
 		return jdbcTemplate.update(SQL_UPDATE_PERSON, person.getName(), person.getPassw(), person.getAge(),person.getToken(),
 				person.getId()) > 0;
 	}
 
 	public boolean createPerson(Person person) {
+		String SQL_INSERT_PERSON = "insert into taxi.person( name, passw, age) values(?,?,?)";
 		return jdbcTemplate.update(SQL_INSERT_PERSON, person.getName(), person.getPassw(), person.getAge()) > 0;
 	}
 
 	public Person getPersonByPrincipal(String principal) {
-		//return jdbcTemplate.queryForObject(SQL_FIND_PRINCIPAL, new Object[] { principal }, new PersonMapper());
+		final String SQL_FIND_PRINCIPAL = "select * from taxi.person where name = ?";
 		return  jdbcTemplate.queryForObject(SQL_FIND_PRINCIPAL,		new	PersonMapper(), principal );
 	}
 
 	//
-	private final String SQL_UPDATE_PERSON_TOKEN = "update person set token  = ?  where id = ?";
+	
 
 	public boolean updatePersonToken(Person person) {
+		 final String SQL_UPDATE_PERSON_TOKEN = "update taxi.person set token  = ?  where id = ?";
 		return jdbcTemplate.update(SQL_UPDATE_PERSON_TOKEN, person.getToken(), person.getId()) > 0;
 	}
 
 	@Override
 	public boolean isLognned(String name, String token) {
-		String sql = "SELECT count(*) FROM person WHERE name = ? AND token = ?";
+		String sql = "SELECT count(*) FROM taxi.person WHERE name = ? AND token = ?";
 
 		Integer cnt = jdbcTemplate.queryForObject(sql, Integer.class, name, token);
 
@@ -96,7 +100,7 @@ public class PersonDAOImpl implements PersonDAO {
 	}
 
 	public Person getLognned(String name, String token) {
-		String sql = "SELECT * FROM person WHERE name = ? AND token = ?";
+		String sql = "SELECT * FROM taxi.person WHERE name = ? AND token = ?";
 		try {
 			//return jdbcTemplate.queryForObject(sql, new Object[] { name, token }, new PersonMapper());
 			return  jdbcTemplate.queryForObject(sql,		new	PersonMapper(),  name, token );
@@ -114,7 +118,7 @@ public class PersonDAOImpl implements PersonDAO {
 	@Override
 	public Long getPersonIdByUserToken(String name, String token) {
 
-		String sql = "SELECT id FROM person WHERE name = ? AND token = ?";
+		String sql = "SELECT id FROM taxi.person WHERE name = ? AND token = ?";
 
 		Long id = jdbcTemplate.queryForObject(sql, Long.class, name, token);
 
@@ -162,7 +166,7 @@ public class PersonDAOImpl implements PersonDAO {
 
 	@Override
 	public boolean getPersonLogOutIdByUserToken(String user, String token) {
-		final String SQL_UPDATE_PERSON_TOKEN = "update person set token=null where name = ? and token  = ?";
+		final String SQL_UPDATE_PERSON_TOKEN = "update taxi.person set token=null where name = ? and token  = ?";
 
 		return jdbcTemplate.update(SQL_UPDATE_PERSON_TOKEN, user, token) > 0;
 	}
@@ -335,7 +339,7 @@ public class PersonDAOImpl implements PersonDAO {
 	
 	
 	public Person getPersonByToken(String token) {
-		String sql= "select * from person where token = ?";
+		String sql= "select * from taxi.person where token = ?";
 		
 		
 		
@@ -363,8 +367,8 @@ public class PersonDAOImpl implements PersonDAO {
 				+ ")\n"
 				+ "\n"
 				+ ")FROM taxi.orders\n"
-				+ "left join person on person.id =orders.clientid \n"
-				+ "left join person taxiPerson on taxiPerson.id =orders.taxiid \n"
+				+ "left join taxi.person on person.id =orders.clientid \n"
+				+ "left join taxi.person taxiPerson on taxiPerson.id =orders.taxiid \n"
 				+ "where  orders.state not in(4) --NOT temporal ,finish\n"
 				+ "and  orders.clientId=?";
 			//	+ " order by state";		

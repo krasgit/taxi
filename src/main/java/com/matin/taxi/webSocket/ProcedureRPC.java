@@ -701,8 +701,8 @@ public class ProcedureRPC {
 				+ ",'taxiId',persontaxi.id,'taxiName',persontaxi.name\n"
 				+ ",'createpersonId',person.id,'personName',person.name\n"
 				+ ",'',orders.createtime ,'acepted',orders.createtime \n" + ",'route', orders.route  \n" + "))\n"
-				+ "FROM orders\n" + "left join person on person.id =orders.clientid\n"
-				+ "left join person persontaxi on persontaxi.id =orders.taxiid \n" + "\n" + "\n"
+				+ "FROM orders\n" + "left join taxi.person on person.id =orders.clientid\n"
+				+ "left join taxi.person persontaxi on persontaxi.id =orders.taxiid \n" + "\n" + "\n"
 				+ "where  orders.state not in(0,4,2) --NOT temporal ,finish\n"
 				+ "		or  ( state=1)			--all Active	 \n" + " or ( persontaxi.id=0 and state=2) " // not
 																												// asigned
