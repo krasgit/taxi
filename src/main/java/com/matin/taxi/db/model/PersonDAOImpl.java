@@ -383,7 +383,17 @@ public class PersonDAOImpl implements PersonDAO {
 	public Position getLastPosition(Long personId) {
 		String sql="SELECT * FROM taxi.position		WHERE id = (SELECT MAX(ID) FROM taxi.position where personId=? );";
 		//return jdbcTemplate.queryForObject(SQL, new Object[] { personId }, new PositionMapper());
-		return  jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
+
+		try {
+		
+		
+		Position pos=jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
+		return  pos;
+		} catch (Exception e) {
+			System.out.println("getLastPosition for personId :"+personId+" " + e.getMessage());
+		
+		}
+		return  null;
 	}
 
 	
@@ -444,13 +454,52 @@ public class PersonDAOImpl implements PersonDAO {
 		return jdbcTemplate.query(SQL_FIND_ORDERS_STATE,new Object[] { state }, new MessagesMapper());
 	}
 	//-------------------------------------------------------------------------
-	public boolean createProffer(Proffer proffer) {
-		String SQL_INSERT ="INSERT INTO taxi.proffer ( orderId,state,personId,message ) VALUES(?,?,?,?);"; 
-			return jdbcTemplate.update(SQL_INSERT,proffer.getOrderId() ,proffer.getState(),proffer.getPersonId(),proffer.getMessage()) > 0;
+	public void createProffer(Proffer proffer) {
+		String sql ="INSERT INTO taxi.proffer ( orderId,state,personId,message ) VALUES(?,?,?,?);"; 
+		//return jdbcTemplate.update(sql,proffer.getOrderId() ,proffer.getState(),proffer.getPersonId(),proffer.getMessage()) > 0;
+		  GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+
+	        int rowsAffected = jdbcTemplate.update(conn -> {
+	            
+	            PreparedStatement preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS );
+
+	            // Set parameters//preparedStatement.setLong(0, 0)
+	            preparedStatement.setLong(1, proffer.getOrderId());
+	            preparedStatement.setInt(2, proffer.getState());
+	            preparedStatement.setLong(3, proffer.getPersonId());
+	            preparedStatement.setString(4, proffer.getMessage());
+
+	            return preparedStatement;
+	            
+	        }, generatedKeyHolder);
+			
+	        Integer id = (Integer)generatedKeyHolder.getKeys().get("id");
+	        proffer.setId(id);
+	     //   System.out.println("rowsAffected = {}, id={}", ""+rowsAffected, ""+id);
+	        
+			
+			
+			
+			
 	}
 
 	
-	public Proffer getProffer(String orderId) {
+	public boolean updateProffer(Proffer proffer) {
+		String SQL ="update taxi.proffer set state=?,personId=?,message=?,orderId=?   where id = ?;"; 
+		
+		return jdbcTemplate.update(SQL, proffer.getState(), proffer.getPersonId(),proffer.getMessage() ,proffer.getOrderId(),
+				proffer.getId()) > 0;			
+	}
+
+	
+	public List<Proffer> getProfferByOrderId(Long orderId) {
+		String SQL = "select * from taxi.proffer  where  orderId=? ";
+		return jdbcTemplate.query(SQL,new Object[] { orderId }, new ProfferMapper());
+		//return  jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
+	}
+
+	/*
+	public List<Proffer> getProffer(String orderId) {
 		String sql= "select * from taxi.proffer where token = ?";
 		
 		
@@ -463,6 +512,19 @@ public class PersonDAOImpl implements PersonDAO {
 			return null;
 		}
 		
+		
+	}
+*/
+	public String getRouteName(Long id) {
+	  String sql="select STRING_AGG (p::json->>'name' , '<br/>' order  by  0 ) route\n"
+	  		+ "	FROM orders	\n"
+	  		+ "	cross join lateral json_array_elements( route::json -> 'coord') p\n"
+	  		+ " where id= ?";
+	  
+		String cnt = jdbcTemplate.queryForObject(sql, String.class, id);
+
+		return cnt; 
+	  
 		
 	}
 	

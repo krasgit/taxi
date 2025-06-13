@@ -24,9 +24,13 @@ create  TABLE orders  (
 );
 
 2025/02/13 13:17:02
+
+ADD CREATE EXTENSION IF NOT EXISTS tablefunc;
+
  */
 
 public class Orders {
+	public static int STATE_DELETED=-1;//TEMPLATE   
 	public static int STATE_CREATED=0;//TEMPLATE   
 	public static int STATE_CLIENT_START =1;
 	public static int STATE_TAXI_ACCEPTED=2;

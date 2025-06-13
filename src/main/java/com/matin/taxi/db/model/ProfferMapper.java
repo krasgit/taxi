@@ -13,6 +13,7 @@ public class ProfferMapper implements RowMapper<Proffer> {
 		proffer.setId(rs.getInt("id"));
 		proffer.setState(rs.getInt("state"));
 		proffer.setOrderId(rs.getLong("orderId"));
+		proffer.setPersonId(rs.getLong("personId"));
 		
 		proffer.setCreated_at(rs.getTimestamp("created_at"));
 		return proffer;

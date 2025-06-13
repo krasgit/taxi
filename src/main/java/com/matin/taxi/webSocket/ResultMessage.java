@@ -14,6 +14,12 @@ public class ResultMessage {
 		this.error = error;
 	}
 	
+	public ResultMessage(Object result) {
+		super();
+		this.result = result;
+	}
+	
+	
 	public String getId() {
 		return id;
 	}
@@ -31,6 +37,10 @@ public class ResultMessage {
 	}
 	public void setError(String error) {
 		this.error = error;
+	}
+
+	public String toObjectMapperString() throws Exception {
+		return Utils.getString(this);
 	}
 	
 }

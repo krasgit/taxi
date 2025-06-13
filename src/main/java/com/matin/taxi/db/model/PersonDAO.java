@@ -34,7 +34,7 @@ public interface PersonDAO {
 	
 	
 	
-	public boolean createProffer(Proffer proffer); 
+	//public boolean createProffer(Proffer proffer); 
 	
 	
 }

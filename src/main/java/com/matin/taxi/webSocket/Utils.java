@@ -29,4 +29,9 @@ public class Utils {
     public static String getString(final ResultMessage message) throws Exception {
         return objectMapper.writeValueAsString(message);
     }
+    
+    public static String getString(final ArgsFeaturesJson message) throws Exception {
+        return objectMapper.writeValueAsString(message);
+    }
+    
 }

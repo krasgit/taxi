@@ -23,8 +23,21 @@ ALTER TABLE taxi.proffer OWNER TO nominatim;
 GRANT ALL ON TABLE taxi.proffer TO nominatim;
  **/
 
+/*
+ * state 
+ * 	0-create
+ * 	1-assigned 
+ *  2-approved
+ *  3-closed 
+ */
+
 public class Proffer {
 
+	public static int CREATE =0;
+	public static int ASSIGNED=1; 
+	public static int APPROVED=2;
+	public static int CLOSED =3;
+	
 	private int id;
 	private int state;
 	private Long orderId;

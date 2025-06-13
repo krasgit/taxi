@@ -266,12 +266,14 @@
 				callRPC("loadOrders",user,token).then((result) => 
 					{	
 						RouteControl.render(result); });
-			//taxi			
+			//taxi
+			/*
+						
 			var user =Cookie.getCookie("user") ;
 				var token =Cookie.getCookie("token") ;
 					callRPC("loadTaxiOrders",user,token).then((result) => {	RouteControl.TaxiRender(result); });			
 						
-						
+			*/			
 						
 			}
 
@@ -282,10 +284,10 @@
 						callRPC("loadOrderById",id,id).then((result) => {	RouteControl.loadOrderCB(result); });
 					}
 			
-			static deleteOrderById(id){
+			static setOrderDeleteStateById(id){
 				var user =Cookie.getCookie("user") ;
 						var token =Cookie.getCookie("token") ;
-							callRPC("deleteOrderById",user,token,id).then((result) => {	RouteControl.loadOrders(); });
+							callRPC("setOrderDeleteStateById",user,token,id).then((result) => {	RouteControl.loadOrders(); });
 			}
 			
 			static acceptOrderClient(id){
@@ -346,7 +348,7 @@
 		}			
 				  }				
 				
-  static refresh()//delete update add move
+	static refresh()//delete update add move
 		{
 			
 			RouteControl.removeAllRoute();
@@ -475,7 +477,7 @@
 		
 	
 		
-		static logOut(){
+	static logOut(){
 			var user =Cookie.getCookie("user") ;
 			var token =Cookie.getCookie("token") ;
 			
@@ -496,9 +498,9 @@
 				  }
  
 				  location.reload();
-       }
+	}
 		
-		static add() {
+	static add() {
 			const cWaypoint = document.getElementById('Waypoint');
 			var LonLat = [0, 0];
 			var feature = RouteControl._createFeature(LonLat);
@@ -507,7 +509,7 @@
 			RouteControl.refresh();
 		}
 
-		static _createFeature(coord) {
+	static _createFeature(coord) {
 			var g = new ol.geom.Point(ol.proj.fromLonLat(coord));
 			var feature = new ol.Feature({type: 'place', geometry: g});
 			feature.setStyle(new ol.style.Style(null));
@@ -520,7 +522,7 @@
 			return feature;
 		}
 
-		static createFeature() {
+	static createFeature() {
 			log("createFeature");
 			var LonLat = [27.9797311, 43.2388141];
 			var feature = RouteControl._createFeature(LonLat);
@@ -532,72 +534,57 @@
 
 		}
 		
-		static test(){
-			var f=vectorSource.getFeatures();
+	static test(){
+	var f=vectorSource.getFeatures();
 								
-								for (var i = 0; i < f.length; i++) {
-									var dd=f[i];		
-								
-									var routeFeatureId=''+dd.getId(); //cast to string
-									
-									log("fuond rute "+routeFeatureId)
-										
-						}	 
-}
+	for (var i = 0; i < f.length; i++) {
+		var dd=f[i];		
+		var routeFeatureId=''+dd.getId(); //cast to string
+		log("fuond rute "+routeFeatureId)
+		}	 
+	}
 		
-
-		static role(role) {
-			log(role);
-       }
+	static role(role) {
+		log(role);
+	}
 		
-	   
-	   
-	   static logIn(){
-	   		var user =Cookie.getCookie("user") ;
-	   		const logoutButton = document.getElementById('log-out-button');
+	static logIn(){
+	var user =Cookie.getCookie("user") ;
+	const logoutButton = document.getElementById('log-out-button');
 			
-			var logautlink=`<a href="#" onclick="RouteControl.logOut();">logout:+${user}</a>`;
+	var logautlink=`<a href="#" onclick="RouteControl.logOut();">logout:+${user}</a>`;
 			
 			//todo taxi indicator
 	   		//if(Cookie.getCookie("isTaxi")=='true')
 	   		// buttonContent+='<i class="fa fa-taxi" style="font-size:10px"></i>';
 	   		
-	   		logoutButton.innerHTML = logautlink;
+	logoutButton.innerHTML = logautlink;
 	   		
 			//todo separate init 
-	   		const role = document.getElementById('role');
-			if(Cookie.getCookie("isTaxi")=='true')
-							role.innerHTML='<a href="#Foo" onclick="RouteControl.role(false)">taxi</a>';
-							else
-							role.innerHTML='<a href="#Foo" onclick="RouteControl.role(true)">qaz</a>';
+	const role = document.getElementById('role');
+	
+	if(Cookie.getCookie("isTaxi")=='true')
+		role.innerHTML='<a href="#Foo" onclick="RouteControl.role(false)">taxi</a>';
+	else
+		role.innerHTML='<a href="#Foo" onclick="RouteControl.role(true)">qaz</a>';
 	   		
-	   		
-	   		RouteControl.loadOrders();
-	   	}
+	RouteControl.loadOrders();
+	}
 	   
+
 		
-		
-		//todo move
-		static createElementFromHTML(htmlString) {
-		  var div = document.createElement('div');
-		  div.innerHTML = htmlString.trim();
+	static autoCompleteBtn(feature, value) {
 
-		  // Change this to div.childNodes to support multiple top-level nodes.
-		  return div.firstChild;
-		}
-		
-		static autoCompleteBtn(feature, value) {
+		var featureId = feature.getId();
 
-			var featureId = feature.getId();
+		var node_11 = document.createElement('DIV');
 
-			var node_11 = document.createElement('DIV');
+		node_11.reature
+		node_11.setAttribute('class', 'input-group mb-1 mt-1');
 
-			node_11.reature
-			node_11.setAttribute('class', 'input-group mb-1 mt-1');
-
-			node_11.setAttribute('id', "inputGroupfeatureId" + featureId);
-			node_11.feature = feature;
-			node_11.featureId = featureId;
+		node_11.setAttribute('id', "inputGroupfeatureId" + featureId);
+		node_11.feature = feature;
+		node_11.featureId = featureId;
 			/*
 			var node_12 = document.createElement('SPAN');
 			node_12.setAttribute('class', 'input-group-text');
@@ -610,39 +597,33 @@
 			node_13.setAttribute('alt', 'Red dot');
 			node_12.appendChild(node_13);
             */
-			var node_14 = document.createElement('INPUT');
-			node_14.setAttribute('type', 'text');
-			node_14.setAttribute('class', 'form-control');
+		var node_14 = document.createElement('INPUT');
+		node_14.setAttribute('type', 'text');
+		node_14.setAttribute('class', 'form-control');
 
-			node_14.setAttribute('id', "bnt" + featureId);
-			node_14.setAttribute('featureId', featureId);
+		node_14.setAttribute('id', "bnt" + featureId);
+		node_14.setAttribute('featureId', featureId);
 
-			node_14.feature = feature;
+		node_14.feature = feature;
 			
 			
 			//node_14.setAttribute('placeholder', value);
 			
-			if( !(!value || value.length === 0 ))
-				node_14.value=value;
+		if( !(!value || value.length === 0 ))
+			node_14.value=value;
 
-			node_11.appendChild(node_14);
+		node_11.appendChild(node_14);
 
-			autocomplete(node_14);
+		autocomplete(node_14);
 
-			var deleteBtn =`<a onclick="RouteControl.delete(${featureId})" class="button is-primary" id=""><i class='fa fa-trash'></i></a>`
+		var deleteBtn =`<a onclick="RouteControl.delete(${featureId})" class="button is-primary" id=""><i class='fa fa-trash'></i></a>`
 			
-			node_11.appendChild(RouteControl.createElementFromHTML(deleteBtn));
+		node_11.appendChild(RouteControl.createElementFromHTML(deleteBtn));
 
-			return node_11;
-		}
+	return node_11;
+	}
 		
-		
-		
-		
-  static orders(order){
-	
-	
-	
+	static orders(order){
 	
 	var  tableRuws=`
 		<table id="owners" style="	height: 50px;  overflow-y: auto;  overflow-x: hidden;" class="table table-striped" border="2">
@@ -650,31 +631,29 @@
 	   
 	   </tbody>
 	   	</table>`;
-	   
   }	
   
-  static getRouteName(route){
-	var ret='';
+	static getRouteName(route){
+		var ret='';
 	
-	try {
-	const jsonRoute = JSON.parse(route);
-	var coord=jsonRoute.coord;
-	} catch (error) {
-	  console.error(error);
-	  return  "error";
-	}
+		try {
+			const jsonRoute = JSON.parse(route);
+			var coord=jsonRoute.coord;
+			} catch (error) {
+	  			console.error(error);
+	  			return  "error";
+			}
 	
-    for (var ii = 0; ii < coord.length; ii++){
-      var jsonRouteRow = coord[ii];
+	for (var ii = 0; ii < coord.length; ii++){
+		var jsonRouteRow = coord[ii];
 	    ret+=jsonRouteRow.name+'<br/>';
-	}
+		}
 	return ret;
-   }
-  	
+	}
    
 //---------------------------------------------------------------------------------------------------------------		
-static createInnerOrders()
-{
+	static createInnerOrders()
+	{
 	return 	class Orders {
 	   		constructor() {
 	   		  this.row="";
@@ -694,14 +673,10 @@ static createInnerOrders()
 					st='<i class="fa fa-check-circle-o" aria-hidden="true"></i>';
 			}
 			
-		
-		
-		
-		
 			
 	   	var routeName=RouteControl.getRouteName(order.route);
 	   	var	tableRuws=
-	   		  `<tr> 
+	   		  `<tr trid='683'> 
 	   		     <td> ${st} ${order.state}  ${order.id} ${order.personName} ${order.taxiName}</td>
 	   		     <td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">
 	   		       <a href="#Foo" onclick="RouteControl.loadOrderById(${order.id})">
@@ -711,7 +686,7 @@ static createInnerOrders()
 	   		      </td>
 	   		      <td>
 				  
-				  <a href="#" onclick="RouteControl.deleteOrderById(${order.id});" class="button is-primary" id="log-in-button"><i class="fa fa-trash" aria-hidden="true"></i> </a>
+				  <a href="#" onclick="RouteControl.setOrderDeleteStateById(${order.id});" class="button is-primary" id="log-in-button"><i class="fa fa-trash" aria-hidden="true"></i> </a>
 	   		    										
 									
 	   				</td>
@@ -745,7 +720,7 @@ static createInnerOrders()
 		   		
 		   	var routeName=RouteControl.getRouteName(order.route);
 		   	var	tableRuws=
-		   		  `<tr> 
+		   		  `<tr tr='728'> 
 		   		     <td><i class="fa fa-book" aria-hidden="true"></i></td>
 		   		     <td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">
 		   		       <a href="#Foo" onclick="RouteControl.loadOrderById(${order.id})">
@@ -755,7 +730,7 @@ static createInnerOrders()
 		   		      </td>
 		   		      <td>
 					  
-					  <a href="#" onclick="RouteControl.deleteOrderById(${order.id});" class="button is-primary" id="log-in-button"><i class="fa fa-trash" aria-hidden="true"></i> </a>
+					  <a href="#" onclick="RouteControl.setOrderDeleteStateById(${order.id});" class="button is-primary" id="log-in-button"><i class="fa fa-trash" aria-hidden="true"></i> </a>
 					  <a href="#" onclick="RouteControl.acceptOrderClient(${order.id});" class="button is-primary" id="log-in-button">
 					  
 					  <?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
@@ -799,7 +774,7 @@ static createOrdersEx()
 	   		
 	   	var routeName=RouteControl.getRouteName(order.route);
 	   	var	tableRuws=
-	   		  `<tr> 
+	   		  `<tr trid='${order.id}'> 
 	   		     <td>${icon} ${order.state} ${order.id} ${order.personName} </td>
 	   		     <td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">
 	   		       <a href="#Foo" onclick="RouteControl.loadOrderById(${order.id})">
@@ -862,8 +837,113 @@ static createOrdersEx()
 			//			});
 				}
 				
+			
+				static htmlToNodes(html) {
+				    const template = document.createElement('template');
+				    template.innerHTML = html;
+				    return template.content;
+				}				
 				
+				//todo move
+				static createElementFromHTML(htmlString) {
+					var div = document.createElement('div');
+					div.innerHTML = htmlString.trim();
+
+					// Change this to div.childNodes to support multiple top-level nodes.
+				return div.firstChild;
+				}
 				
+									
+	static getOrderIcon(params)				
+	{
+	var orderId=params.orderId;
+	var orderState=params.orderState;
+	var icon
+	switch (orderState) {
+		case 1:	icon='<i class="fa fa-hourglass-start" aria-hidden="true"></i>';	break;
+		case 2:	icon='<i class="fa fa-check" aria-hidden="true"></i>';	break;
+		case 3:	icon='<i class="fa fa-check" aria-hidden="true"></i>';	break;
+	   }
+	return icon
+	}
+					
+	static getOrderButton(params)				
+	{
+	var orderState=params.orderState;
+	var orderId=params.orderId;
+	var clientId=params.clientName;
+	var clientName=params.clientName;
+	var button
+	
+	switch (orderState) {
+		case 1:	button=`<a href="#" onclick="RouteControl.acceptOrder(${orderId});" class="button is-primary" id="log-in-button">
+								<i class="fa fa-trash" aria-hidden="true"></i>
+									Accept
+							</a>`;	break;
+		case 2: 
+					let onc=`RouteControl.sendMessageFromOrder(${orderId}	,${clientId},'${clientName}');`;
+				button=`<a href="#" onclick="${onc};" class="button is-primary" id="log-in-button">
+								<i class="fa fa-" aria-hidden="true"></i>
+									Mesasage 
+							</a>
+							<a href="#" onclick="RouteControl.startOrder(${orderId});" class="button is-primary" id="log-in-button">
+									Start 
+							</a>
+							<a href="#" onclick="RouteControl.finishOrder(${orderId});" class="button is-primary" id="log-in-button">
+									Finish
+							</a>`;	break;
+		case 3:	button=`<a href="#" onclick="RouteControl.finishOrder(${orderId});" class="button is-primary" id="log-in-button">
+				                     Finish
+						</a>`;	break;
+		}
+		return button;
+	}		
+
+	
+	static removeOffer(argJson)
+	{
+		const params = JSON.parse(argJson).params;
+		var orderId=params.orderId;
+			
+		var trid = document.getElementById('OfferOrderId'+orderId);			
+		if(trid)
+			trid.remove();
+	}
+		
+						
+	static AddOffer(argJson)
+	{
+	const params = JSON.parse(argJson).params;
+	var orderId=params.orderId;
+	var orderState=params.orderState;
+	var clientName=params.clientName;
+	var routeName=params.routeName	
+		
+	var trid = document.getElementById('OfferOrderId'+orderId);			
+		if(trid)
+			trid.remove();
+	
+	
+	
+	
+	var icon=RouteControl.getOrderIcon(params)	;
+	var button=RouteControl.getOrderButton(params);
+		 
+	var	tableRuws=	`<td>${icon} ${orderState} ${orderId} ${clientName} </td>
+					<td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;"><a href="#Foo" onclick="RouteControl.loadOrderById(${orderId})">${routeName}</a></td>
+					<td>${button}</td>`;
+		
+	//var row  = RouteControl.createElementFromHTML(tableRuws);
+	var row  =  RouteControl.htmlToNodes(tableRuws);
+	
+	var profferTable = document.getElementById("proffer");					 
+		//profferTable.innerHTML=tableRuws;
+		
+		var row = profferTable.insertRow(0); //0 firest -1 last
+			row.setAttribute('id', 'OfferOrderId'+params.orderId);
+		
+			row.innerHTML=tableRuws;
+	}			
 
   static TaxiRender(orders){
     const InnerOrders1= RouteControl.createOrdersEx();//1 STATE_CLIENT_START
@@ -935,7 +1015,7 @@ static createOrdersEx()
 		var trOrder1=innerOrders1.getOrderTable();									
 	  	var trOrder2=innerOrders2.getOrderTable();
 	  	
-		var  table=`<table id="owners" style="	height: 50px;  overflow-y: auto;  overflow-x: hidden;" class="table table-striped" border="2">
+		var  table=`<table id="proffer!!!!!" style="	height: 50px;  overflow-y: auto;  overflow-x: hidden;" class="table table-striped" border="2">
 	  			      <tbody">
 					    ${trOrder1}
 					    ${trOrder2}
@@ -1079,9 +1159,15 @@ var lc=`
   <div id="tbodyMainRoute">
  
   </div>
-  
-  <div id="taxiOrder">
 
+    
+  <div id="taxiOrder">
+  
+  <table id="proffer" style="	height: 50px;  overflow-y: auto;  overflow-x: hidden;" class="table table-striped" border="2">
+  
+  </table>
+  
+  
    </div>
   
   

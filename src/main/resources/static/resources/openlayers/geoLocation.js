@@ -66,6 +66,12 @@
 		map.render();
 	}
 
+	function updateGeoMarkerCurrent(event) {
+			const projectedPosition = ol.proj.fromLonLat([event.coords.longitude, event.coords.latitude]);
+			markerOverlay.setPosition(projectedPosition);
+			map.render();
+		}
+	
 	
 	function getGeolocationPositionJSON(event)
 	{
@@ -73,13 +79,43 @@
 		  timestamp: event.timestamp,
 		  coords: {accuracy: event.coords.accuracy, latitude: event.coords.latitude,longitude: event.coords.longitude}
 		};
-
 		 
 		return  JSON.stringify(geoPosition); 
 	}
-	
+	function  updatePostion(event){
+							
+		var user =Cookie.getCookie("user") ;
+		var token =Cookie.getCookie("token") ;
+		const geolocationPositionJSON=getGeolocationPositionJSON(event);		
+		
+		callRPC("updatePostion",user,token,geolocationPositionJSON).then((result) => {
+			//	RouteControl.loadOrderCB(event); //SELF npls 
+			//	RouteControl.loadOrderCB(result); //OLD
+			 	});
+	}	
 	
 	function geosuccess(event) {
+
+		if(lastGeoLocationEvent===undefined){
+				updatePostion(event);
+				lastGeoLocationEvent = event;
+			}
+		else 
+			{
+			var distance=utils.distanceBetweenPoints ([event.coords.longitude, event.coords.latitude],
+					[lastGeoLocationEvent.coords.longitude, lastGeoLocationEvent.coords.latitude]);
+		
+			if(distance>100)// TODO UNCOMMENT
+				{
+				updatePostion(event);
+				lastGeoLocationEvent = event;
+				}	
+			}
+		updateGeoMarkerCurrent(event);
+	}
+		
+	
+	function geosuccessold(event) {
 		if(lastGeoLocationEvent===undefined)
 		   lastGeoLocationEvent = event;
 		
@@ -88,10 +124,6 @@
 		var lastCoord=lastGeoLocationEvent.coords;
 		
 		var distance=utils.distanceBetweenPoints ([curentCoord.longitude, curentCoord.latitude], [lastCoord.longitude, lastCoord.latitude]);
-		
-		
-		
-		
 		
 		if(distance>100)// TODO UNCOMMENT
 			{
@@ -102,12 +134,9 @@
 			//updatePositionMarker(gp);
 			updatePostion(gp);
 			
-			
-			
-			
-			
 	        }	
-		 lastGeoLocationEvent = event;
+		
+		lastGeoLocationEvent = event;
 		updateGeoMarker();
 		//log("geo: " + count++ + " : " + event.coords.heading + " speed:" + event.coords.speed);
 		var heading = event.coords.heading;
@@ -131,7 +160,7 @@
 					*/
 	}
 	
-	function  updatePostion(event){
+	function  updatePostionold(event){
 						
 			var user =Cookie.getCookie("user") ;
 			var token =Cookie.getCookie("token") ;

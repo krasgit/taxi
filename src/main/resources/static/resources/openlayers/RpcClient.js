@@ -208,6 +208,12 @@ export class RpcClient {
 	
 	}
 	
+	/*
+	if(response.type='UpdateInfo'){
+		eval(response.result);
+			 return ;
+	}
+	*/
 	if(response.id==null){
 		eval(response.result);
 	 return ;
