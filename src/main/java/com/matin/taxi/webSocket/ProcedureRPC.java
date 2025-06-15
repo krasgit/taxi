@@ -590,7 +590,7 @@ public class ProcedureRPC {
 
 	public List<Person> getPersonsClientOrdersId(Long orderId) {
 		// String sql = "SELECT json_agg(orders) FROM orders where clientId = ? ";
-		String sql = "select person.*  from person\n" + "inner join  Orders on Orders.clientid=person.id \n"
+		String sql = "select person.*  from taxi.person\n" + "inner join  taxi.Orders on Orders.clientid=person.id \n"
 				+ "where Orders.id=?";
 		// + " order by state";
 		return personDAO.geJjdbcTemplate().query(sql, new Object[] { orderId }, new PersonMapper());

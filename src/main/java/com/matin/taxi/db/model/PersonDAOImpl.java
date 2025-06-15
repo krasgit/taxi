@@ -148,7 +148,7 @@ public class PersonDAOImpl implements PersonDAO {
 
 	// clientId, taxiId, state,route
 	private final String SQL_UPDATE_ORDERS = 
-		"update orders set"
+		"update taxi.orders set"
 		+ " clientId = ?, taxiId = ?, state  = ? ,route=? "
 		+ ", createTime=?  ,clientStartTime = ?, acceptedTime = ?, taxiStartTime = ?, endTime = ?"
 		+ " where id = ?";
