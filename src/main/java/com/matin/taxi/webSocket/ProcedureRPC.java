@@ -224,7 +224,140 @@ public class ProcedureRPC {
 
 	//m
 	private static final int MAXDISTANCE = 10000;
+	
+	void calkOrderToTaxiDistanceAndSort(String orderStartPosition,ArrayList<Person> allActiveTaxi) throws Exception
+	{
+		 if(allActiveTaxi.isEmpty())
+				throw new Exception("No Acctive Taxi"); 
+			
+			
+			ListIterator<Person> iter = allActiveTaxi.listIterator();
+			 // calk distance 
+			 while(iter.hasNext()){
+				 Person p= iter.next();
+				 Position plp = personDAO.getLastPosition(p.getId());
+				 if(plp==null)
+				 {
+					  iter.remove();
+					  continue;
+				 }
+
+					String pos = getLocation(plp.getPosition());
+					int distance = getDistance(pos, orderStartPosition);
+					if(distance>MAXDISTANCE)
+	    		         iter.remove();
+					else 
+						p.setAge(distance);
+			     }
+			 
+			 Collections.sort(allActiveTaxi, new Comparator<Person>() {
+			 		@Override
+			 			public int compare(Person person1, Person person2) {
+			 			 if(person1.getAge() < person2.getAge()) return -1;
+					      if(person1.getAge() == person2.getAge()) return 0;
+					        //if(this.age > p.getAge()) return 1;
+						        else return 1;
+			 				//return u1.getAge().compareTo(u2.getAge());
+			 			}
+		 	}); 
+	}
+	
 	public boolean acceptOrderClient(ArrayList arg, String sessionId) {
+
+		Person person = null;
+		try {
+		Integer id = (Integer) arg.get(0);
+
+		person = personDAO.getPersonByToken(sessionId);
+		
+		Orders order = personDAO.getOrderById(id.longValue());
+		
+
+		
+		String orderStartPosition = getOrderStartPosition(order.getRoute());
+
+		ArrayList<Person> allActiveTaxi= getAllActiveTaxi();
+		 
+		
+		calkOrderToTaxiDistanceAndSort(orderStartPosition,allActiveTaxi);
+		 //---------------
+		 
+		 if(allActiveTaxi.isEmpty())
+			 throw new Exception("No Taxi in range"); 
+		 
+		 
+		  ListIterator<Person> it = allActiveTaxi.listIterator();
+
+			//
+			order.setState(Orders.STATE_CLIENT_START);
+			order.setClientStartTime(new Timestamp(System.currentTimeMillis()));
+			// TODO
+			order.setId(null);
+
+			  boolean res = personDAO.createOrders(order);
+		  
+		  while(it.hasNext()){
+			  int niq = it.nextIndex();
+				 Person p= it.next();
+				 Proffer proffer= new Proffer();
+					proffer.setOrderId(order.getId());
+					proffer.setState(0);
+					proffer.setPersonId(p.getId());
+					proffer.setMessage("distance "+p.getAge());
+					 personDAO.createProffer( proffer);
+					 
+					 
+					 WebSocketSession webSocket =signalingSocketHandlerRPC.getConnectedUsers().get(p.getToken());
+					 if (webSocket == null) {
+						 LOG.error("Missing Connection to Person " + p.toString());
+					 
+					 }
+					 else 
+					 {
+						 
+						 String  routeName = personDAO.getRouteName(order.getId());
+						 
+						 String ret=new ArgsFeaturesJson()
+								 .addFeatures("profferId",proffer.getId())
+								 .addFeatures("orderId",order.getId())
+								 .addFeatures("orderState",order.getState())
+								 .addFeatures("clientId",person.getId())
+								 .addFeatures("clientName",person.getName())
+	
+								 .addFeatures("taxiId",p.getId())
+								 .addFeatures("taxi",p.getName())
+								 .addFeatures("routeName",routeName)
+							
+								 .get();
+						 
+						 ResultMessage resultMessage = new ResultMessage(null, "RouteControl.AddOffer('"+ret+"');",null);
+						 			webSocket.sendMessage(new TextMessage(resultMessage.toObjectMapperString()));
+								proffer.setState(1);
+								personDAO.updateProffer(proffer);
+							
+					 }
+					 
+					 
+			     }
+		
+		//  signalingSocketHandlerRPC.acceptOrderClientCB(person, order); // notify current and taxis
+		  
+			sendToPersonUI(person,"RouteControl.loadOrders();");
+		  
+		}catch(Exception e)
+		{
+			sendToPersonUI(person,"alert('"+e.getMessage()+"');");
+			LOG.error(e.getMessage());
+			LOG.error(e.getMessage());
+			return false;
+			
+		}
+		return true;
+	}
+
+	
+	/*
+	public boolean acceptOrderClientOLD(ArrayList arg, String sessionId) {
 
 		Integer id = (Integer) arg.get(0);
 
@@ -242,8 +375,12 @@ public class ProcedureRPC {
 
 		String orderStartPosition = getOrderStartPosition(order.getRoute());
 
-		ArrayList<Person> allperson= getAllPerson();
+		ArrayList<Person> allperson= getAllActiveTaxi();
 		 
+		 if(allperson.isEmpty())
+			 LOG.error("No Acctive Taxi");
+		
+		
 		ListIterator<Person> iter = allperson.listIterator();
 		 // calk distance 
 		 while(iter.hasNext()){
@@ -275,6 +412,11 @@ public class ProcedureRPC {
 		 	});
 		 	 
          //---------------
+		 
+		 if(allperson.isEmpty())
+			 LOG.error("No Acctive Taxi");
+		 
+		 
 		  ListIterator<Person> it = allperson.listIterator();
 
 		  while(it.hasNext()){
@@ -331,34 +473,12 @@ public class ProcedureRPC {
 					 
 			     }
 		
-		 
-		 /*
-		 
-		 
-			String sessionId = p.getToken();
-			WebSocketSession webSocket = connectedUsers.get(sessionId);
 
-			if (webSocket == null) {
-				LOG.error("Missing Connection  " + sessionId);
-				return;
-			}
-
-			ResultMessage resultMessage = new ResultMessage(null, "RouteControl.loadOrders();",null);
-
-			String resendingMessage;
-			try {
-				resendingMessage = Utils.getString(resultMessage);
-				webSocket.sendMessage(new TextMessage(resendingMessage));
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-*/
 		  signalingSocketHandlerRPC.acceptOrderClientCB(person, order); // notify current and taxis
 		return res;
 	}
 	
-	
+	*/
 	boolean sendToPersonUI(Person person,String msg )
 	{
 		System.err.print("sendToPersonUI >to"+person.getName()+"  msg"+msg);	
@@ -387,9 +507,9 @@ public class ProcedureRPC {
 
 		Integer id = (Integer) arg.get(0);
 
-		Person person = personDAO.getPersonByToken(sessionId);
+		Person personTaxi = personDAO.getPersonByToken(sessionId);
 
-		Long personId = person.getId();
+		Long personId = personTaxi.getId();
 
 		Orders order = personDAO.getOrderById(id.longValue());
 
@@ -415,18 +535,19 @@ public class ProcedureRPC {
 				
 				 String  routeName = personDAO.getRouteName(order.getId());
 				 
-					Person tperson = personDAO.getPersonById(proffer.getPersonId());
-				 
+				
+				
+					Person personClient = personDAO.getPersonById(order.getClientId());
 				 
 				 String ret=new ArgsFeaturesJson()
 						 .addFeatures("profferId",proffer.getId())
 						 .addFeatures("orderId",order.getId())
 						 .addFeatures("orderState",order.getState())
-						 .addFeatures("clientId",person.getId())
-						 .addFeatures("clientName",person.getName())
+						 .addFeatures("clientId",personClient.getId())
+						 .addFeatures("clientName",personClient.getName())
 
-						 .addFeatures("taxiId",tperson.getId())
-						 .addFeatures("taxi",tperson.getName())
+						 .addFeatures("taxiId",personTaxi.getId())
+						 .addFeatures("taxi",personTaxi.getName())
 						 .addFeatures("routeName",routeName)
 						 
 						 
@@ -436,7 +557,11 @@ public class ProcedureRPC {
 						 .get();
 				
 				// ResultMessage resultMessage = new ResultMessage(null, "RouteControl.AddOffer('"+ret+"');",null);
-				sendToPersonUI(person,"RouteControl.AddOffer('"+ret+"');");
+				sendToPersonUI(personTaxi,"RouteControl.AddOffer('"+ret+"');");
+				
+				sendToPersonUI(personClient,"RouteControl.loadOrders();");
+				
+				
 				System.err.print("RouteControl.AddOffer");	
 				//TODO  
 				//sendToPersonUI(person,"");
@@ -458,12 +583,13 @@ public class ProcedureRPC {
 			
 		}
 		
-		
+	
+
 		
 		
 		// signalingSocketHandlerRPC.acceptOrderCB( person,order); //notify current and
 		// taxis
-		signalingSocketHandlerRPC.acceptOrderClientCB(person, order); // notify current and taxis
+		//signalingSocketHandlerRPC.acceptOrderClientCB(person, order); // notify current and taxis
 		return res;
 	
 	}
@@ -501,6 +627,25 @@ public class ProcedureRPC {
 		 });
 	    }
 
+	 private ArrayList<Person> getAllActiveTaxi()
+	 {
+	 ArrayList<Person> personList = new ArrayList<Person>(); // Create an ArrayList object
+		 
+	 doWork(new Callback() {         
+		 @Override
+	     public void call(String id) {
+			 System.out.println("callback called arg"+id);
+	         Person person = getPersonByToken(id);
+	         
+	         
+	         if(person!=null )
+	        	 if(person.getRole().equals("taxi"))
+	        		 personList.add(person);
+		 	}
+	 	});
+	 return  personList;
+	 }
+	 
 	 
 	 private ArrayList<Person> getAllPerson()
 	 {
@@ -580,9 +725,14 @@ public class ProcedureRPC {
 
 		boolean res = personDAO.updateOrders(order);
 
-		List<Person> sendTo = getPersonsClientOrdersId(order.getId());
+		
 
-		signalingSocketHandlerRPC.handleUpdateOrder(person, sendTo, order);
+		Person personClient = personDAO.getPersonById(order.getClientId());
+		sendToPersonUI(personClient,"RouteControl.loadOrders();");
+		sendToPersonUI(person,"RouteControl.removeOffer('"+order.getId()+"');");
+		
+		
+		//signalingSocketHandlerRPC.handleUpdateOrder(person, sendTo, order);
 		// signalingSocketHandlerRPC.acceptOrderCB(person, order); // notify current and
 		// taxis
 		return res;
@@ -701,7 +851,7 @@ public class ProcedureRPC {
 				+ ",'taxiId',persontaxi.id,'taxiName',persontaxi.name\n"
 				+ ",'createpersonId',person.id,'personName',person.name\n"
 				+ ",'',orders.createtime ,'acepted',orders.createtime \n" + ",'route', orders.route  \n" + "))\n"
-				+ "FROM orders\n" + "left join taxi.person on person.id =orders.clientid\n"
+				+ "FROM taxi.orders\n" + "left join taxi.person on person.id =orders.clientid\n"
 				+ "left join taxi.person persontaxi on persontaxi.id =orders.taxiid \n" + "\n" + "\n"
 				+ "where  orders.state not in(0,4,2) --NOT temporal ,finish\n"
 				+ "		or  ( state=1)			--all Active	 \n" + " or ( persontaxi.id=0 and state=2) " // not
@@ -738,17 +888,7 @@ public class ProcedureRPC {
 		return cnt;
 	}
 
-	public String loadTaxiOrders(ArrayList arg, String sessionId) {
-
-		String user = (String) arg.get(0);
-		String token = (String) arg.get(1);
-
-		Long clientId = personDAO.getPersonIdByUserToken(user, token);
-		String orders = getTaxuOrdersByClientId(clientId);
-
-		// getOrdersFn(clientId);
-		return orders;
-	}
+	
 
 	public List<Person> getActiveOrdersByTaxiId(Long clientId) {
 		// String sql = "SELECT json_agg(orders) FROM orders where clientId = ? ";
@@ -1209,6 +1349,84 @@ public class ProcedureRPC {
 		
 		return "OK";
 		
+	}
+	
+	
+	public String _loadTaxiOrders(ArrayList arg, String sessionId) {
+
+		String user = (String) arg.get(0);
+		String token = (String) arg.get(1);
+
+		Long clientId = personDAO.getPersonIdByUserToken(user, token);
+		String orders = getTaxuOrdersByClientId(clientId);
+
+		// getOrdersFn(clientId);
+		return orders;
+	}
+
+	public void loadTaxiOrders(ArrayList arg, String sessionId) {
+
+		String user = (String) arg.get(0);
+		String token = (String) arg.get(1);
+
+		Long clientId = personDAO.getPersonIdByUserToken(user, token);
+		//Integer id = (Integer) arg.get(0);
+
+		Person personTaxi = personDAO.getPersonByToken(sessionId);
+
+		Long personId = personTaxi.getId();
+
+	//	Orders order = personDAO.getOrderById(id.longValue());
+
+		
+
+		
+
+		
+		List<Proffer> proffers = personDAO.getProfferByPersonId(personId);
+		
+		for(Proffer proffer:proffers)
+		{
+			Orders order = personDAO.getOrderById(proffer.getOrderId());
+		
+				String orderId =new ArgsFeaturesJson().addFeatures("orderId",order.getId()).get();
+				
+				
+				 String  routeName = personDAO.getRouteName(order.getId());
+				 
+				
+				
+					Person personClient = personDAO.getPersonById(order.getClientId());
+				 
+				 String ret=new ArgsFeaturesJson()
+						 .addFeatures("profferId",proffer.getId())
+						 .addFeatures("orderId",order.getId())
+						 .addFeatures("orderState",order.getState())
+						 .addFeatures("clientId",personClient.getId())
+						 .addFeatures("clientName",personClient.getName())
+
+						 .addFeatures("taxiId",personTaxi.getId())
+						 .addFeatures("taxi",personTaxi.getName())
+						 .addFeatures("routeName",routeName)
+						 
+						 
+						 
+						 //clientId", orders.getClientId());
+						//	parameters.put("taxiId", orders.getTaxiId());
+						 .get();
+				
+				// ResultMessage resultMessage = new ResultMessage(null, "RouteControl.AddOffer('"+ret+"');",null);
+				sendToPersonUI(personTaxi,"RouteControl.AddOffer('"+ret+"');");
+				
+				sendToPersonUI(personClient,"RouteControl.loadOrders();");
+				
+				
+				System.err.print("RouteControl.AddOffer");	
+				//TODO  
+				//sendToPersonUI(person,"");
+		}
+			
+			
 	}
 	
 }

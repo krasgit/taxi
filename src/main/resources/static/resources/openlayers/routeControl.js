@@ -25,7 +25,7 @@
 
 					var node_11 = document.createElement('DIV');
 
-					node_11.reature
+					
 					node_11.setAttribute('class', 'input-group mb-1 mt-1');
 
 					node_11.setAttribute('id', "inputGroupfeatureId" + featureId);
@@ -97,7 +97,10 @@
 			
 			const isTaxi=Cookie.getCookie("isTaxi");
 			if(isTaxi=='true'){
-				cWaypoint.style.display = "none"; 				
+				cWaypoint.style.display = "none"; 	
+				
+				const footer = document.getElementById('footer');		
+				footer.style.display = "none"; 	
 								}
 			
 			
@@ -262,18 +265,14 @@
 			{
 			var user =Cookie.getCookie("user") ;
 			var token =Cookie.getCookie("token") ;
-			//client
-				callRPC("loadOrders",user,token).then((result) => 
-					{	
-						RouteControl.render(result); });
-			//taxi
-			/*
+			
+			if(Cookie.getCookie("isTaxi")=='false'){					
+				callRPC("loadOrders",user,token).then((result) => {	RouteControl.render(result); });//client
+				}	
+			else 	{
+				callRPC("loadTaxiOrders",user,token).then((result) => {	/*RouteControl.TaxiRender(result);*/});			
 						
-			var user =Cookie.getCookie("user") ;
-				var token =Cookie.getCookie("token") ;
-					callRPC("loadTaxiOrders",user,token).then((result) => {	RouteControl.TaxiRender(result); });			
-						
-			*/			
+					}	
 						
 			}
 
@@ -827,10 +826,10 @@ static createOrdersEx()
 					
 				}
 		//context from to 		
-		static sendMessageFromOrder(id,fromId,from,toId,to){
+		static sendMessageFromOrder(id,toId,to){
 			
 			
-			MessageControl.init(id,fromId,from,toId,to);
+			MessageControl.init(id,toId,to);
 			//	callRPC("sendMessageFromOrder",id).then((result) => 
 			//			{	
 			//				RouteControl.render(result); 
@@ -871,7 +870,7 @@ static createOrdersEx()
 	{
 	var orderState=params.orderState;
 	var orderId=params.orderId;
-	var clientId=params.clientName;
+	var clientId=params.clientId;
 	var clientName=params.clientName;
 	var button
 	
@@ -900,10 +899,10 @@ static createOrdersEx()
 	}		
 
 	
-	static removeOffer(argJson)
+	static removeOffer(orderId)
 	{
-		const params = JSON.parse(argJson).params;
-		var orderId=params.orderId;
+		//const params = JSON.parse(argJson).params;
+		//var orderId=params.orderId;
 			
 		var trid = document.getElementById('OfferOrderId'+orderId);			
 		if(trid)
@@ -1100,7 +1099,7 @@ static createOrdersEx()
 			const mode =options.mode;
 
 					
-					var footer=`<footer class="card-footer" style="padding: 0.3rem;">
+					var footer=`<footer id="footer" class="card-footer" style="padding: 0.3rem;">
 										<div class="@card-footer-item" style="padding: 0.2rem;">
 										<a href="#" onclick="RouteControl.add();"         class="button is-primary" id="r-in-button">	  
 														<i class="fa fa-plus" aria-hidden="true"></i>

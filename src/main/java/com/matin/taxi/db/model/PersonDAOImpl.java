@@ -542,6 +542,15 @@ public class PersonDAOImpl implements PersonDAO {
 		//return  jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
 	}
 
+	
+	public List<Proffer> getProfferByPersonId(Long personId) {
+		String SQL = "select * from taxi.proffer  where  personId=? ";
+		return jdbcTemplate.query(SQL,new Object[] { personId }, new ProfferMapper());
+		//return  jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
+	}
+
+	
+	
 	/*
 	public List<Proffer> getProffer(String orderId) {
 		String sql= "select * from taxi.proffer where token = ?";
