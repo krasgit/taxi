@@ -38,9 +38,26 @@ public class ArgFeatures {
 
 	public static void main(String[] args){
 
-		String ret=new ArgFeatures("'").addFeatures(34,"B").addFeatures("C").get();
-		System.out.print(ret);
+
+		
+		
+		String ret=new ArgFeatures("'").addFeatures("34","B",66).addFeatures(44).get();
+		//System.out.print(ret);
 	
+		int y=10;
+		
+		String o="########\n";
+		 for(int b=y;b!=0;b--) 
+				System.out.print("#");
+
+		 for(int b=y;b!=0;b--)
+		 {
+				System.out.print("#");
+				
+		 }
+		 for(int b=y;b!=0;b--) 
+				System.out.print("#");
+		
 	}
 
 	String get() {

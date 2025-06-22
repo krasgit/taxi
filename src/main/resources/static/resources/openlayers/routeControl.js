@@ -909,7 +909,22 @@ static createOrdersEx()
 			trid.remove();
 	}
 		
-						
+	
+	static updateOffer(target,newContent)
+	{
+		var timer = document.getElementById(target);	
+		timer.innerHTML=newContent;
+				
+	}
+	
+	static updateElementAttr(target,name ,value)
+		{
+			var el = document.getElementById(target);	
+	el.setAttribute(name,value);
+					
+		}			
+	
+			
 	static AddOffer(argJson)
 	{
 	const params = JSON.parse(argJson).params;
@@ -928,8 +943,12 @@ static createOrdersEx()
 	var icon=RouteControl.getOrderIcon(params)	;
 	var button=RouteControl.getOrderButton(params);
 		 
-	var	tableRuws=	`<td>${icon} ${orderState} ${orderId} ${clientName} </td>
-					<td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;"><a href="#Foo" onclick="RouteControl.loadOrderById(${orderId})">${routeName}</a></td>
+	var	tableRuws=	`<td><timer id='timer${orderId}'>60</timer>${icon} ${orderState} ${orderId} ${clientName} </td>
+					<td style="padding-left: 5px;padding-bottom:3px; font-size: 12px;">
+						<a href="#Foo" onclick="RouteControl.loadOrderById(${orderId})">${routeName}</a>
+						<br/>
+						<progress id='progress${orderId}'" value="0" max="30"></progress>
+					</td>
 					<td>${button}</td>`;
 		
 	//var row  = RouteControl.createElementFromHTML(tableRuws);

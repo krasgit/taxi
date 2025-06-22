@@ -223,7 +223,7 @@ public class SignalingSocketHandlerRPC extends TextWebSocketHandler {
 			System.out.println("->return " + result);
 
 		} catch (Exception e) {
-			System.out.println("->return " + e.getMessage());
+			System.out.println("->return  RP "+request.getProcedure() +"  "+ e.getMessage());
 			error = e.getMessage();
 		}
 

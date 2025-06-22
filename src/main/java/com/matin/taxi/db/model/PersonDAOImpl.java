@@ -23,7 +23,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class PersonDAOImpl implements PersonDAO {
+public class PersonDAOImpl //implements PersonDAO 
+{
 
 	JdbcTemplate jdbcTemplate;
 	DataSourceTransactionManager transactionManager;
@@ -86,7 +87,7 @@ public class PersonDAOImpl implements PersonDAO {
 		return jdbcTemplate.update(SQL_UPDATE_PERSON_TOKEN, person.getToken(), person.getId()) > 0;
 	}
 
-	@Override
+
 	public boolean isLognned(String name, String token) {
 		String sql = "SELECT count(*) FROM taxi.person WHERE name = ? AND token = ?";
 
@@ -115,7 +116,42 @@ public class PersonDAOImpl implements PersonDAO {
 		// user,token });
 	}
 
-	@Override
+	public Person getPersonByToken(String token) {
+		String sql= "select * from taxi.person where token = ?";
+		
+		
+		
+		try {
+			//return jdbcTemplate.queryForObject(sql, new Object[] { token }, new PersonMapper());
+			return jdbcTemplate.queryForObject(sql,		new	PersonMapper(),  token );
+		}catch (Exception e)
+		{
+			return null;
+		}
+		
+		
+	}
+	public Person getPersonByTokens1(String name, String token) {
+		String sql = "SELECT * FROM taxi.person WHERE  token = ?";
+		try {
+			//return jdbcTemplate.queryForObject(sql, new Object[] { name, token }, new PersonMapper());
+			return  jdbcTemplate.queryForObject(sql,		new	PersonMapper(),  name, token );
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+		// (sql, Integer.class, name,token);
+		//
+
+		// this.jdbcTemplate.queryForObject(sql, Integer.class, user, token);
+		// this.jdbcTemplate.queryForObject( sql, Integer.class, new Object[] {
+		// user,token });
+	}
+
+	
+	
+	
+	
+
 	public Long getPersonIdByUserToken(String name, String token) {
 
 		String sql = "SELECT id FROM taxi.person WHERE name = ? AND token = ?";
@@ -164,7 +200,7 @@ public class PersonDAOImpl implements PersonDAO {
 
 	}
 
-	@Override
+
 	public boolean getPersonLogOutIdByUserToken(String user, String token) {
 		final String SQL_UPDATE_PERSON_TOKEN = "update taxi.person set token=null where name = ? and token  = ?";
 
@@ -338,21 +374,7 @@ public class PersonDAOImpl implements PersonDAO {
 	}
 	
 	
-	public Person getPersonByToken(String token) {
-		String sql= "select * from taxi.person where token = ?";
-		
-		
-		
-		try {
-			//return jdbcTemplate.queryForObject(sql, new Object[] { token }, new PersonMapper());
-			return jdbcTemplate.queryForObject(sql,		new	PersonMapper(),  token );
-		}catch (Exception e)
-		{
-			return null;
-		}
-		
-		
-	}
+	
 	
 	
 		
@@ -413,7 +435,7 @@ public class PersonDAOImpl implements PersonDAO {
 	}
 
 	
-	@Override
+
 	public JdbcTemplate geJjdbcTemplate() {
 		// TODO Auto-generated method stub
 		return jdbcTemplate;
@@ -485,7 +507,7 @@ public class PersonDAOImpl implements PersonDAO {
 		
 	}
 
-	@Override
+
 	public Messages getMessage(Long Id) {
 		String SQL="SELECT * FROM taxi.Message	WHERE id =? );";
 	
@@ -544,7 +566,9 @@ public class PersonDAOImpl implements PersonDAO {
 
 	
 	public List<Proffer> getProfferByPersonId(Long personId) {
-		String SQL = "select * from taxi.proffer  where  personId=? ";
+		String SQL = "select * "
+				+ " ,CAST (EXTRACT(EPOCH FROM (NOW() - created_at)) AS INTEGER) AS difference"
+				+ " from taxi.proffer  where  personId=? ";
 		return jdbcTemplate.query(SQL,new Object[] { personId }, new ProfferMapper());
 		//return  jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
 	}

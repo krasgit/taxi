@@ -43,6 +43,38 @@
 	<link rel="stylesheet" href="/resources/openlayers/bulma.css" type="text/css" />	
 	
 </head>
+
+<style>
+progress[value] {
+  --w: 200px; /* the width*/
+  --color:  /* the progress color */
+    linear-gradient(90deg,#1ecd1e,#ff6161) 0/var(--w);
+  --background: lightgrey; /* the background color */
+
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: none;
+  width: var(--w);
+  margin: 0 10px;
+  border-radius: 10em;
+  background: var(--background);
+}
+progress[value]::-webkit-progress-bar {
+  border-radius: 10em;
+  background: var(--background);
+}
+progress[value]::-webkit-progress-value {
+  border-radius: 10em;
+  background: var(--color);
+}
+progress[value]::-moz-progress-bar {
+  border-radius: 10em;
+  background: var(--color);
+}
+</style>
+
+
 <style>
 	html,body {width: 100% ;height: 100%;padding: 0;margin: 0;font-size: 12px; background: #c9c9ce;}
 	#map {width: 100%;height: 100%;}

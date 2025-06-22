@@ -12,12 +12,14 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
@@ -41,19 +43,129 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ProcedureRPC {
 
 	
+	
+	
+	
 	private static final Logger LOG = LoggerFactory.getLogger(ProcedureRPC.class);
 	
 	SignalingSocketHandlerRPC signalingSocketHandlerRPC = null;
 	AnnotationConfigApplicationContext context = null;
 	PersonDAOImpl personDAO = null;
 
+	private void init() {
+		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
+	    Runnable periodicTask = new Runnable() {
+	    		    public void run() {
+	    		    	 
+	    		
+	    		    	Map<String, WebSocketSession> connectedUsers = signalingSocketHandlerRPC.getConnectedUsers();
+	    		    	
+	    		    	for (var entry : connectedUsers.entrySet()) {
+	    		    		System.out.println(entry.getKey() + "/" + entry.getValue());
+	    		    		
+	    		    		
+	    		    		Person p = personDAO.getPersonByToken(entry.getKey());
+                              if(p==null) {
+                            	  LOG.info("executor Person is null");
+                            	  continue;
+                              }
+	    		    		boolean isTaxi = p.getRole().equals("taxi");
+	    		    		
+	    		    		if(isTaxi)
+	    		    		{
+	    		    			List<Proffer> proffers=personDAO.getProfferByPersonId(p.getId()); 
+	    		    			for(Proffer proffer:proffers)
+	    		    			{
+	    		    			
+	    		    			String target="progress"+proffer.getOrderId();
+	    		    			
+	    		    			//   sendToPersonUI(entry.getValue(),"RouteControl.updateOffer('"+target+"','+"+proffer.getDiff()+"+');");
+	    		    			
+	    		    			String arg=new ArgFeatures("'").addFeatures(target,"value",proffer.getDiff()).get();
+	    		    			
+	    		    			   sendToPersonUI(entry.getValue(),"RouteControl.updateElementAttr("+arg+");");
+	    		    			}
+	    		    		}
+	    		    		
+	    		    		
+	    		    		
+	    		    		String command="";
+	    		    	    
+	    		    //	    sendToPersonUI(entry.getValue(),"RouteControl.AddOffer('"+command+"');");
+	    		    	    
+	    		    	}
+	    		    	
+	    		    	
+	    		    	
+	    		    	
+	    		             try {
+	    		            	 
+	    		             } catch (Exception e) {
+	    		                 LOG.warn("Error while message sending.", e);
+	    		             }
+	    		         
+	    		    	
+	    		    }
+	    		};
+	    		executor.scheduleAtFixedRate(periodicTask, 0, 5, TimeUnit.SECONDS);    
+
+
+	}
+
+	boolean sendToPersonUI(WebSocketSession webSocket,String msg )
+	{
+		
+		 if (webSocket != null) {
+			 try {
+				 ResultMessage resultMessage = new ResultMessage(msg);	
+				 webSocket.sendMessage(new TextMessage(resultMessage.toObjectMapperString()));
+				 
+				 System.err.println("  OK");
+				 return true;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			 
+			 
+		 }
+		 System.err.println("  ERROR");
+		return false;
+	}
+	
+	boolean sendToPersonUI(Person person,String msg )
+	{
+		System.err.print("sendToPersonUI >to"+person.getName()+"  msg"+msg);	
+		
+		
+		 WebSocketSession webSocket =signalingSocketHandlerRPC.getConnectedUsers().get(person.getToken());	
+
+		 if (webSocket != null) {
+			 try {
+				 ResultMessage resultMessage = new ResultMessage(msg);	
+				 webSocket.sendMessage(new TextMessage(resultMessage.toObjectMapperString()));
+				 
+				 System.err.println("  OK");
+				 return true;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			 
+			 
+		 }
+		 System.err.println("  ERROR");
+		return false;
+	}
+	
 	public ProcedureRPC(SignalingSocketHandlerRPC signalingSocketHandlerRPC) {
 
 		DataSource ds = HikariCPDataSource.getDataSource();
 		this.personDAO = new PersonDAOImpl(ds);
-
 		this.signalingSocketHandlerRPC = signalingSocketHandlerRPC;
 		this.context = new AnnotationConfigApplicationContext(AppConfig.class);
+		
+		init();
+		
 	}
 
 	public boolean reconnect(String user, String token, String sessionId) {
@@ -479,29 +591,7 @@ public class ProcedureRPC {
 	}
 	
 	*/
-	boolean sendToPersonUI(Person person,String msg )
-	{
-		System.err.print("sendToPersonUI >to"+person.getName()+"  msg"+msg);	
-		
-		
-		 WebSocketSession webSocket =signalingSocketHandlerRPC.getConnectedUsers().get(person.getToken());	
 
-		 if (webSocket != null) {
-			 try {
-				 ResultMessage resultMessage = new ResultMessage(msg);	
-				 webSocket.sendMessage(new TextMessage(resultMessage.toObjectMapperString()));
-				 
-				 System.err.println("  OK");
-				 return true;
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			 
-			 
-		 }
-		 System.err.println("  ERROR");
-		return false;
-	}
 	
 	public boolean acceptOrder(ArrayList arg, String sessionId) {
 
@@ -635,7 +725,7 @@ public class ProcedureRPC {
 		 @Override
 	     public void call(String id) {
 			 System.out.println("callback called arg"+id);
-	         Person person = getPersonByToken(id);
+	         Person person = personDAO.getPersonByToken(id);
 	         
 	         
 	         if(person!=null )
@@ -655,7 +745,7 @@ public class ProcedureRPC {
 		 @Override
 	     public void call(String id) {
 			 System.out.println("callback called arg"+id);
-	         Person person = getPersonByToken(id);
+	         Person person = personDAO.getPersonByToken(id);
 	         if(person!=null)
 	            	personList.add(person);
 		 	}
@@ -892,7 +982,7 @@ public class ProcedureRPC {
 
 	public List<Person> getActiveOrdersByTaxiId(Long clientId) {
 		// String sql = "SELECT json_agg(orders) FROM orders where clientId = ? ";
-		String sql = "select person.*  from person\n" + "inner join  Orders on Orders.clientid=person.id \n"
+		String sql = "select person.*  from taxi.person\n" + "inner join  taxi.Orders on Orders.clientid=person.id \n"
 				+ "where Orders.taxiid=? and Orders.state =2";
 		// + " order by state";
 		return personDAO.geJjdbcTemplate().query(sql, new Object[] { clientId }, new PersonMapper());
@@ -923,6 +1013,11 @@ public class ProcedureRPC {
 		Person sendFrom = personDAO.getPersonByPrincipal(user);
 		List<Person> sendTo = getActiveOrdersByTaxiId(clientId);
 
+		if(sendTo.isEmpty())
+		{
+			LOG.info("updatePostion send to is empty");
+		return true;	
+		}
 		signalingSocketHandlerRPC.handleUpdatePostion(sendFrom, sendTo, postion);
 
 		// getOrdersFn(clientId);
@@ -1101,9 +1196,7 @@ public class ProcedureRPC {
 		return null;
 	}
 
-	Person getPersonByToken(String token) {
-		return personDAO.getPersonByToken(token);
-	}
+	
 
 	// {"coord":[{"lon":27.846524698242188,"lat":43.24471167931782,"name":"кв.
 	// Владиславово, Владислав
@@ -1174,7 +1267,7 @@ public class ProcedureRPC {
 				System.out.println("webSocketSession id" + id);
 
 				if (sessionId != id) {
-					Person p = getPersonByToken(id);
+					Person p = personDAO.getPersonByToken(id);
 
 					if (p == null) {
 						System.out.println("not found person by ssee:" + id);
@@ -1422,8 +1515,6 @@ public class ProcedureRPC {
 				
 				
 				System.err.print("RouteControl.AddOffer");	
-				//TODO  
-				//sendToPersonUI(person,"");
 		}
 			
 			

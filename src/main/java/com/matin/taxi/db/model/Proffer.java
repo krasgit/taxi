@@ -47,6 +47,15 @@ public class Proffer {
 	private String message;
 	private Timestamp created_at;
 	
+	//
+	private int diff;
+	
+	public int getDiff() {
+		return diff;
+	}
+	public void setDiff(int diff) {
+		this.diff = diff;
+	}
 	public int getId() {
 		return id;
 	}

@@ -14,8 +14,19 @@ public class ProfferMapper implements RowMapper<Proffer> {
 		proffer.setState(rs.getInt("state"));
 		proffer.setOrderId(rs.getLong("orderId"));
 		proffer.setPersonId(rs.getLong("personId"));
-		
 		proffer.setCreated_at(rs.getTimestamp("created_at"));
+		
+		
+		 try{
+		        rs.findColumn("difference");
+		        proffer.setDiff(rs.getInt("difference"));
+		    } catch (SQLException sqlex){
+		        //logger.debug("column doesn't exist {}", column);
+		    }
+		
+					
+		
+		
 		return proffer;
 	}
 }
