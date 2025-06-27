@@ -37,6 +37,9 @@ public class Orders {
 	public static int STATE_TAXI_START=3;
 	public static int STATE_TAXI_END=4;
 	
+	public static int STATE_EXPIRED=5;
+	
+	
 
 	Long id;
 	Long clientId; 
