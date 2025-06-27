@@ -104,8 +104,8 @@
 			{
 			var distance=utils.distanceBetweenPoints ([event.coords.longitude, event.coords.latitude],
 					[lastGeoLocationEvent.coords.longitude, lastGeoLocationEvent.coords.latitude]);
-		
-			if(distance>100)// TODO UNCOMMENT
+		log("distance "+distance);
+	//		if(distance>100)// TODO UNCOMMENT
 				{
 				updatePostion(event);
 				lastGeoLocationEvent = event;

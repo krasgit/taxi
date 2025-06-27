@@ -100,6 +100,7 @@ public class PersonDAOImpl //implements PersonDAO
 		// user,token });
 	}
 
+	@Deprecated
 	public Person getLognned(String name, String token) {
 		String sql = "SELECT * FROM taxi.person WHERE name = ? AND token = ?";
 		try {
@@ -147,11 +148,25 @@ public class PersonDAOImpl //implements PersonDAO
 		// user,token });
 	}
 
-	
-	
-	
-	
+	public Person getPersonByUserToken(String name, String token) {
 
+		try {
+		String sql = "SELECT * FROM taxi.person WHERE name = ? AND token = ?";
+
+		return jdbcTemplate.queryForObject(sql, new	PersonMapper(), name, token);
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+		// this.jdbcTemplate.queryForObject(sql, Integer.class, user, token);
+		// this.jdbcTemplate.queryForObject( sql, Integer.class, new Object[] {
+		// user,token });
+	}
+
+	
+	
+	
+	
+	@Deprecated
 	public Long getPersonIdByUserToken(String name, String token) {
 
 		String sql = "SELECT id FROM taxi.person WHERE name = ? AND token = ?";
@@ -564,6 +579,20 @@ public class PersonDAOImpl //implements PersonDAO
 		//return  jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
 	}
 
+	public Proffer getProfferByOrderIdPersonId(Long orderId, Long personId) {
+		String SQL = "select * from taxi.proffer  where  orderId=? and personId=? ";
+			
+		try {
+			return  jdbcTemplate.queryForObject(SQL,		new	ProfferMapper(), orderId ,personId);
+			} catch (Exception e) {
+				//System.out.println(e.getMessage());
+			
+			}
+			return  null;
+		
+	}
+
+	
 	
 	public List<Proffer> getProfferByPersonId(Long personId) {
 		String SQL = "select * "
@@ -573,6 +602,26 @@ public class PersonDAOImpl //implements PersonDAO
 		//return  jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
 	}
 
+	public List<Proffer> getActiveProfferByPersonId(Long personId) {
+		String SQL = "select p.*  ,CAST (EXTRACT(EPOCH FROM (NOW() - created_at)) AS INTEGER) AS difference \n"
+				+ "   	from taxi.proffer p \n"
+				+ "    		left join taxi.orders o on (o.id=p.orderId)\n"
+				+ "    where o.state in(1,2) "
+					+ " and personId=? ";
+		return jdbcTemplate.query(SQL,new Object[] { personId }, new ProfferMapper());
+		//return  jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
+	}
+	
+	
+	public List<Proffer> getActiveProfferOrderId(Long orderId) {
+		String SQL = "select p.*  ,CAST (EXTRACT(EPOCH FROM (NOW() - created_at)) AS INTEGER) AS difference \n"
+				+ "   	from taxi.proffer p \n"
+				+ "    		left join taxi.orders o on (o.id=p.orderId)\n"
+				+ "    where o.state in(1,2) "
+					+ " and orderId=? ";
+		return jdbcTemplate.query(SQL,new Object[] { orderId }, new ProfferMapper());
+		//return  jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
+	}
 	
 	
 	/*
