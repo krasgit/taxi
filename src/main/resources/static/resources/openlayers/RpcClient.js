@@ -236,7 +236,7 @@ export class RpcClient {
   #onMessage(event) {
 	
 	
-	console.log(`#onMessage `+event);
+	console.log(`#onMessage `+event+" data"+event.data);
 	
 	
 	var connectionState= document.getElementById("connectionState");

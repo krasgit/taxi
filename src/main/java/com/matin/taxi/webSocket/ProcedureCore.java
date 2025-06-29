@@ -32,6 +32,9 @@ public class ProcedureCore {
 	
 	// m
 	protected static final int MAXDISTANCE = 10000;
+	//s
+	protected static final int PROFFER_TIMEOUTO = 30;
+	
 	protected static final Logger LOG = LoggerFactory.getLogger(ProcedureRPC.class);
 
 	protected SignalingSocketHandlerRPC signalingSocketHandlerRPC = null;
@@ -46,7 +49,10 @@ public class ProcedureCore {
 		Person person = personDAO.getPersonByToken(entry.getKey());
 		
 		Orders orders = personDAO.getOrdersByClientIdState(person.getId(),Orders.STATE_CLIENT_START);
-		
+		if(orders==null) {
+			LOG.info("ProcedureCore::client no STATE_CLIENT_START order");
+			return;
+		}
 		
 		List<Proffer> f = personDAO.getActiveProfferOrderId(orders.getId());
 		Proffer proffer=f.get(0);
@@ -55,21 +61,19 @@ public class ProcedureCore {
 		//Orders orders = personDAO.getOrderById(proffer.getOrderId());
 		int diff = proffer.getDiff();
 		
-		if(diff<100)
+		if(diff<PROFFER_TIMEOUTO)
 		{
 		
 		String arg=new ArgFeatures("'").addFeatures("info"+orders.getId(),"Wait:"+diff+" from Proffer"+f.size()).get();
-		   sendToPersonUI(entry.getValue(),"RouteControl.updateElementContent("+arg+");");
+		   sendToPersonUI(person,"RouteControl.updateElementContent("+arg+");");
 		}
 		else
 		{
-		
-			orders.setState(Orders.STATE_EXPIRED);
-			personDAO.updateOrders(orders);
-			
-			//
-			String arg=new ArgFeatures("'").addFeatures(orders.getId()).get();
-			   sendToPersonUI(entry.getValue(),"RouteControl.removeOffer("+arg+");");
+//			orders.setState(Orders.STATE_EXPIRED);
+//			personDAO.updateOrders(orders);
+//			//
+//			String arg=new ArgFeatures("'").addFeatures(orders.getId()).get();
+//			   sendToPersonUI(entry.getValue(),"RouteControl.removeOffer("+arg+");");
 			
 		}
 	}
@@ -92,10 +96,10 @@ public class ProcedureCore {
 	 			continue;
 			
 	 		
-	 		if(orders.getState()==Orders.STATE_EXPIRED)
+	 		if(orders.getState()==Orders.STATE_EXPIRED)//see getActiveProfferByPersonId
 	 		{
 	 			String arg=new ArgFeatures("'").addFeatures(orders.getId()).get();
-				   sendToPersonUI(entry.getValue(),"RouteControl.removeOffer("+arg+");");
+				   sendToPersonUI(person,"RouteControl.removeOffer("+arg+");");
 	 			continue;
 	 		}
 		String target="progress"+proffer.getOrderId();
@@ -105,28 +109,47 @@ public class ProcedureCore {
 		
 		int diff = proffer.getDiff();
 		//value="0" max="100"
-		if(diff<100)
+		if(diff<PROFFER_TIMEOUTO)
 			{
 			String arg=new ArgFeatures("'").addFeatures(target,"value",proffer.getDiff()).get();
-		   sendToPersonUI(entry.getValue(),"RouteControl.updateElementAttr("+arg+");");
+		   sendToPersonUI(person,"RouteControl.updateElementAttr("+arg+");");
 		}
 		else 
 		{
 			String arg=new ArgFeatures("'").addFeatures(orders.getId()).get();
-			   sendToPersonUI(entry.getValue(),"RouteControl.removeOffer("+arg+");");
+			   sendToPersonUI(person,"RouteControl.removeOffer("+arg+");");
+
+			orders.setState(Orders.STATE_EXPIRED);
+			personDAO.updateOrders(orders);
 			
-			   sendToPersonUI(person, "RouteControl.loadOrders();");
+			Person clientPerson = personDAO.getPersonById(orders.getClientId());	
+	   sendToPersonUI(clientPerson, "RouteControl.clientLoadOrders();");
 		}
 		}
 	}	
 	
 	}
+	
+	
+	private TaxiManager tm=null;
+	
+	
 	protected void init() {
+		
+		tm=new TaxiManager(signalingSocketHandlerRPC, personDAO);
+		
 		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
 	    Runnable periodicTask = new Runnable() {
 	    		    public void run() {
-	    		
+	    		    	
+	    		    	
+	    		    	try {
+	    		    		
+	    		    		
+	    		    		tm.process();//process old 
+	    		    		
+	    		    		
 	    		    	Map<String, WebSocketSession> connectedUsers = signalingSocketHandlerRPC.getConnectedUsers();
 	    		    	LOG.info("ScheduledExecutorService RUN active connections "+connectedUsers.size());
 	    		    	for (var entry : connectedUsers.entrySet()) {
@@ -151,7 +174,10 @@ public class ProcedureCore {
 
 	    		    	}
 	    		    }
-	    		};
+	    catch (Exception e) {
+	    	LOG.info("ScheduledExecutorService " + e.getMessage());
+		}
+	    		    }		};
 	    		executor.scheduleAtFixedRate(periodicTask, 0, 5, TimeUnit.SECONDS);    
 
 	}
@@ -192,6 +218,9 @@ public class ProcedureCore {
 	
 	boolean sendToPersonUI(WebSocketSession webSocket,String msg )
 	{
+		
+		
+		
 		 if (webSocket != null) {
 			 try {
 				 ResultMessage resultMessage = new ResultMessage(msg);	
@@ -208,8 +237,15 @@ public class ProcedureCore {
 		return false;
 	}
 	
-	boolean sendToPersonUI(Person person,String msg )
+	boolean sendToPersonUI(Person person,String msg)
 	{
+		
+		tm.add(person.getId(),msg);
+		tm.process();
+		
+		if(true==true)
+			return true;
+		
 		LOG.info("sendToPersonUI::sendToPersonUI >to"+person.getName()+"  msg"+msg);	
 		
 		 WebSocketSession webSocket =signalingSocketHandlerRPC.getConnectedUsers().get(person.getToken());	

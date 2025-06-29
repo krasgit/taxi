@@ -266,6 +266,19 @@
 			}
 			
 			
+			
+			
+
+			static clientLoadOrders()
+						{
+						var user =Cookie.getCookie("user") ;
+						var token =Cookie.getCookie("token") ;
+							callRPC("loadOrders",user,token).then((result) => {	RouteControl.render(result); });//client
+			}
+
+			
+			
+			
 			static loadOrders()
 			{
 			var user =Cookie.getCookie("user") ;
