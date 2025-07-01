@@ -1,5 +1,10 @@
 https://bulma.io/documentation/elements/button/
 
+softuni
+    kraspro
+    kraspro750713!
+
+
 To set the **initial (minimum)**, **maximum**, and **idle** connections in a connection pool, you need to configure the respective properties of the connection pool library you're using. Below, I'll explain how to set these values for **HikariCP**, one of the most popular connection pooling libraries for Java.
 
 ---
