@@ -83,32 +83,35 @@
 		return  JSON.stringify(geoPosition); 
 	}
 	function  updatePostion(event){
-							
+		log(">>>>>>>>.updatePostion "+event);					
 		var user =Cookie.getCookie("user") ;
 		var token =Cookie.getCookie("token") ;
 		const geolocationPositionJSON=getGeolocationPositionJSON(event);		
 		
 		callRPC("updatePostion",user,token,geolocationPositionJSON).then((result) => {
-			//	RouteControl.loadOrderCB(event); //SELF npls 
-			//	RouteControl.loadOrderCB(result); //OLD
+			if(result==true)
+				lastGeoLocationEvent = event;
+			
 			 	});
 	}	
 	
 	function geosuccess(event) {
 
+		log(">>>>>>>>.geosuccess "+event +"  "+lastGeoLocationEvent);
+		
 		if(lastGeoLocationEvent===undefined){
 				updatePostion(event);
-				lastGeoLocationEvent = event;
+				
 			}
 		else 
 			{
 			var distance=utils.distanceBetweenPoints ([event.coords.longitude, event.coords.latitude],
 					[lastGeoLocationEvent.coords.longitude, lastGeoLocationEvent.coords.latitude]);
-		log("distance "+distance);
-			if(distance>10)// TODO UNCOMMENT
+		log(">>>>>>>>.distance ="+distance);
+			if(distance>5)// TODO UNCOMMENT
 				{
 				updatePostion(event);
-				lastGeoLocationEvent = event;
+				lastGeoLocationEvent = event;//TODO test updatePostion will set
 				}	
 			}
 		updateGeoMarkerCurrent(event);

@@ -731,7 +731,8 @@ public class ProcedureRPC extends ProcedureCore {
 		System.out.println(postion);
 
 		Person person = getPersonUI(arg);
-
+        if(person==null)
+        	return false;
 		personDAO.createPosition(person.getId(), postion);
 
 		Person sendFrom = personDAO.getPersonByPrincipal(user);
