@@ -125,7 +125,7 @@ public class TaxiManager {
 	
 	void process(){
 		
-		int sizr=hm.size();
+		int size=hm.size();
 		
 		 for (Map.Entry<String, Work> me : hm.entrySet()) {
 
@@ -149,7 +149,7 @@ public class TaxiManager {
            {
         	   
         	   String m=person.getName() +""+work.getMsg();
-        	   LOG.info("");
+        	   LOG.info("wait");
            }
            
 		 }

@@ -45,6 +45,7 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
     String formattedDate = myDateObj.format(myFormatObj);
     return  formattedDate;
     }
+   /*
     public SignalingSocketHandler() {
     	
     	ScheduledExecutorService executor =
@@ -73,6 +74,7 @@ public class SignalingSocketHandler extends TextWebSocketHandler {
     		executor.scheduleAtFixedRate(periodicTask, 0, 10, TimeUnit.SECONDS);    
         	
 	}
+	*/
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         LOG.info("[" + session.getId() + "] Connection established " + session.getId());

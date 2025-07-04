@@ -10,6 +10,11 @@ package com.matin.taxi.db.model;
 	passw text NULL,
 	token text NULL,
 	role text DEFAULT 'user',
+	
+	active boolean NULL,
+	manual boolean NULL,
+	label1 text NULL,
+	label2 text NULL,
 	CONSTRAINT person_pkey PRIMARY KEY (id)
 );
  
@@ -35,6 +40,55 @@ public class Person  implements Comparable<Person> {
 		private String token;
 		
 		private String role;
+		
+		
+		boolean active; 
+		boolean manual ;
+		private String label1;
+		private String label2;
+		
+		public boolean isActive() {
+			return active;
+		}
+
+
+		public void setActive(boolean active) {
+			this.active = active;
+		}
+
+
+		public boolean isManual() {
+			return manual;
+		}
+
+
+		public void setManual(boolean manual) {
+			this.manual = manual;
+		}
+
+
+		public String getLabel1() {
+			return label1;
+		}
+
+
+		public void setLabel1(String label1) {
+			this.label1 = label1;
+		}
+
+
+		public String getLabel2() {
+			return label2;
+		}
+
+
+		public void setLabel2(String label2) {
+			this.label2 = label2;
+		}
+
+
+	
+		
 		
 		
 		public String getRole() {

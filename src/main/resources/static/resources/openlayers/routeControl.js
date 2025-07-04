@@ -104,9 +104,13 @@
 				
 				document.getElementById('RouteControlAdd').style.display = "none"; 
 				document.getElementById('create-order-button').style.display = "none";
-				
-				
-								}
+			}
+			else 
+			{
+			document.getElementById('active-button').style.display = "none"; 
+			document.getElementById('manual-button').style.display = "none";
+			}								
+								
 			
 			
 			
@@ -316,6 +320,16 @@
 						
 					}
 			
+					static acceptOrderClientExpired(id){
+											
+											callRPC("acceptOrderClientExpired",id).then((result) => 
+												{	
+											//	TaxiControl.render(result); 
+											});
+											
+										}	
+					
+					
 			static acceptOrder(id){
 											
 					callRPC("acceptOrder",id).then((result) => 
@@ -678,6 +692,8 @@
 	   	addRow(order){
 	   		
 		var st="";
+		var button="";
+		
 		var info="";
 		if(order.state==1){
 			st='<i class="fa fa-hourglass-start" aria-hidden="true"></i>';
@@ -692,11 +708,10 @@
 					st='<i class="fa fa-check-circle-o" aria-hidden="true"></i>';
 			}
 			
-			if(order.state==5)
-						{
-							
-								st='Expired';
-						}	
+		if(order.state==5){
+			st='Expired';
+			button=`<a href='#' onclick='RouteControl.acceptOrderClientExpired(${order.id});' class='button is-primary' id='re-in-button'>re</a>`;
+		}	
 			
 			
 	   	var routeName=RouteControl.getRouteName(order.route);
@@ -717,9 +732,11 @@
 	   		      </td>
 	   		      <td>
 				  
-				  <a href="#" onclick="RouteControl.setOrderDeleteStateById(${order.id});" class="button is-primary" id="log-in-button"><i class="fa fa-trash" aria-hidden="true"></i> </a>
+				  <a href="#" onclick="RouteControl.setOrderDeleteStateById(${order.id});" class="button is-primary" id="log-in-button">
+				  		<i class="fa fa-trash" aria-hidden="true"></i> 
+					</a>
 	   		    										
-									
+					${button}			
 	   				</td>
 	   			 </tr>`;
 	   			this.row += tableRuws;
@@ -960,6 +977,16 @@ static createOrdersEx()
 					
 		}			
 	
+		static updateElementStyle(target,style,value)
+				{
+					var el = document.getElementById(target);
+					if(el==null){
+						log("updateElementStyle wrong target: "+ target ) ;
+						return;
+						}
+			el.style[style] = value;			
+				}	
+		
 			
 	static updateElementContent(target,content)
 	{
@@ -1112,7 +1139,12 @@ static createOrdersEx()
 	const InnerOrders3= RouteControl.createInnerOrders();//2 STATE_TAXI_ACCEPTED
 		const innerOrders3=new InnerOrders();
 	
-	
+		const InnerOrders5= RouteControl.createInnerOrders();//2 STATE_TAXI_ACCEPTED
+				const innerOrders5=new InnerOrders();
+
+		
+		
+			
   var ordersTable = document.getElementById("tbodyMainRoute");		
   if(orders==null){
 	
@@ -1134,6 +1166,9 @@ static createOrdersEx()
        case 1: icon='<i class="fa fa-hourglass-start" aria-hidden="true"></i>';innerOrders.addRow(order); 	 break;
        case 2: icon='<i class="fa fa-check" aria-hidden="true"></i>';innerOrders2.addRow(order);break;
        case 3: icon='<i class="fa fa-check" aria-hidden="true"></i>';innerOrders3.addRow(order);break;
+	   
+	   case 5: icon='<i class="fa fa-check" aria-hidden="true"></i>';innerOrders5.addRow(order);break;
+	   
        default:
    }
    	}
@@ -1142,6 +1177,7 @@ static createOrdersEx()
 		var trOrder=innerOrders.getOrderTable();
 		var trOrder2=innerOrders2.getOrderTable();									
 		var trOrder3=innerOrders3.getOrderTable();
+		var trOrder5=innerOrders5.getOrderTable();
 		
 		
 			var  table=`<table id="owners" style="	height: 50px;  overflow-y: auto;  overflow-x: hidden;" class="table table-striped" border="2">
@@ -1150,6 +1186,7 @@ static createOrdersEx()
 							${trOrder}
 							${trOrder2}
 							${trOrder3}
+							${trOrder5}
 					 </tbody></table>`;			
 	
 					
@@ -1165,6 +1202,25 @@ static createOrdersEx()
 		    map.getView().fit(layerExtent);
 		}
 		}
+		
+
+		static onActive() {
+			callRPC("onActive").then((result) => 
+								{	
+						//DEEEEEEELLL		RouteControl.render(result); 
+							});
+							
+							
+							}
+
+		static onManual() {
+			callRPC("onManual").then((result) => 
+								{	
+						//DEEEEEEELLL		RouteControl.render(result); 
+							});
+				}	
+							
+							
 	static createContainerEx(options) {
 
 	const mode =options.mode;
@@ -1186,7 +1242,16 @@ static createOrdersEx()
 			</a>
 
 			<i class="fa-light fa-route"></i>
-													
+				
+			<a href="#" onclick="RouteControl.onActive();" class="button is-primary" id="active-button">
+				Active
+			</a>
+			
+			<a href="#" onclick="RouteControl.onManual();" class="button is-primary" id="manual-button">
+				Manual 
+			</a>
+			
+												
 			<a href="#" onclick="RouteControl.center();" class="button is-primary" id="log-in-button">
 				<?xml version="1.0" encoding="utf-8"?>
 					<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
@@ -1197,8 +1262,7 @@ static createOrdersEx()
 						<path fill="#ffffff" d="M10.7 9.3l-1.4 1.4 3 3-1.3 1.3h4v-4l-1.3 1.3z"></path>
 						<path fill="#ffffff" d="M11 1l1.3 1.3-3 3 1.4 1.4 3-3 1.3 1.3v-4z"></path>
 					</svg>
-													
-													</a>
+			</a>
 													
 													<div id="!refDistance" class="f_refDistance" style=" display: inline-block;">
 														<h6 id="refDistance0" style=" font-size: 12px;color:red;">I am red</h6>

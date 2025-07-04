@@ -17,6 +17,13 @@ public class PersonMapper implements RowMapper<Person> {
 		
 		person.setToken(resultSet.getString("token"));
 		person.setRole(resultSet.getString("role"));
+		
+		
+		person.setActive(resultSet.getBoolean("active"));
+		person.setManual(resultSet.getBoolean("manual"));
+		
+		person.setLabel1(resultSet.getString("label1"));
+		person.setLabel2(resultSet.getString("label2"));
 		return person;
 	}
 }

@@ -82,7 +82,7 @@ public class ProcedureCore {
 	{
 		Person person = personDAO.getPersonByToken(entry.getKey());
 		
-		List<Proffer> proffers=personDAO.getActiveProfferByPersonId(person.getId()); 
+		List<Proffer> proffers=personDAO.getActiveProfferByPersonIdEXPIRED(person.getId()); 
 		
 		for(Proffer proffer:proffers)
 		{
@@ -96,12 +96,12 @@ public class ProcedureCore {
 	 			continue;
 			
 	 		
-	 		if(orders.getState()==Orders.STATE_EXPIRED)//see getActiveProfferByPersonId
-	 		{
-	 			String arg=new ArgFeatures("'").addFeatures(orders.getId()).get();
-				   sendToPersonUI(person,"RouteControl.removeOffer("+arg+");");
-	 			continue;
-	 		}
+	 	//	if(orders.getState()==Orders.STATE_EXPIRED)//see getActiveProfferByPersonId
+	 	//	{
+	 	//		String arg=new ArgFeatures("'").addFeatures(orders.getId()).get();
+		//		   sendToPersonUI(person,"RouteControl.removeOffer("+arg+");");
+	 	//		continue;
+	 	//	}
 		String target="progress"+proffer.getOrderId();
 		
 		//   sendToPersonUI(entry.getValue(),"RouteControl.updateOffer('"+target+"','+"+proffer.getDiff()+"+');");
@@ -215,7 +215,7 @@ public class ProcedureCore {
 		return personDAO.getPersonByUserToken(user, token);
 	}
 //--------------------------------------------------------------------------------------------------------
-	
+	@Deprecated
 	boolean sendToPersonUI(WebSocketSession webSocket,String msg )
 	{
 		
@@ -240,8 +240,21 @@ public class ProcedureCore {
 	boolean sendToPersonUI(Person person,String msg)
 	{
 		
-		tm.add(person.getId(),msg);
-		tm.process();
+		
+		WebSocketSession webSocketSession = signalingSocketHandlerRPC.getConnectedUsers().get(person.getToken());
+        
+        if(webSocketSession==null)
+        {
+     	   LOG.info("Not connection for person" +person.getName());
+     	  tm.add(person.getId(),msg);
+     	   return false;
+        }
+        
+        boolean res=tm.send(webSocketSession,msg);
+		
+		if(!res)
+			tm.add(person.getId(),msg);
+		
 		
 		if(true==true)
 			return true;
@@ -289,7 +302,7 @@ public class ProcedureCore {
 					Person person = personDAO.getPersonByToken(id);
 
 					if (person != null)
-						if (person.getRole().equals("taxi"))
+						if (person.getRole().equals("taxi") && person.isActive())
 							personList.add(person);
 				}
 			});

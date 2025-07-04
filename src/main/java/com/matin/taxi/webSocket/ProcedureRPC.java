@@ -211,6 +211,13 @@ public class ProcedureRPC extends ProcedureCore {
 
 			person = personDAO.getPersonByToken(sessionId);
 
+			
+			List<Orders>  active=personDAO.getOrderByClientIdandState(person.getId(),1);
+			
+			
+			if(active.size()>=3)
+				throw new Exception("Too many request");
+			
 			Orders order = personDAO.getOrderById(id.longValue());
 
 			String orderStartPosition = getOrderStartPosition(order.getRoute());
@@ -234,6 +241,143 @@ public class ProcedureRPC extends ProcedureCore {
 			order.setId(null);
 
 			boolean res = personDAO.createOrders(order);
+
+			while (it.hasNext()) {
+				int niq = it.nextIndex();
+				Person p = it.next();
+				Proffer proffer = new Proffer();
+				proffer.setOrderId(order.getId());
+				proffer.setState(0);
+				proffer.setPersonId(p.getId());
+				proffer.setMessage("distance " + p.getAge());
+				personDAO.createProffer(proffer);
+
+				WebSocketSession webSocket = signalingSocketHandlerRPC.getConnectedUsers().get(p.getToken());
+				if (webSocket == null) {
+					LOG.error("Missing Connection to Person " + p.toString());
+
+				} else {
+
+					//Auto assign
+					if (!p.isManual())
+					{
+						order.setState(Orders.STATE_TAXI_ACCEPTED);
+						order.setTaxiId(p.getId());
+						order.setAcceptedTime(new Timestamp(System.currentTimeMillis()));
+
+						boolean ress = personDAO.updateOrders(order);
+						
+						proffer.setState(Proffer.APPROVED);
+						personDAO.updateProffer(proffer);
+
+						String orderId = new ArgsFeaturesJson().addFeatures("orderId", order.getId()).get();
+
+						String routeName = personDAO.getRouteName(order.getId());
+
+						Person personClient = personDAO.getPersonById(order.getClientId());
+
+						String ret = new ArgsFeaturesJson().addFeatures("profferId", proffer.getId())
+								.addFeatures("orderId", order.getId()).addFeatures("orderState", order.getState())
+								.addFeatures("clientId", personClient.getId()).addFeatures("clientName", personClient.getName())
+
+								.addFeatures("taxiId", p.getId()).addFeatures("taxi", p.getName())
+								.addFeatures("routeName", routeName)
+								.get();
+
+						sendToPersonUI(p, "RouteControl.AddOffer('" + ret + "');");
+
+						sendToPersonUI(personClient, "RouteControl.loadOrders();");
+
+						//System.err.print("RouteControl.AddOffer");
+
+						return true;
+						
+					}
+					
+					
+					String routeName = personDAO.getRouteName(order.getId());
+
+					String ret = new ArgsFeaturesJson().addFeatures("profferId", proffer.getId())
+							.addFeatures("orderId", order.getId()).addFeatures("orderState", order.getState())
+							.addFeatures("clientId", person.getId()).addFeatures("clientName", person.getName())
+
+							.addFeatures("taxiId", p.getId()).addFeatures("taxi", p.getName())
+							.addFeatures("routeName", routeName)
+
+							.get();
+
+					sendToPersonUI(p, "RouteControl.AddOffer('" + ret + "');");
+					// ResultMessage resultMessage = new ResultMessage(null,
+					// "RouteControl.AddOffer('"+ret+"');",null);
+					// webSocket.sendMessage(new TextMessage(resultMessage.toObjectMapperString()));
+					proffer.setState(1);
+					personDAO.updateProffer(proffer);
+
+				}
+
+			}
+
+			// signalingSocketHandlerRPC.acceptOrderClientCB(person, order); // notify
+			// current and taxis
+
+			sendToPersonUI(person, "RouteControl.loadOrders();");
+
+		} catch (Exception e) {
+			sendToPersonUI(person, "alert('" + e.getMessage() + "');");
+			LOG.error(e.getMessage());
+			LOG.error(e.getMessage());
+			return false;
+
+		}
+		return true;
+	}
+
+	
+	public boolean acceptOrderClientExpired(ArrayList arg, String sessionId) {
+
+		Person person = null;
+		try {
+			Integer id = (Integer) arg.get(0);
+
+			person = personDAO.getPersonByToken(sessionId);
+
+			Orders order = personDAO.getOrderById(id.longValue());
+
+			String orderStartPosition = getOrderStartPosition(order.getRoute());
+
+			ArrayList<Person> allActiveTaxi = getAllActiveTaxi();
+
+			//remove taxi from older offer
+			
+			
+			
+			ListIterator<Person> rit = allActiveTaxi.listIterator();
+			while (rit.hasNext()) {
+				Person p = rit.next();
+
+				Proffer proffer = personDAO.getProfferPersonIdOrderId(order.getId(),p.getId());
+				
+				if(proffer!=null)
+				{
+				LOG.info("ghgh");
+				rit.remove();
+				}
+			}
+			if (allActiveTaxi.isEmpty())
+				throw new Exception("No Taxi in range");
+
+			
+			calkOrderToTaxiDistanceAndSort(orderStartPosition, allActiveTaxi);
+			// ---------------
+
+		
+			ListIterator<Person> it = allActiveTaxi.listIterator();
+
+			//
+			order.setState(Orders.STATE_CLIENT_START);
+			order.setClientStartTime(new Timestamp(System.currentTimeMillis()));
+
+			boolean res = personDAO.updateOrders(order);
 
 			while (it.hasNext()) {
 				int niq = it.nextIndex();
@@ -288,6 +432,8 @@ public class ProcedureRPC extends ProcedureCore {
 		return true;
 	}
 
+	
+	
 	public boolean acceptOrder(ArrayList arg, String sessionId) {
 
 		Integer id = (Integer) arg.get(0);
@@ -740,12 +886,82 @@ public class ProcedureRPC extends ProcedureCore {
 	}
 
 	
+	public void onActive(ArrayList arg, String sessionId) {
+		Person personTaxi = personDAO.getPersonByToken(sessionId);
+		
+		
+		personTaxi.setActive(!personTaxi.isActive());
+
+		personDAO.updatePerson(personTaxi);
+		
+		
+		String args="";
+		if(personTaxi.isActive())
+			args=new ArgFeatures("'").addFeatures("active-button","background-color","green").get();
+		else 
+			args=new ArgFeatures("'").addFeatures("active-button","background-color","red").get();
+		                                         
+		sendToPersonUI(personTaxi, "RouteControl.updateElementStyle(" + args + ");");
+
+		
+		
+	}
+		
+	public void onManual(ArrayList arg, String sessionId) {
+		Person personTaxi = personDAO.getPersonByToken(sessionId);
+		
+		personTaxi.setManual(!personTaxi.isManual());
+
+		personDAO.updatePerson(personTaxi);
+		
+				
+		String args="";
+		if(personTaxi.isManual())
+			args=new ArgFeatures("'").addFeatures("manual-button","background-color","green").get();
+		else 
+			args=new ArgFeatures("'").addFeatures("manual-button","background-color","red").get();
+		                                         
+		sendToPersonUI(personTaxi, "RouteControl.updateElementStyle(" + args + ");");
+
+		
+	}
+		
+	private void taxiState(Person personTaxi)
+	{
+		boolean isActive=personTaxi.isActive();
+		boolean isManual=personTaxi.isManual();
+		//active-button
+		//manual-button
+		
+		String arg="";
+		if(isActive)
+			arg=new ArgFeatures("'").addFeatures("active-button","background-color","green").get();
+		else 
+			arg=new ArgFeatures("'").addFeatures("active-button","background-color","red").get();
+		                                         
+		sendToPersonUI(personTaxi, "RouteControl.updateElementStyle(" + arg + ");");
+
+
+		if(isManual)
+			arg=new ArgFeatures("'").addFeatures("manual-button","background-color","green").get();
+		else 
+			arg=new ArgFeatures("'").addFeatures("manual-button","background-color","red").get();
+		
+		sendToPersonUI(personTaxi, "RouteControl.updateElementStyle(" + arg + ");");
+
+		
+	}
+	
 	public void loadTaxiOrders(ArrayList arg, String sessionId) {
 
 		// Person person=getPersonUI( arg);
 
+		
+		
 		Person personTaxi = personDAO.getPersonByToken(sessionId);
 
+		taxiState(personTaxi);
+		
 		Long personId = personTaxi.getId();
 
 		List<Proffer> proffers = personDAO.getProfferByPersonId(personId);

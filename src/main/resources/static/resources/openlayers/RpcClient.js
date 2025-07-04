@@ -288,7 +288,17 @@ export class RpcClient {
 	}
 	*/
 	if(response.id==null){
-		eval(response.result);
+		
+		try {
+			eval(response.result);
+		}
+		catch( err) 
+		{
+			log(" eval;" +response.result +"err "+err.message );
+		
+		}
+
+		
 	 return ;
 	 }
 	 

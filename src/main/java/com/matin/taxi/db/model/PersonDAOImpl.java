@@ -63,9 +63,12 @@ public class PersonDAOImpl //implements PersonDAO
 
 	public boolean updatePerson(Person person) {
 		
-		String SQL_UPDATE_PERSON = "update taxi.person set name = ?, passw = ?, age  = ?, token=? where id = ?";
+		String SQL_UPDATE_PERSON = "update taxi.person set name = ?, passw = ?, age  = ?, token=? "
+				+ " ,active = ?,manual = ?"
+				+ " where id = ?";
 		
-		return jdbcTemplate.update(SQL_UPDATE_PERSON, person.getName(), person.getPassw(), person.getAge(),person.getToken(),
+		return jdbcTemplate.update(SQL_UPDATE_PERSON, person.getName(), person.getPassw(), person.getAge(),person.getToken()
+				,person.isActive(),person.isManual(),
 				person.getId()) > 0;
 	}
 
@@ -382,6 +385,15 @@ public class PersonDAOImpl //implements PersonDAO
 		return  jdbcTemplate.queryForObject(SQL_FIND_PERSON,		new	OrdersMapper(),  id );
 		
 	}
+
+	
+	public List<Orders> getOrderByClientIdandState(Long clientId,int state) {
+		String SQL = "select  * from taxi.Orders where clientId = ? and state =?;";
+//		return jdbcTemplate.queryForObject(SQL_FIND_PERSON, new Object[] { id }, new OrdersMapper());
+		return  jdbcTemplate.query(SQL,		new	OrdersMapper(),  clientId,state );
+		
+	}
+	
 	
 	public boolean deleteOrderById(Long id) {
 		String SQL = "delete from taxi.Orders where id = ?";
@@ -613,6 +625,17 @@ public class PersonDAOImpl //implements PersonDAO
 	}
 	
 	
+	public List<Proffer> getActiveProfferByPersonIdEXPIRED(Long personId) {
+		String SQL = "select p.*  ,CAST (EXTRACT(EPOCH FROM (NOW() - created_at)) AS INTEGER) AS difference \n"
+				+ "   	from taxi.proffer p \n"
+				+ "    		left join taxi.orders o on (o.id=p.orderId)\n"
+				+ "    where o.state in(1,2,5) "
+					+ " and personId=? ";
+		return jdbcTemplate.query(SQL,new Object[] { personId }, new ProfferMapper());
+		//return  jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
+	}
+	
+	
 	public List<Proffer> getActiveProfferOrderId(Long orderId) {
 		String SQL = "select p.*  ,CAST (EXTRACT(EPOCH FROM (NOW() - created_at)) AS INTEGER) AS difference \n"
 				+ "   	from taxi.proffer p \n"
@@ -623,6 +646,41 @@ public class PersonDAOImpl //implements PersonDAO
 		//return  jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
 	}
 	
+	/*
+	 * TODO opr
+	 * */
+	public List<Proffer> getProfferOrderId(Long orderId) {
+		String SQL = "select p.*  ,CAST (EXTRACT(EPOCH FROM (NOW() - created_at)) AS INTEGER) AS difference \n"
+				+ "   	from taxi.proffer p \n"
+				+ "    		left join taxi.orders o on (o.id=p.orderId)\n"
+				+ "    where  and orderId=? ";
+		return jdbcTemplate.query(SQL,new Object[] { orderId }, new ProfferMapper());
+		//return  jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
+	}
+	
+	
+	public Proffer getProfferPersonIdOrderId(Long orderId,Long personId) {
+		final String SQL = "select  * from taxi.proffer where orderId = ? and personid =?";
+		
+		
+		try {
+			return  jdbcTemplate.queryForObject(SQL,		new	ProfferMapper(),orderId, personId );
+			} catch (Exception e) {
+				//System.out.println(e.getMessage());
+			
+			}
+			return  null;
+		
+		
+		/*
+		String SQL = "select p.*  ,CAST (EXTRACT(EPOCH FROM (NOW() - created_at)) AS INTEGER) AS difference \n"
+				+ "   	from taxi.proffer p \n"
+				+ "    		left join taxi.orders o on (o.id=p.orderId)\n"
+				+ "    where  and orderId=?  and p.id=?";
+		return jdbcTemplate.query(SQL,new Object[] { orderId,personId }, new ProfferMapper());
+		*/
+		//return  jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
+	}
 	
 	/*
 	public List<Proffer> getProffer(String orderId) {
