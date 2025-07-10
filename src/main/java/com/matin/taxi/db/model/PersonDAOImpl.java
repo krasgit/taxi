@@ -659,6 +659,30 @@ public class PersonDAOImpl //implements PersonDAO
 	}
 	
 	
+	public Proffer getProfferPersonIdOrderIdState(Long orderId,Long personId,int state) {
+		final String SQL = "select  * from taxi.proffer where orderId = ? and personid =? and state=? ";
+		
+		
+		try {
+			return  jdbcTemplate.queryForObject(SQL,		new	ProfferMapper(),orderId, personId,state );
+			} catch (Exception e) {
+				//System.out.println(e.getMessage());
+			
+			}
+			return  null;
+		
+		
+		/*
+		String SQL = "select p.*  ,CAST (EXTRACT(EPOCH FROM (NOW() - created_at)) AS INTEGER) AS difference \n"
+				+ "   	from taxi.proffer p \n"
+				+ "    		left join taxi.orders o on (o.id=p.orderId)\n"
+				+ "    where  and orderId=?  and p.id=?";
+		return jdbcTemplate.query(SQL,new Object[] { orderId,personId }, new ProfferMapper());
+		*/
+		//return  jdbcTemplate.queryForObject(sql,	new PositionMapper(),  personId );
+	}
+	
+	
 	public Proffer getProfferPersonIdOrderId(Long orderId,Long personId) {
 		final String SQL = "select  * from taxi.proffer where orderId = ? and personid =?";
 		

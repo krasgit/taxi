@@ -338,6 +338,14 @@
 											});
 											
 										}			
+										
+			static declineOffer(id){
+																			
+			callRPC("declineOffer",id).then((result) => 
+			{	
+				});
+		}							
+										
 			
 			static startOrder(id){
 				callRPC("startOrder",id).then((result) => 
@@ -927,7 +935,14 @@ static createOrdersEx()
 		case 1:	button=`<a href="#" onclick="RouteControl.acceptOrder(${orderId});" class="button is-primary" id="log-in-button">
 								<i class="fa fa-trash" aria-hidden="true"></i>
 									Accept
-							</a>`;	break;
+							</a>
+							<a href="#" onclick="RouteControl.declineOffer(${orderId});" class="button is-primary" id="log-in-button">
+															<i class="fa fa-trash" aria-hidden="true"></i>
+																Decline
+														</a>	
+							
+							
+							`;	break;
 		case 2: 
 					let onc=`RouteControl.sendMessageFromOrder(${orderId}	,${clientId},'${clientName}');`;
 				button=`<a href="#" onclick="${onc};" class="button is-primary" id="log-in-button">

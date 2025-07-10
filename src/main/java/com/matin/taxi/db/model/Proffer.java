@@ -37,6 +37,7 @@ public class Proffer {
 	public static int ASSIGNED=1; 
 	public static int APPROVED=2;
 	public static int CLOSED =3;
+	public static int DECLINE=4;
 	
 	private int id;
 	private int state;
