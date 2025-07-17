@@ -1,6 +1,21 @@
 
 	var count = 0;
 	var lastGeoLocationEvent;
+	
+	var currentGeoLocationEvent;
+	
+	function getLastGeoLocationEvent() {
+		if(lastGeoLocationEvent===undefined)
+			return currentGeoLocationEvent
+			
+		return lastGeoLocationEvent;
+		
+
+		
+		
+	}
+
+	
 	var geoPositionOverlay;
 	function geoPosition() {
 			var markerEl = document.createElement('IMG');
@@ -97,6 +112,8 @@
 	
 	function geosuccess(event) {
 
+		currentGeoLocationEvent=event;
+		
 		log(">>>>>>>>.geosuccess "+event +"  "+lastGeoLocationEvent);
 		
 		if(lastGeoLocationEvent===undefined){

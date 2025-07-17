@@ -228,9 +228,6 @@ li a {  display: block;  color: white;  text-align: center;  padding: 14px 16px;
 		return url.protocol.replace("http", "").replace(":","");
 	}
 	
-	function getLastGeoLocationEvent() {
-		return lastGeoLocationEvent;
-	}
 
 	function getPointFromLongLat(long, lat) {
 		return ol.proj.transform([long, lat], 'EPSG:4326', 'EPSG:3857')

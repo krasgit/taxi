@@ -51,3 +51,4 @@ CMD ["java","-jar","/photon-0.6.0.jar"]
 #use  java -jar photon-0.6.0.jar 
 # intern curl http://localhost:2322/api?q=berlin&lon=10&lat=52
 # ext  curl http://localhost:8484/api?q=berlin&lon=10&lat=52
+#docker container run -d -v photon_data_v1:/photon_data  -p 8484:2322 photon:v1
