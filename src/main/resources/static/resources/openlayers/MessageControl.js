@@ -82,8 +82,37 @@ class MessageControl extends ol.control.Control {
 			elopenclose.innerHTML=">>"
 		 }
 	}			  
-					  
+
+	static playAudio(){
+
+		var audio=document.getElementById("audio");	
+		audio.src="../resources/audio/hihat.mp3";
+		audio.play();
+
+		}				
+		
+		
+	static init(){
+	}	
+	
 	static Send(){
+
+		var context=el.getAttribute('context');
+		var fromId =Cookie.getCookie("personId") ;
+		var toId=el.getAttribute('toId');
+		
+		var msg=document.getElementById("message").value;													
+									
+		callRPC("SendMessage",context,fromId,toId,msg).then((result) => 
+			{	
+				log(result);//RouteControl.render(result);
+				document.getElementById("message").value=""; 
+			});
+					
+		
+	}
+	  
+	static _Send(){
 		var audio=document.getElementById("audio");	
 		audio.src="../resources/audio/hihat.mp3";
 		audio.play();
