@@ -387,6 +387,15 @@
 		}			
 				  }				
 				
+				  
+				  
+	static getFeatures(){
+		var inputGroupfeatureIdEl = document.getElementById("Waypoint");
+		var features=utils.elementChildren(inputGroupfeatureIdEl);
+		
+		return features;
+	}			  
+				  
 	static refresh()//delete update add move
 		{
 			

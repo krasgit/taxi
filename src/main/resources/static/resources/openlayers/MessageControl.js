@@ -97,15 +97,20 @@ class MessageControl extends ol.control.Control {
 	
 	static Send(){
 
+		var el=document.getElementById("msg");
 		var context=el.getAttribute('context');
-		var fromId =Cookie.getCookie("personId") ;
 		var toId=el.getAttribute('toId');
+		var msg=document.getElementById("message").value;
 		
-		var msg=document.getElementById("message").value;													
-									
+		var fromId =Cookie.getCookie("personId") ;
+		var from =Cookie.getCookie("user") ;
+		
 		callRPC("SendMessage",context,fromId,toId,msg).then((result) => 
 			{	
 				log(result);//RouteControl.render(result);
+				MessageControl.addMessage(context,fromId,from,msg);
+				
+				
 				document.getElementById("message").value=""; 
 			});
 					
@@ -158,44 +163,47 @@ class MessageControl extends ol.control.Control {
 			MessageControl.scrollToBottom();
 	}
 						
+	
+	static addMessage(context,fromId,from,msg){
+		const parentElement = document.querySelector("#msgDl");
+				var parentElement1 =parentElement.querySelector("#m"+fromId);
+				                                                         
+				if(!parentElement1)
+					{
+					parentElement1 = document.createElement("div");
+					parentElement1.setAttribute('id', "m" +fromId );
+					//parentElement1.setAttribute('style', 'text-align: left; 	border:1px solid black;' );
+					parentElement1.setAttribute=('class', 'message');
+										 
+					var a = document.createElement("a");
+		            //a.setAttribute('onclick', "MessageControl.setMsg("+msg.context+","+msg.fromId+");" );
+					a.setAttribute('onclick', "MessageControl.setMsg("+context+","+fromId+",'"+from+"');" );
+					a.setAttribute('class', "button is-primary" );
+					const textnode = document.createTextNode(from);
+					a.appendChild(textnode);
+					parentElement1.appendChild(a);
+					parentElement.appendChild(parentElement1);
+					}
+											
+				const node = document.createElement("div");
+				node.setAttribute('class', "message from" );
+				const textnode = document.createTextNode(msg);
+											
+				//a.setAttribute('class', "message from" );
+				node.appendChild(textnode);
+				parentElement1.appendChild(node);
+				
+				
+				
+	}
+	
 	static OnMessage(message){
 		log("OnMessage"+ message );
 		MessageControl.upDateState(true);  			
 		const msg = JSON.parse(message);
-					  			
-								//formId 		form		context			msg
-		const parentElement = document.querySelector("#msgDl");
-		var parentElement1 =parentElement.querySelector("#m"+msg.fromId);
-		                                                         
-		if(!parentElement1)
-			{
-			parentElement1 = document.createElement("div");
-			parentElement1.setAttribute('id', "m" +msg.formId );
-			//parentElement1.setAttribute('style', 'text-align: left; 	border:1px solid black;' );
-			parentElement1.setAttribute=('class', 'message');
-								 
-			var a = document.createElement("a");
-            //a.setAttribute('onclick', "MessageControl.setMsg("+msg.context+","+msg.fromId+");" );
-			a.setAttribute('onclick', "MessageControl.setMsg("+msg.context+","+msg.fromId+",'"+msg.from+"');" );
-			a.setAttribute('class', "button is-primary" );
-			const textnode = document.createTextNode(msg.from);
-			a.appendChild(textnode);
-			parentElement1.appendChild(a);
-			parentElement.appendChild(parentElement1);
-			}
-									
-		const node = document.createElement("div");
-		node.setAttribute('class', "message from" );
-		const textnode = document.createTextNode(msg.msg);
-									
-		//a.setAttribute('class', "message from" );
-		node.appendChild(textnode);
-		parentElement1.appendChild(node);
-									
-	//var el=document.getElementById("histrory");	
-	//el.value=message;
-	//var el=document.getElementById("MessageControlId");
-	//			el.style.display="";
+				
+			  			
+		MessageControl.addMessage(msg.context,msg.fromId,msg.from,msg.msg);
 			
 	MessageControl.scrollToBottom();
 	}

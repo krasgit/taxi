@@ -47,6 +47,8 @@ function getAddressProton(address)
 
 		console.log(formattedAddress);
 		
+		console.log("getAddressProton("+JSON.stringify(address)+"" +" >> "+formattedAddress)
+		
 		return 	formattedAddress;
 	}
 	

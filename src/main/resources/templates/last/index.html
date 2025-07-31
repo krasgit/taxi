@@ -230,14 +230,76 @@ li a {  display: block;  color: white;  text-align: center;  padding: 14px 16px;
 	
 
 	function getPointFromLongLat(long, lat) {
+		
+		
+		console.log(typeof long);
+		
+		log("getPointFromLongLat " +long+" "+lat + "to: "+ol.proj.transform([long, lat], 'EPSG:4326', 'EPSG:3857'));
+		
+		
+		
 		return ol.proj.transform([long, lat], 'EPSG:4326', 'EPSG:3857')
 	}
 
 </script>
 
 
+
+
+
   <div id="map" class="map"></div>
 
+  <style>
+       .ol-popup {
+         position: absolute;
+         background-color: white;
+         box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+         padding: 15px;
+         border-radius: 10px;
+         border: 1px solid #cccccc;
+         bottom: 12px;
+         left: -50px;
+         min-width: 280px;
+       }
+       .ol-popup:after, .ol-popup:before {
+         top: 100%;
+         border: solid transparent;
+         content: " ";
+         height: 0;
+         width: 0;
+         position: absolute;
+         pointer-events: none;
+       }
+       .ol-popup:after {
+         border-top-color: white;
+         border-width: 10px;
+         left: 48px;
+         margin-left: -10px;
+       }
+       .ol-popup:before {
+         border-top-color: #cccccc;
+         border-width: 11px;
+         left: 48px;
+         margin-left: -11px;
+       }
+       .ol-popup-closer {
+         text-decoration: none;
+         position: absolute;
+         top: 2px;
+         right: 8px;
+       }
+       .ol-popup-closer:after {
+         content: "✖";
+       }
+     </style>
+  
+  <div id="popup" class="ol-popup">
+        <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+        <div id="popup-content"></div>
+		<div id="route-control-content"></div>
+  </div>
+  
+  
 <script>
 		
 	const vectorSource = new ol.source.Vector(); //!!!GLOBAL
@@ -285,7 +347,7 @@ li a {  display: block;  color: white;  text-align: center;  padding: 14px 16px;
 		map.addControl(sc);
 	*/
     map.addControl(new ol.control.FullScreen());
-		
+	/*	
 	map.on('click', function (e) {
 		var coordinate = ol.proj.toLonLat(e.coordinate).map(function (val) {
 			return val.toFixed(6);
@@ -294,26 +356,116 @@ li a {  display: block;  color: white;  text-align: center;  padding: 14px 16px;
 		var lat = coordinate[1];
 		simpleReverseGeocoding(lon, lat);
 	});
-		
+		*/
 	
 	initGeo(); //depends of map
 	
+	
+	const container = document.getElementById('popup');
+	const content = document.getElementById('popup-content');
+	const closer = document.getElementById('popup-closer');
+
+	
+	/**
+	 * Add a click handler to hide the popup. * @return {boolean} Don't follow the href.
+	 */
+	closer.onclick = function () {
+	  dbloverlay.setPosition(undefined);
+	  closer.blur();
+	  return false;
+	};
+	
+	const dbloverlay = new ol.Overlay({ element: container,  autoPan: {   animation: {     duration: 250,   },  },});
+	
+	map.addOverlay(dbloverlay);
+	
+	
+	function popReverseGeocoding(coordinate) {
 		
-	map.on('dblclick', function(evt) {
-	  var coordinate = evt.coordinate;
+		  var _coordinate = ol.proj.toLonLat(coordinate).map(function (val) {	return val.toFixed(6);		});
+		  var lon = _coordinate[0];
+		  var lat = _coordinate[1];
+		
+		
+			var url = 'http'+getProtocolSuffix()+'://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
+			console.groupCollapsed(		"%c"+"ReverseGeocoding lon lat " + url,		"background-color: #e0005a ; color: #ffffff ; font-weight: bold ; padding: 4px ;"	);
+			fetch(url).then(function (response) {
+			return response.json();
+			}).then(function (json) {
+
+				var features= RouteControl.getFeatures();
+				
+				const routeControlContent = document.getElementById('route-control-content');
+				routeControlContent.innerHTML=""; //reset
+				
+				const addres = document.getElementById('addres');
+				addres.innerHTML=json.display_name;
+				
+				for (let i = 0; i < features.length; i++) {
+											
+				var feature =features[i];
+												
+				var featurefeature=feature.feature;
+				var featureId=	featurefeature.getId();	 
+				var bntEl = document.getElementById("bnt" + featureId);
+				
+				b = document.createElement("DIV");
+			
+				b.setAttribute("featureId",featureId)
+				
+				b.innerHTML = bntEl.placeholder;
+				b.innerHTML += "<input type='hidden' value='" + "disp" + "'   valueId='" + i + "'>";
+				b.addEventListener("click", function (e) {
+				
+				//var rr=this;	
+					
+				var featureId=this.getAttribute("featureId");
+				
+					var bntEl = document.getElementById("bnt" + featureId);
+					//var	display_name=	getAddressProton(pr);
+					
+					bntEl.value = json.display_name; //TypeError Cannot set prop of null TODO
+							
+					//var	display_name=	getAddressProton(json.address);
+					var	display_name=	getAddress(json.address);
+						
+					bntEl.value =display_name;
+					
+					var gg=bntEl.feature;
+					
+				
+						var coord = getPointFromLongLat(Number(json.lon), Number(json.lat));
+						
+						gg.getGeometry().setCoordinates(coord);
+						
+						dbloverlay.setPosition(undefined);
+						closer.blur();		
+								
+								
+						RouteControl.updateFeature(featureId);
+						//close
+					});		
+			routeControlContent.appendChild(b);								
+												
+				}
+						
+				console.log( json.display_name );
+						console.groupEnd();	
+			})
+    }
+
+	map.on('click', function (evt) {
+      var coordinate = evt.coordinate;
+    //  var _coordinate = ol.proj.toLonLat(evt.coordinate).map(function (val) {	return val.toFixed(6);		});
+	//  var lon = _coordinate[0];
+	//  var lat = _coordinate[1];
 	  
+	  //popReverseGeocoding(lon, lat);		
+	  popReverseGeocoding(coordinate);
 	  
-	  var coordinate = ol.proj.toLonLat(evt.coordinate).map(function (val) {
-	  			return val.toFixed(6);
-	  		});
-	  		var lon = coordinate[0];
-	  		var lat = coordinate[1];
-	  
-	  
-	  var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(
-	      coordinate, 'EPSG:3857', 'EPSG:4326'));
-	  node_1.innerHTML = '<p>Original popup (Double click)</p><code>' + hdms +	      '</code>';
-	  dbloverlay.setPosition(coordinate);
+	  var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(     coordinate, 'EPSG:3857', 'EPSG:4326'));
+	  content.innerHTML = '<p>You clicked here:</p><code>' + hdms + '</code><p id="addres"></p> ';
+	  dbloverlay.setPosition(evt.coordinate);
 	});
 	
 	const boxElem = document.getElementById('map');
@@ -346,13 +498,6 @@ li a {  display: block;  color: white;  text-align: center;  padding: 14px 16px;
 	});
 
 	var routeStyle = new ol.style.Style({stroke: new ol.style.Stroke({width: 3, color: [40, 40, 40, 0.8], }), });
-
-
-	//"address":{"road":"Тодор Хаджистанчев","neighbourhood":"Дълбокото дере","suburb":"кв. Виница","city":"Варна","county":"Приморски","state_district":"Варна","state":"Варна","ISO3166-2-lvl4":"BG-03","postcode":"9022","country":"България","country_code":"bg"}
-
-	//building: "Бл.209" city: "Варна" ​​country: "България"​​country_code: "bg" county: "Владислав Варненчик"house_number: "бл. 209"​​postcode: "9023"​​state: "Варна" state_district: "Варна"​​suburb: "кв. Кайсиева градина"
-	//Бл.209, бл. 209, кв. Кайсиева градина, Варна, Владислав Варненчик, Варна, 9023, България"
-
 
 	//TODO
 	function formatAddress(json) {
@@ -390,7 +535,8 @@ li a {  display: block;  color: white;  text-align: center;  padding: 14px 16px;
 	{
 	if(address === undefined)
 	  return "";		
-
+	  
+	const name = address.man_made || 'N/A';
     const building = address.building || 'N/A';
     const road = address.road || 'N/A';
 			
@@ -402,7 +548,7 @@ li a {  display: block;  color: white;  text-align: center;  padding: 14px 16px;
     const suburb = address.suburb || 'N/A';
     const county = address.county || 'N/A';
 	
-	const addressParts = [building, road,village,town,state_district, neighbourhood,suburb, county]
+	const addressParts = [name,building, road,village,town,state_district, neighbourhood,suburb, county]
 			  .filter(part => part !== 'N/A' && part !== 'Unknown County' && part !== 'Unknown Country' && part !== 'Варна'); // Remove 'N/A' and fallback values
 
     const formattedAddress = addressParts.join(', ');

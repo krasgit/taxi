@@ -18,6 +18,11 @@ docker start  nominatim
 docker  stop postgres_taxi
 docker  start postgres_taxi
 
+
+docker  stop photon
+docker  start photon
+
+
 docker ps
 
 echo "start "
