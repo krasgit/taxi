@@ -17,6 +17,7 @@ CREATE TABLE taxi.proffer (
 	REFERENCES taxi.orders(id)
 );
 
+
 -- Permissions
 
 ALTER TABLE taxi.proffer OWNER TO nominatim;
