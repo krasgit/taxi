@@ -24,10 +24,11 @@ CMD ["java","-jar","/photon-0.6.0.jar"]
 #   ip addr show docker0 | grep -Po 'inet \K[\d.]+'
 
 #create image
-#   docker build -t photon:v1 . 
+#1   docker build -t photon:v1 . 
 
 # with create volume 
-#   docker volume create docker volume create photon_data_v1
+#   docker volume create 
+#2  docker volume create photon_data_v1
 #     docker container run -it --rm -v photon_data_v1:/photon_data  -p 8484:2322 photon:v1
 
 
@@ -37,14 +38,14 @@ CMD ["java","-jar","/photon-0.6.0.jar"]
 #
 
 #init +
-#docker container run -it --rm -v photon_data_v1:/photon_data  -p 2322:2322 photon:v1 java -jar photon-0.6.0.jar -nominatim-import -host 172.17.0.1 -port 5433 -database nominatim -user nominatim -password very_secure_password -languages bg,en,es,fr
+#3 docker container run -it --rm -v photon_data_v1:/photon_data  -p 2322:2322 photon:v1 java -jar photon-0.6.0.jar -nominatim-import -host 172.17.0.1 -port 5433 -database nominatim -user nominatim -password very_secure_password -languages bg,en,es,fr
 
 #docker container run -it --rm -v photon_data_v1:/photon_data  -p 2322:2322 photon:v1
 #or (EXPOSE)
 #docker container run -it  -v photon_data_v1:/photon_data   photon:v1
 
 
-#docker container run -d --name photon  -v photon_data_v1:/photon_data   photon:v1 
+#4 docker container run -d --name photon  -v photon_data_v1:/photon_data   -p 2322:2322 photon:v1 
 #stop  docker stop photon
 
 
