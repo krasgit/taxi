@@ -1,5 +1,6 @@
 #java -jar photon-0.6.0.jar -nominatim-import -host localhost -port 5433 -database nominatim -user nominatim -password very_secure_password -languages bg,en,es,fr
 
+
 FROM debian
 #ARG JAR_FILE=photon/target/*.jar
 ARG JAR_FILE=*.jar
