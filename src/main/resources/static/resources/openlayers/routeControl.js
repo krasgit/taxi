@@ -75,6 +75,15 @@
 					node_17.setAttribute('onclick', 'RouteControl.delete(' + featureId + ')');
 					node_11.appendChild(node_17);
 
+					/*
+					<object data="/resources/svg/center.svg" type="image/svg+xml" ></object>
+					
+					var svg = document.createElement('object');
+					    svg.setAttribute('svg', '/resources/svg/delete.svg');
+						svg.setAttribute('type', 'image/svg+xml');
+						
+						node_17.appendChild(svg);
+					*/
 					var node_18 = document.createElement('I');
 					node_18.setAttribute('class', 'fa fa-trash');
 					node_17.appendChild(node_18);
@@ -1277,15 +1286,7 @@ static createOrdersEx()
 			
 												
 			<a href="#" onclick="RouteControl.center();" class="button is-primary" id="log-in-button">
-				<?xml version="1.0" encoding="utf-8"?>
-					<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-					<!-- License: Apache. Made by vaadin: https://github.com/vaadin/vaadin-icons -->
-					<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-						<path fill="#ffffff" d="M5.3 6.7l1.4-1.4-3-3 1.3-1.3h-4v4l1.3-1.3z"></path>
-						<path fill="#ffffff" d="M6.7 10.7l-1.4-1.4-3 3-1.3-1.3v4h4l-1.3-1.3z"></path>
-						<path fill="#ffffff" d="M10.7 9.3l-1.4 1.4 3 3-1.3 1.3h4v-4l-1.3 1.3z"></path>
-						<path fill="#ffffff" d="M11 1l1.3 1.3-3 3 1.4 1.4 3-3 1.3 1.3v-4z"></path>
-					</svg>
+				<object data="/resources/svg/center.svg" type="image/svg+xml" ></object>
 			</a>
 													
 													<div id="!refDistance" class="f_refDistance" style=" display: inline-block;">
