@@ -166,12 +166,12 @@ class MessageControl extends ol.control.Control {
 	
 	static addMessage(context,fromId,from,msg){
 		const parentElement = document.querySelector("#msgDl");
-				var parentElement1 =parentElement.querySelector("#m"+fromId);
+				var parentElement1 =parentElement.querySelector("#m"+context);
 				                                                         
 				if(!parentElement1)
 					{
 					parentElement1 = document.createElement("div");
-					parentElement1.setAttribute('id', "m" +fromId );
+					parentElement1.setAttribute('id', "m" +context );
 					//parentElement1.setAttribute('style', 'text-align: left; 	border:1px solid black;' );
 					parentElement1.setAttribute=('class', 'message');
 										 
