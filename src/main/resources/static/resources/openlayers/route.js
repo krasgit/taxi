@@ -51,7 +51,9 @@ return	style;
 				
 				var stule=Route.getStule(routeFeatureId);
 						var extraparams = "?overview=full&alternatives=true&steps=true";  //&hints=;"
-						var urll = 'https://' + hostname + ':8443/route/v1/driving/'
+						//var urll = 'https://' + hostname + ':8443/route/v1/driving/'
+						var urll = getCurrent()+'/route/v1/driving/'
+						//alert("urll")
 						const url = urll + path + extraparams;
 
 						log("createRoute url " + url)
@@ -98,7 +100,9 @@ return	style;
 		log('createRoute routeFeatureId'+routeFeatureId);
 		
 				var extraparams = "?overview=full&alternatives=true&steps=true";  //&hints=;"
-				var urll = 'https://' + hostname + ':8443/route/v1/driving/'
+				//var urll = 'https://' + hostname + ':8443/route/v1/driving/'
+				var urll = getCurrent()+'/route/v1/driving/'
+				 //alert("urll")
 				const url = urll + path + extraparams;
 				
 				log("createRoute url " + url);
