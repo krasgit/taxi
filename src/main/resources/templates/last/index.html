@@ -192,6 +192,39 @@ li a {  display: block;  color: white;  text-align: center;  padding: 14px 16px;
 </style>
 
 <script name="auto complete ">
+	
+	//http:
+	function getCurrenProtocol()
+	{
+		var url = new URL(location.origin);
+		return url.protocol;
+	}
+	
+	//http:
+		function getCurrenProtocol()
+		{
+			var url = new URL(location.origin);
+			return url.protocol;
+		}
+	//	192.168.15.104:8443
+		function getCurrenHost()
+		{
+		var url = new URL(location.origin);
+		return url.host;
+		}
+	
+		function getCurrent(){
+			var url = new URL(location.origin);
+			
+			return url.protocol+'//'+url.host;
+		}
+		
+	
+	var pro=getCurrent();
+	
+	console.log(pro);
+	
+	
 	console.clear();
 	const log = console.log;
 
@@ -317,8 +350,35 @@ li a {  display: block;  color: white;  text-align: center;  padding: 14px 16px;
 		
 	const vectorSource = new ol.source.Vector(); //!!!GLOBAL
 	var map;
-	function initMap (mode ){
 	
+	function initTile()
+	{
+		const tileURL='http'+getProtocolSuffix()+'://' + hostname + ':8443/tile/{z}/{x}/{y}.png';
+		alert(tileURL); 
+		
+		const source = new ol.source.XYZ({url: tileURL});
+			const tileLayer = new ol.layer.Tile({maxZoom: 14,source: source});
+
+			const vectorLayer = new ol.layer.Vector({source: vectorSource})
+
+			//const view = new ol.View({center: ol.proj.fromLonLat(<>[27.967072, 43.362630]), zoom: 13})
+			const view = new ol.View({center: ol.proj.fromLonLat([27.947074, 43.222630]), zoom: 13})
+
+			 map = new ol.Map({
+				layers: [tileLayer, vectorLayer],
+				controls: ol.control.defaults({
+					attributionOptions: {collapsed: true}
+				}).extend([new ol.control.ScaleLine()]),
+				target: 'map',
+				view: view,
+			});
+
+	}
+
+	initTile();
+	
+	function initMap (mode ){
+	/*
 	const source = new ol.source.XYZ({url: 'http'+getProtocolSuffix()+'://' + hostname + ':8443/tile/{z}/{x}/{y}.png'});
 	const tileLayer = new ol.layer.Tile({maxZoom: 14,source: source});
 	
@@ -335,7 +395,7 @@ li a {  display: block;  color: white;  text-align: center;  padding: 14px 16px;
 		target: 'map',
 		view: view,
 	});
-
+*/
 	//---------------------------------------------------------------
 					
 	var  messageControl= new MessageControl({mode:mode});
