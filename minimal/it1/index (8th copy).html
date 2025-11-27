@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<title>OSM Canvas – N-точков маршрут с popup remove и tooltip</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;}
+#mapCanvas{width:100%;height:100%;display:block;cursor:grab;background:#ccc;}
+#controls{position:absolute;top:10px;left:10px;background:rgba(255,255,255,0.9);border-radius:6px;padding:6px;font-family:sans-serif;font-size:14px;}
+#controls button{border:none;background:#4a90e2;color:white;font-size:18px;width:32px;height:32px;margin:2px;border-radius:4px;cursor:pointer;}
+#controls button:hover{background:#357ab8;}
+#controls input{display:none;}
+</style>
+</head>
+<body>
+<canvas id="mapCanvas"></canvas>
+<div id="controls">
+  <button id="zoomIn">+</button>
+  <button id="zoomOut">−</button>
+  <button id="clearRoute">X</button>
+  <button id="saveRoute">💾</button>
+  <button id="loadBtn">📂</button>
+  <input type="file" id="loadRoute">
+  <span id="coords"></span>
+</div>
+
+<script>
+const canvas = document.getElementById("mapCanvas");
+const ctx = canvas.getContext("2d");
+const coordsDisplay = document.getElementById("coords");
+const tileSize = 256;
+const TILE_URL = "http://localhost:8080/tile/{z}/{x}/{y}.png";
+
+let zoom = 13;
+let center = {lat:43.2141, lon:27.9147}; // Варна
+
+const iconMap = {
+    "city": "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+    "restaurant": "https://cdn-icons-png.flaticon.com/512/3075/3075977.png",
+    "hotel": "https://cdn-icons-png.flaticon.com/512/854/854878.png",
+    "park": "https://cdn-icons-png.flaticon.com/512/427/427735.png"
+};
+
+let markers = [
+    {lat:43.2141, lon:27.9147, label:"Варна", type:"city", info:"Най-голям град на Черно море"},
+    {lat:43.219, lon:27.918, label:"Хотел", type:"hotel", info:"5 звезден хотел"},
+    {lat:43.212, lon:27.920, label:"Ресторант", type:"restaurant", info:"Местна кухня"},
+    {lat:43.217, lon:27.915, label:"Парк", type:"park", info:"Красив зелен парк"}
+];
+markers.forEach(m=>{const img=new Image(); img.src=iconMap[m.type]||iconMap["city"]; m.iconImg=img;});
+
+const tileCache = new Map();
+function lon2x(lon){return (lon+180)/360;}
+function lat2y(lat){const rad=lat*Math.PI/180; return (1 - Math.log(Math.tan(rad)+1/Math.cos(rad))/Math.PI)/2;}
+function x2lon(x){return x*360-180;}
+function y2lat(y){const n=Math.PI-2*Math.PI*y; return (180/Math.PI)*Math.atan(0.5*(Math.exp(n)-Math.exp(-n)));}
+
+function getTile(z,x,y){
+    const key=`${z}/${x}/${y}`;
+    if(tileCache.has(key)) return tileCache.get(key);
+    const img=new Image(); img.onload=()=>draw();
+    img.src=TILE_URL.replace("{z}",z).replace("{x}",x).replace("{y}",y);
+    tileCache.set(key,img);
+    return img;
+}
+
+// --- Routing
+let routeGeoJSON=null;
+let routeMarkers=[];
+let routeSegments=[];
+
+let hoveredMarker=null, clickedMarker=null, draggingMarker=null;
+let dragOffsetX=0, dragOffsetY=0, isDragging=false, lastX, lastY;
+let hoveredSegment=null;
+
+// Tooltip
+let tooltipText="", tooltipX=0, tooltipY=0;
+
+function draw(){
+    if(!canvas.width || !canvas.height) return;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const mapSize=Math.pow(2,zoom)*tileSize;
+    const centerX=lon2x(center.lon)*mapSize;
+    const centerY=lat2y(center.lat)*mapSize;
+    const startX=centerX-canvas.width/2;
+    const startY=centerY-canvas.height/2;
+
+    const firstTileX=Math.floor(startX/tileSize);
+    const firstTileY=Math.floor(startY/tileSize);
+    const lastTileX=Math.ceil((startX+canvas.width)/tileSize);
+    const lastTileY=Math.ceil((startY+canvas.height)/tileSize);
+    const maxTile=Math.pow(2,zoom);
+
+    for(let x=firstTileX;x<lastTileX;x++){
+        for(let y=firstTileY;y<lastTileY;y++){
+            if(y<0||y>=maxTile) continue;
+            const wrappedX=((x%maxTile)+maxTile)%maxTile;
+            const img=getTile(zoom,wrappedX,y);
+            ctx.drawImage(img,x*tileSize-startX,y*tileSize-startY,tileSize,tileSize);
+        }
+    }
+
+    drawRoute();
+    drawMarkers();
+    coordsDisplay.textContent=`Zoom:${zoom} | Lat:${center.lat.toFixed(5)} | Lon:${center.lon.toFixed(5)}`;
+}
+
+function drawRoute(){
+    if(!routeGeoJSON || routeMarkers.length<2) return;
+    const mapSize=Math.pow(2,zoom)*tileSize;
+    const centerX=lon2x(center.lon)*mapSize;
+    const centerY=lat2y(center.lat)*mapSize;
+    const startX=centerX-canvas.width/2;
+    const startY=centerY-canvas.height/2;
+    routeSegments=[];
+    let lastX,lastY;
+    ctx.strokeStyle="red"; ctx.lineWidth=4; ctx.beginPath();
+    routeGeoJSON.forEach((pt,i)=>{
+        const x=lon2x(pt[0])*mapSize-startX;
+        const y=lat2y(pt[1])*mapSize-startY;
+        if(i===0){ctx.moveTo(x,y); lastX=x; lastY=y;}
+        else{ctx.lineTo(x,y); routeSegments.push({x1:lastX,y1:lastY,x2:x,y2:y,index:i}); lastX=x; lastY=y;}
+    });
+    ctx.stroke();
+    routeMarkers.forEach((m,index)=>{
+        const mX=lon2x(m.lon)*mapSize-startX;
+        const mY=lat2y(m.lat)*mapSize-startY;
+        ctx.fillStyle="yellow"; ctx.strokeStyle="black"; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(mX,mY-28,10,0,2*Math.PI); ctx.fill(); ctx.stroke();
+        ctx.fillStyle="black"; ctx.font="bold 14px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
+        ctx.fillText((index+1).toString(),mX,mY-28);
+    });
+
+    if(hoveredSegment){
+        const midX=(hoveredSegment.x1+hoveredSegment.x2)/2;
+        const midY=(hoveredSegment.y1+hoveredSegment.y2)/2;
+        ctx.fillStyle="white"; ctx.strokeStyle="black"; ctx.lineWidth=2; ctx.font="bold 14px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
+        const text=`${hoveredSegment.index} → ${hoveredSegment.index+1}`;
+        ctx.strokeText(text, midX, midY-10); ctx.fillText(text, midX, midY-10);
+    }
+}
+
+function drawMarkers(){
+    const mapSize=Math.pow(2,zoom)*tileSize;
+    const centerX=lon2x(center.lon)*mapSize;
+    const centerY=lat2y(center.lat)*mapSize;
+    const startX=centerX-canvas.width/2;
+    const startY=centerY-canvas.height/2;
+
+    markers.forEach(m=>{
+        const mX=lon2x(m.lon)*mapSize-startX;
+        const mY=lat2y(m.lat)*mapSize-startY;
+        if(m.iconImg) ctx.drawImage(m.iconImg,mX-12,mY-24,24,24);
+    });
+
+    if(hoveredMarker){
+        const mX=lon2x(hoveredMarker.lon)*mapSize-startX;
+        const mY=lat2y(hoveredMarker.lat)*mapSize-startY;
+        ctx.font="14px sans-serif"; ctx.fillStyle="black";
+        ctx.fillText(hoveredMarker.label, mX+15,mY-10);
+    }
+
+    if(clickedMarker){
+        const mX=lon2x(clickedMarker.lon)*mapSize-startX;
+        const mY=lat2y(clickedMarker.lat)*mapSize-startY;
+        const padding=6;
+        let text=`${clickedMarker.label} (${clickedMarker.type})\n${clickedMarker.info}`;
+        const inRoute=routeMarkers.includes(clickedMarker);
+        if(inRoute) text+="\n[Remove from route]";
+        ctx.font="14px sans-serif";
+        const lines=text.split("\n");
+        const width=Math.max(...lines.map(l=>ctx.measureText(l).width))+padding*2;
+        const height=lines.length*18+padding*2;
+
+        ctx.fillStyle="white"; ctx.strokeStyle="black"; ctx.lineWidth=2; ctx.fillRect(mX,mY-50,width,height); ctx.strokeRect(mX,mY-50,width,height);
+        ctx.fillStyle="black";
+        lines.forEach((line,i)=>ctx.fillText(line,mX+padding,mY-50+padding+i*18+12));
+    }
+
+    // Tooltip
+    if(tooltipText){
+        ctx.fillStyle="yellow";
+        ctx.strokeStyle="black";
+        ctx.lineWidth=2;
+        ctx.font="bold 14px sans-serif";
+        const textWidth = ctx.measureText(tooltipText).width + 8;
+        const textHeight = 20;
+        ctx.fillRect(tooltipX, tooltipY, textWidth, textHeight);
+        ctx.strokeRect(tooltipX, tooltipY, textWidth, textHeight);
+        ctx.fillStyle = "black";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText(tooltipText, tooltipX + 4, tooltipY + textHeight/2);
+    }
+}
+
+// --- Canvas resize
+function resizeCanvas(){canvas.width=window.innerWidth; canvas.height=window.innerHeight; draw();}
+window.addEventListener("resize",resizeCanvas); resizeCanvas();
+
+// --- Map drag
+canvas.addEventListener("mousedown",e=>{if(!draggingMarker){isDragging=true; lastX=e.clientX; lastY=e.clientY; canvas.style.cursor="grabbing";}});
+canvas.addEventListener("mouseup",()=>{isDragging=false; canvas.style.cursor="grab"; draggingMarker=null;});
+canvas.addEventListener("mouseleave",()=>{isDragging=false; canvas.style.cursor="grab"; draggingMarker=null;});
+
+canvas.addEventListener("mousemove",e=>{
+    const mapSize=Math.pow(2,zoom)*tileSize;
+    const centerX=lon2x(center.lon)*mapSize; const centerY=lat2y(center.lat)*mapSize;
+    const startX=centerX-canvas.width/2; const startY=centerY-canvas.height/2;
+
+    tooltipText="";
+
+    if(draggingMarker){
+        const newX=e.clientX-dragOffsetX+startX; const newY=e.clientY-dragOffsetY+startY;
+        draggingMarker.lon=x2lon(newX/mapSize); draggingMarker.lat=y2lat(newY/mapSize);
+        if(routeMarkers.includes(draggingMarker)) updateRouteN(routeMarkers); else draw();
+        return;
+    }
+    if(isDragging && !draggingMarker){ moveByPixels(e.clientX-lastX,e.clientY-lastY); lastX=e.clientX; lastY=e.clientY; return;}
+
+    hoveredMarker=null; markers.forEach(m=>{const mX=lon2x(m.lon)*mapSize-startX; const mY=lat2y(m.lat)*mapSize-startY; if(Math.abs(e.clientX-mX)<12 && Math.abs(e.clientY-mY)<24) hoveredMarker=m;});
+    hoveredSegment=null; const threshold=6; routeSegments.forEach(seg=>{const dx=seg.x2-seg.x1, dy=seg.y2-seg.y1, len2=dx*dx+dy*dy, t=((e.clientX-seg.x1)*dx+(e.clientY-seg.y1)*dy)/len2; if(t>=0&&t<=1){const cx=seg.x1+t*dx, cy=seg.y1+t*dy, d2=(e.clientX-cx)**2+(e.clientY-cy)**2; if(d2<threshold*threshold) hoveredSegment=seg;}});
+
+    // Tooltip hover
+    if(clickedMarker && routeMarkers.includes(clickedMarker)){
+        const padding=6; const text=`${clickedMarker.label} (${clickedMarker.type})\n${clickedMarker.info}\n[Remove from route]`;
+        const lines=text.split("\n"); const width=Math.max(...lines.map(l=>ctx.measureText(l).width))+padding*2;
+        const btnX=lon2x(clickedMarker.lon)*mapSize-startX;
+        const btnY=lat2y(clickedMarker.lat)*mapSize-startY-50+(lines.length-1)*18+padding;
+        if(e.clientX >= btnX && e.clientX <= btnX+width && e.clientY >= btnY && e.clientY <= btnY+20){
+            tooltipText = "Премахни маркера от маршрута";
+            tooltipX = e.clientX;
+            tooltipY = e.clientY - 20;
+        }
+    }
+
+    draw();
+});
+
+// --- Move map
+function moveByPixels(dx,dy){
+    const mapSize=Math.pow(2,zoom)*tileSize;
+    const x=lon2x(center.lon)*mapSize-dx; const y=lat2y(center.lat)*mapSize-dy;
+    center.lon=x2lon(x/mapSize); center.lat=y2lat(y/mapSize); draw();
+}
+
+// --- Zoom
+function setZoom(newZoom){if(newZoom<1)newZoom=1;if(newZoom>19)newZoom=19; const oldMapSize=Math.pow(2,zoom)*tileSize; const newMapSize=Math.pow(2,newZoom)*tileSize; const scale=newMapSize/oldMapSize; const centerX=lon2x(center.lon)*oldMapSize; const centerY=lat2y(center.lat)*oldMapSize; const newCenterX=centerX*scale; const newCenterY=centerY*scale; center.lon=x2lon(newCenterX/newMapSize); center.lat=y2lat(newCenterY/newMapSize); zoom=newZoom; draw();}
+document.getElementById("zoomIn").onclick=()=>setZoom(zoom+1); document.getElementById("zoomOut").onclick=()=>setZoom(zoom-1);
+canvas.addEventListener("wheel",e=>{e.preventDefault(); setZoom(zoom+(e.deltaY<0?1:-1));});
+
+// --- Drag marker
+canvas.addEventListener("mousedown",e=>{
+    const mapSize=Math.pow(2,zoom)*tileSize; const centerX=lon2x(center.lon)*mapSize; const centerY=lat2y(center.lat)*mapSize;
+    const startX=centerX-canvas.width/2; const startY=centerY-canvas.height/2;
+    markers.forEach(m=>{const mX=lon2x(m.lon)*mapSize-startX; const mY=lat2y(m.lat)*mapSize-startY; if(Math.abs(e.clientX-mX)<12 && Math.abs(e.clientY-mY)<24){draggingMarker=m; dragOffsetX=e.clientX-mX; dragOffsetY=e.clientY-mY;}});
+});
+
+// --- Click popup / N-route / Remove
+canvas.addEventListener("click", async e=>{
+    const mapSize=Math.pow(2,zoom)*tileSize; const centerX=lon2x(center.lon)*mapSize; const centerY=lat2y(center.lat)*mapSize;
+    const startX=centerX-canvas.width/2; const startY=centerY-canvas.height/2;
+
+    if(e.ctrlKey){
+        let selectedMarker=null;
+        markers.forEach(m=>{const mX=lon2x(m.lon)*mapSize-startX; const mY=lat2y(m.lat)*mapSize-startY; if(Math.abs(e.clientX-mX)<12 && Math.abs(e.clientY-mY)<24) selectedMarker=m;});
+        if(!selectedMarker) return; if(!routeMarkers.includes(selectedMarker)) routeMarkers.push(selectedMarker);
+        if(routeMarkers.length>=2) await updateRouteN(routeMarkers); return;
+    }
+
+    clickedMarker=null; markers.forEach(m=>{const mX=lon2x(m.lon)*mapSize-startX; const mY=lat2y(m.lat)*mapSize-startY; if(Math.abs(e.clientX-mX)<12 && Math.abs(e.clientY-mY)<24) clickedMarker=m;});
+
+    // --- Remove from route
+    if(clickedMarker && routeMarkers.includes(clickedMarker)){
+        const padding=6; 
+        const text=`${clickedMarker.label} (${clickedMarker.type})\n${clickedMarker.info}\n[Remove from route]`;
+        const lines=text.split("\n"); 
+        const width=Math.max(...lines.map(l=>ctx.measureText(l).width))+padding*2;
+        const mX=lon2x(clickedMarker.lon)*mapSize-startX; 
+        const mY=lat2y(clickedMarker.lat)*mapSize-startY;
+        const btnX=mX; 
+        const btnY=mY-50+(lines.length-1)*18+padding;
+        if(e.clientX>=btnX && e.clientX<=btnX+width && e.clientY>=btnY && e.clientY<=btnY+20){
+            routeMarkers = routeMarkers.filter(m => m !== clickedMarker);
+            if(routeMarkers.length >= 2){
+                await updateRouteN(routeMarkers);
+            } else {
+                routeGeoJSON = null;
+            }
+            clickedMarker = null; draw(); return;
+        }
+    }
+
+    draw();
+});
+
+// --- Double click add marker
+canvas.addEventListener("dblclick",e=>{
+    const mapSize=Math.pow(2,zoom)*tileSize; const centerX=lon2x(center.lon)*mapSize; const centerY=lat2y(center.lat)*mapSize;
+    const startX=centerX-canvas.width/2; const startY=centerY-canvas.height/2;
+    const lon=x2lon(startX+e.clientX); const lat=y2lat(startY+e.clientY);
+    const newMarker={lat,lon,label:"Нов маркер",type:"city",info:"Добавен с double click"};
+    const img=new Image(); img.src=iconMap[newMarker.type]||iconMap["city"]; newMarker.iconImg=img; markers.push(newMarker); draw();
+});
+
+// --- Update N-route
+async function updateRouteN(points){
+    if(points.length<2) return;
+    const coords=points.map(p=>`${p.lon},${p.lat}`).join(";");
+    const url=`http://127.0.0.1:5000/route/v1/driving/${coords}?overview=full&geometries=geojson`;
+    try{ const res=await fetch(url); const data=await res.json();
+        if(data.routes && data.routes.length>0){ routeGeoJSON=data.routes[0].geometry.coordinates; draw(); }
+    }catch(err){console.error("OSRM routing error:",err);}
+}
+
+// --- Clear route
+document.getElementById("clearRoute").onclick=()=>{routeMarkers=[]; routeGeoJSON=null; draw();};
+
+// --- Save / Load
+document.getElementById("saveRoute").onclick=()=>{
+    if(routeMarkers.length<2) return alert("Маршрутът трябва да има поне 2 точки!");
+    const data={markers:routeMarkers.map(m=>({lat:m.lat,lon:m.lon,label:m.label,type:m.type,info:m.info})),geojson:routeGeoJSON};
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}); const url=URL.createObjectURL(blob);
+    const a=document.createElement("a"); a.href=url; a.download="route.json"; a.click(); URL.revokeObjectURL(url);
+};
+document.getElementById("loadBtn").onclick=()=>document.getElementById("loadRoute").click();
+document.getElementById("loadRoute").addEventListener("change",async e=>{
+    const file=e.target.files[0]; if(!file) return; const text=await file.text();
+    try{ const data=JSON.parse(text); routeMarkers=[]; data.markers.forEach(m=>{const marker={...m}; const img=new Image(); img.src=iconMap[m.type]||iconMap["city"]; marker.iconImg=img; markers.push(marker); routeMarkers.push(marker); }); routeGeoJSON=data.geojson||null; draw(); }
+    catch(err){alert("Грешка при зареждане на JSON: "+err);}
+});
+</script>
+</body>
+</html>

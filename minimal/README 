@@ -1,0 +1,7 @@
+
+
+docker-compose up -d
+
+docker-compose logs -f osrm-bulgaria
+docker-compose logs -f local-tiles
+

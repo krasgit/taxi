@@ -1,0 +1,56 @@
+services:
+
+  # --- Import tiles ---
+  tiles-import:
+    image: overv/openstreetmap-tile-server
+    container_name: tiles-import
+    volumes:
+      - ./tiles:/data
+    environment:
+      THREADS: 4
+      DOWNLOAD_PBF: "https://download.geofabrik.de/europe/bulgaria-latest.osm.pbf"
+      NAME_STYLE: "openstreetmap-carto"
+    command: import
+    restart: "no"
+
+  # --- Run tile server ---
+  tileserver:
+    image: overv/openstreetmap-tile-server
+    container_name: local-tiles
+    depends_on:
+      - tiles-import
+    volumes:
+      - ./tiles:/data
+    ports:
+      - "8080:80"
+    environment:
+      THREADS: 4
+      NAME_STYLE: "openstreetmap-carto"
+    command: run
+    restart: always
+
+  # --- OSRM backend ---
+  osrm:
+    image: osrm/osrm-backend:latest
+    container_name: osrm-bulgaria
+    depends_on:
+      - tileserver
+    volumes:
+      - ./osrm-data:/data
+    ports:
+      - "5000:5000"
+    working_dir: /data
+    command: >
+      sh -c "
+      if [ ! -f /data/bulgaria-latest.osrm ]; then
+        echo 'Extracting Bulgaria PBF...';
+        osrm-extract -p /opt/car.lua /data/bulgaria-latest.osm.pbf &&
+        osrm-contract /data/bulgaria-latest.osrm;
+      fi;
+      osrm-routed /data/bulgaria-latest.osrm
+      "
+    restart: always
+
+volumes:
+  tiles-data:
+  osrm-data:

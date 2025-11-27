@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<title>OSM Canvas с OSRM маршрут (localhost tiles)</title>
+<style>
+html,body {margin:0; height:100%; overflow:hidden;}
+#mapCanvas {width:100%; height:100%; display:block; background:#ddd; cursor:grab;}
+.popup {
+  position:absolute; background:white; border:1px solid #999; padding:4px 6px;
+  border-radius:6px; font-family:sans-serif; font-size:14px;
+  box-shadow:0 2px 4px rgba(0,0,0,0.2);
+}
+.popup button {margin-top:4px; width:100%; font-size:13px;}
+</style>
+</head>
+<body>
+<canvas id="mapCanvas"></canvas>
+<div id="popup" class="popup" style="display:none;"></div>
+
+<script>
+const canvas = document.getElementById("mapCanvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// --- TILE SERVER LOCALHOST ---
+const TILE_URL = "http://localhost:8080/tile/{z}/{x}/{y}.png";
+
+const tileSize = 256;
+let zoom = 13;
+let center = {lat:43.2141, lon:27.9147}; // Варна
+let routeMarkers = [];
+let routeCoords = [];
+let clickedMarker = null;
+
+// --- маркери ---
+const iconMap = {
+  city: "https://cdn-icons-png.flaticon.com/512/2776/2776067.png",
+  hotel: "https://cdn-icons-png.flaticon.com/512/139/139899.png",
+  restaurant: "https://cdn-icons-png.flaticon.com/512/1046/1046857.png",
+  park: "https://cdn-icons-png.flaticon.com/512/427/427735.png"
+};
+
+let markers = [
+  {lat:43.2141, lon:27.9147, label:"Варна", type:"city", info:"Най-голям град на Черно море"},
+  {lat:43.219, lon:27.918, label:"Хотел", type:"hotel", info:"5 звезден хотел"},
+  {lat:43.212, lon:27.920, label:"Ресторант", type:"restaurant", info:"Местна кухня"},
+  {lat:43.217, lon:27.915, label:"Парк", type:"park", info:"Красив зелен парк"}
+];
+markers.forEach(m=>{
+  const img = new Image();
+  img.src = iconMap[m.type] || iconMap.city;
+  img.onload = draw;
+  m.iconImg = img;
+});
+
+// --- проекции ---
+function lon2x(lon){return (lon+180)/360;}
+function lat2y(lat){return (1-Math.log(Math.tan(lat*Math.PI/180)+1/Math.cos(lat*Math.PI/180))/Math.PI)/2;}
+function x2lon(x){return x*360-180;}
+function y2lat(y){const n=Math.PI-2*Math.PI*y; return 180/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n)));}
+
+// --- tile cache ---
+const tileCache = new Map();
+function getTile(z,x,y){
+  const key = `${z}/${x}/${y}`;
+  if(tileCache.has(key)) return tileCache.get(key);
+  const img = new Image();
+  img.src = TILE_URL.replace("{z}",z).replace("{x}",x).replace("{y}",y);
+  img.onload = draw;
+  tileCache.set(key,img);
+  return img;
+}
+
+// --- draw ---
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const mapSize = Math.pow(2,zoom)*tileSize;
+  const centerX = lon2x(center.lon)*mapSize;
+  const centerY = lat2y(center.lat)*mapSize;
+  const startX = centerX - canvas.width/2;
+  const startY = centerY - canvas.height/2;
+
+  const firstTileX = Math.floor(startX/tileSize);
+  const firstTileY = Math.floor(startY/tileSize);
+  const lastTileX = Math.ceil((startX+canvas.width)/tileSize);
+  const lastTileY = Math.ceil((startY+canvas.height)/tileSize);
+  const maxTile = Math.pow(2,zoom);
+
+  for(let x=firstTileX;x<lastTileX;x++){
+    for(let y=firstTileY;y<lastTileY;y++){
+      if(y<0||y>=maxTile) continue;
+      const wrappedX = ((x%maxTile)+maxTile)%maxTile;
+      const img = getTile(zoom,wrappedX,y);
+      ctx.drawImage(img, x*tileSize-startX, y*tileSize-startY, tileSize, tileSize);
+    }
+  }
+
+  drawRoute();
+  drawMarkers();
+}
+
+// --- draw markers ---
+function drawMarkers(){
+  const mapSize = Math.pow(2,zoom)*tileSize;
+  const centerX = lon2x(center.lon)*mapSize;
+  const centerY = lat2y(center.lat)*mapSize;
+  const startX = centerX - canvas.width/2;
+  const startY = centerY - canvas.height/2;
+
+  markers.forEach(m=>{
+    const x = lon2x(m.lon)*mapSize - startX;
+    const y = lat2y(m.lat)*mapSize - startY;
+    m.screenX = x; m.screenY = y;
+    ctx.drawImage(m.iconImg, x-12, y-24, 24, 24);
+  });
+}
+
+// --- draw route ---
+function drawRoute(){
+  if(routeCoords.length<2) return;
+  const mapSize = Math.pow(2,zoom)*tileSize;
+  const centerX = lon2x(center.lon)*mapSize;
+  const centerY = lat2y(center.lat)*mapSize;
+  const startX = centerX - canvas.width/2;
+  const startY = centerY - canvas.height/2;
+
+  ctx.beginPath();
+  routeCoords.forEach((p,i)=>{
+    const x = lon2x(p.lon)*mapSize - startX;
+    const y = lat2y(p.lat)*mapSize - startY;
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle="red"; ctx.lineWidth=3; ctx.stroke();
+}
+
+// --- resize ---
+window.addEventListener("resize",()=>{canvas.width=window.innerWidth; canvas.height=window.innerHeight; draw();});
+
+// --- drag / move ---
+let draggingMarker=null, isDraggingMap=false, lastX, lastY;
+canvas.addEventListener("mousedown", e=>{
+  lastX=e.clientX; lastY=e.clientY;
+  draggingMarker = markers.find(m=>Math.abs(e.clientX-m.screenX)<12 && Math.abs(e.clientY-m.screenY)<24) || null;
+  if(!draggingMarker) isDraggingMap = true;
+  hidePopup();
+});
+canvas.addEventListener("mousemove", e=>{
+  const dx = e.clientX - lastX; const dy = e.clientY - lastY;
+  if(draggingMarker){
+    const mapSize = Math.pow(2,zoom)*tileSize;
+    const centerX = lon2x(center.lon)*mapSize;
+    const centerY = lat2y(center.lat)*mapSize;
+    const startX = centerX - canvas.width/2;
+    const startY = centerY - canvas.height/2;
+    draggingMarker.lon = x2lon(startX + draggingMarker.screenX + dx);
+    draggingMarker.lat = y2lat(startY + draggingMarker.screenY + dy);
+    if(routeMarkers.includes(draggingMarker)) updateRouteN(routeMarkers);
+  } else if(isDraggingMap){
+    moveByPixels(-dx,-dy);
+  }
+  lastX = e.clientX; lastY = e.clientY;
+  draw();
+});
+canvas.addEventListener("mouseup", ()=>{draggingMarker=null; isDraggingMap=false;});
+
+// --- move map helper ---
+function moveByPixels(dx,dy){
+  const mapSize = Math.pow(2,zoom)*tileSize;
+  const centerX = lon2x(center.lon)*mapSize + dx;
+  const centerY = lat2y(center.lat)*mapSize + dy;
+  center.lon = x2lon(centerX/mapSize);
+  center.lat = y2lat(centerY/mapSize);
+}
+
+// --- double click add marker ---
+canvas.addEventListener("dblclick", e=>{
+  const mapSize = Math.pow(2,zoom)*tileSize;
+  const centerX = lon2x(center.lon)*mapSize;
+  const centerY = lat2y(center.lat)*mapSize;
+  const startX = centerX - canvas.width/2;
+  const startY = centerY - canvas.height/2;
+  const lon = x2lon(startX + e.clientX);
+  const lat = y2lat(startY + e.clientY);
+  const newMarker = {lat, lon, label:"Нов маркер", type:"city", info:"Добавен с double click"};
+  const img = new Image(); img.src = iconMap.city; img.onload = draw; newMarker.iconImg = img;
+  markers.push(newMarker);
+  draw();
+});
+
+// --- popup ---
+const popup = document.getElementById("popup");
+canvas.addEventListener("click", e=>{
+  const m = markers.find(m=>Math.abs(e.clientX-m.screenX)<12 && Math.abs(e.clientY-m.screenY)<24);
+  if(m){
+    clickedMarker = m;
+    popup.innerHTML = `<b>${m.label}</b><br>${m.info}<br>
+      <button onclick="removeMarker()">Remove from route</button>
+      <button onclick="addToRoute()">Add to route</button>`;
+    popup.style.left = e.clientX+"px";
+    popup.style.top = e.clientY+"px";
+    popup.style.display = "block";
+  } else hidePopup();
+});
+function hidePopup(){popup.style.display="none";}
+function removeMarker(){if(clickedMarker){markers = markers.filter(m=>m!==clickedMarker); routeMarkers = routeMarkers.filter(m=>m!==clickedMarker); clickedMarker=null; hidePopup(); draw();}}
+function addToRoute(){if(clickedMarker && !routeMarkers.includes(clickedMarker)){routeMarkers.push(clickedMarker); updateRouteN(routeMarkers);} hidePopup();}
+
+// --- OSRM route ---
+async function updateRouteN(points){
+  if(points.length<2) return;
+  const coords = points.map(p=>`${p.lon},${p.lat}`).join(";");
+  const url = `http://127.0.0.1:5000/route/v1/driving/${coords}?overview=full&geometries=geojson`;
+  try{
+    const res = await fetch(url);
+    const data = await res.json();
+    if(data.routes && data.routes.length>0){
+      routeCoords = data.routes[0].geometry.coordinates.map(c=>({lon:c[0],lat:c[1]}));
+      draw();
+    }
+  } catch(err){console.error("OSRM error:",err);}
+}
+
+// --- init draw ---
+draw();
+</script>
+</body>
+</html>

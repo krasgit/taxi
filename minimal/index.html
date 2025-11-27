@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<title>OSM Canvas + OSRM Route (lat,lon)</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;}
+#mapCanvas{width:100%;height:100%;display:block;cursor:grab;background:#ccc;}
+#controls{position:absolute;top:10px;left:10px;background:rgba(255,255,255,0.9);border-radius:6px;padding:6px;font-family:sans-serif;font-size:14px;}
+#controls button{border:none;background:#4a90e2;color:white;font-size:18px;width:32px;height:32px;margin:2px;border-radius:4px;cursor:pointer;}
+#controls button:hover{background:#357ab8;}
+#markerList{
+    position:absolute;top:10px;right:10px;
+    background:rgba(255,255,255,0.95);
+    border-radius:6px;padding:6px;
+    font-family:sans-serif;font-size:14px;
+    max-height:90%;overflow:auto;
+}
+#markerMenu{
+    position:absolute;display:none;
+    background:white;border:1px solid #333;border-radius:4px;padding:4px;
+    font-family:sans-serif;z-index:1000;
+}
+</style>
+</head>
+<body>
+<canvas id="mapCanvas"></canvas>
+
+<div id="controls">
+  <button id="zoomIn">+</button>
+  <button id="zoomOut">−</button>
+  <span id="coords"></span>
+</div>
+
+<div id="markerList"></div>
+
+<div id="markerMenu"> 
+    <button id="deleteMarkerBtn">🗑️ Изтрий маркер</button>
+</div>
+
+<script>
+const canvas=document.getElementById("mapCanvas");
+const ctx=canvas.getContext("2d");
+const coordsDisplay=document.getElementById("coords");
+
+const TILE_URL="http://localhost:8080/tile/{z}/{x}/{y}.png";
+const tileSize=256;
+
+let zoom=14;
+let center={lat:43.2141,lon:27.9147};
+let markers=[{lat:43.2141,lon:27.9147}];
+let routeGeoJSON=null, routeMessage="";
+
+// --- координати
+function lon2x(lon){return (lon+180)/360;}
+function lat2y(lat){
+    const r=lat*Math.PI/180;
+    return (1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2;
+}
+function x2lon(x){return x*360-180;}
+function y2lat(y){
+    const n=Math.PI-2*Math.PI*y;
+    return (180/Math.PI)*Math.atan(0.5*(Math.exp(n)-Math.exp(-n)));
+}
+
+// --- кеш на плочки
+const tileCache=new Map();
+function getTile(z,x,y){
+  const key=`${z}/${x}/${y}`;
+  if(tileCache.has(key)) return tileCache.get(key);
+
+  const img=new Image();
+  img.onload=()=>draw();
+  img.src=TILE_URL.replace("{z}",z).replace("{x}",x).replace("{y}",y);
+
+  tileCache.set(key,img);
+  return img;
+}
+
+function draw(){
+  if(!canvas.width||!canvas.height) return;
+
+  const mapSize=Math.pow(2,zoom)*tileSize;
+  const cx=lon2x(center.lon)*mapSize;
+  const cy=lat2y(center.lat)*mapSize;
+  const startX=cx-canvas.width/2;
+  const startY=cy-canvas.height/2;
+
+  const firstX=Math.floor(startX/tileSize);
+  const firstY=Math.floor(startY/tileSize);
+  const lastX=Math.ceil((startX+canvas.width)/tileSize);
+  const lastY=Math.ceil((startY+canvas.height)/tileSize);
+
+  const max=Math.pow(2,zoom);
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // draw tiles
+  for(let x=firstX;x<lastX;x++){
+    for(let y=firstY;y<lastY;y++){
+      if(y<0||y>=max) continue;
+      const wx=((x%max)+max)%max;
+      const img=getTile(zoom,wx,y);
+      ctx.drawImage(img,x*tileSize-startX,y*tileSize-startY,tileSize,tileSize);
+    }
+  }
+
+  // draw route
+  if(routeGeoJSON){
+    ctx.beginPath();
+    const coords=routeGeoJSON.coordinates;
+    ctx.lineWidth=4;
+    ctx.strokeStyle="red";
+
+    coords.forEach((c,i)=>{
+      // FIX: geojson is lon,lat
+      const px=lon2x(c[0])*mapSize-startX;
+      const py=lat2y(c[1])*mapSize-startY;
+      if(i===0) ctx.moveTo(px,py);
+      else ctx.lineTo(px,py);
+    });
+    ctx.stroke();
+  }
+
+  // draw markers
+  markers.forEach((m,i)=>{
+    const px=lon2x(m.lon)*mapSize-startX;
+    const py=lat2y(m.lat)*mapSize-startY;
+
+    ctx.beginPath();
+    ctx.arc(px,py,6,0,2*Math.PI);
+    ctx.fillStyle=(i===0)?"green":(i===markers.length-1?"red":"blue");
+    ctx.fill();
+  });
+
+  coordsDisplay.textContent=`Zoom:${zoom} | Lat:${center.lat.toFixed(5)} | Lon:${center.lon.toFixed(5)} ${routeMessage}`;
+  updateMarkerList();
+}
+
+let drag=false,lastX,lastY,dragMarker=null;
+
+canvas.addEventListener("mousedown",e=>{
+  const m=pickMarker(e.clientX,e.clientY);
+  if(m) dragMarker=m;
+  else{drag=true;lastX=e.clientX;lastY=e.clientY;}
+});
+
+canvas.addEventListener("mousemove",e=>{
+  if(dragMarker) moveMarkerTo(dragMarker,e.clientX,e.clientY);
+  else if(drag){
+    const dx=e.clientX-lastX,dy=e.clientY-lastY;
+    moveByPixels(dx,dy);
+    lastX=e.clientX;lastY=e.clientY;
+  }
+});
+
+canvas.addEventListener("mouseup",()=>{
+  if(dragMarker){ updateRoute(); }
+  dragMarker=null;
+  drag=false;
+});
+
+canvas.addEventListener("mouseleave",()=>{drag=false;dragMarker=null;});
+
+canvas.addEventListener("wheel",e=>{
+  e.preventDefault();
+  setZoom(zoom+(e.deltaY<0?1:-1));
+});
+
+// --- pan
+function moveByPixels(dx,dy){
+  const mapSize=Math.pow(2,zoom)*tileSize;
+  const x=lon2x(center.lon)*mapSize-dx;
+  const y=lat2y(center.lat)*mapSize-dy;
+  center.lon=x2lon(x/mapSize);
+  center.lat=y2lat(y/mapSize);
+  draw();
+}
+
+function setZoom(z){ zoom=Math.min(19,Math.max(1,z)); draw(); }
+
+// --- select marker
+function pickMarker(px,py){
+  const mapSize=Math.pow(2,zoom)*tileSize;
+  const cx=lon2x(center.lon)*mapSize;
+  const cy=lat2y(center.lat)*mapSize;
+  const startX=cx-canvas.width/2, startY=cy-canvas.height/2;
+
+  return markers.find(m=>{
+    const mx=lon2x(m.lon)*mapSize-startX;
+    const my=lat2y(m.lat)*mapSize-startY;
+    return Math.hypot(px-mx,py-my)<10;
+  });
+}
+
+// --- drag marker
+function moveMarkerTo(m,px,py){
+  const mapSize=Math.pow(2,zoom)*tileSize;
+  const cx=lon2x(center.lon)*mapSize;
+  const cy=lat2y(center.lat)*mapSize;
+  const startX=cx-canvas.width/2, startY=cy-canvas.height/2;
+
+  m.lon=x2lon((px+startX)/mapSize);
+  m.lat=y2lat((py+startY)/mapSize);
+
+  draw();
+}
+
+// --- double-click adds marker
+canvas.addEventListener("dblclick",e=>{
+  const mapSize=Math.pow(2,zoom)*tileSize;
+  const cx=lon2x(center.lon)*mapSize, cy=lat2y(center.lat)*mapSize;
+  const startX=cx-canvas.width/2, startY=cy-canvas.height/2;
+  const lat=y2lat((e.clientY+startY)/mapSize);
+  const lon=x2lon((e.clientX+startX)/mapSize);
+
+  markers.push({lat,lon});
+  updateRoute();
+});
+
+// --- context menu
+const markerMenu=document.getElementById("markerMenu");
+let contextMarker=null;
+
+canvas.addEventListener("contextmenu",e=>{
+  e.preventDefault();
+  const m=pickMarker(e.clientX,e.clientY);
+  if(m){
+    contextMarker=m;
+    markerMenu.style.left=e.clientX+"px";
+    markerMenu.style.top=e.clientY+"px";
+    markerMenu.style.display="block";
+  }
+});
+window.addEventListener("click",()=>markerMenu.style.display="none");
+
+document.getElementById("deleteMarkerBtn").onclick=()=>{
+  if(contextMarker){
+    markers.splice(markers.indexOf(contextMarker),1);
+    contextMarker=null;
+    markerMenu.style.display="none";
+    updateRoute();
+  }
+};
+
+// --- маркери панел
+function updateMarkerList(){
+  const div=document.getElementById("markerList");
+  div.innerHTML="<b>Маркери</b><br><br>";
+
+  markers.forEach((m,i)=>{
+    const d=document.createElement("div");
+    d.innerHTML=`<b>${i===0?"Начало":(i===markers.length-1?"Край":"Via"+i)}</b><br>
+    Lat:<input type='number' step='0.0001' value='${m.lat.toFixed(5)}' data-i='${i}' class='lat'>
+    Lon:<input type='number' step='0.0001' value='${m.lon.toFixed(5)}' data-i='${i}' class='lon'>`;
+    div.appendChild(d);
+  });
+
+  const btn=document.createElement("button");
+  btn.textContent="➕ Добави маркер";
+  btn.onclick=()=>{
+    markers.push({lat:center.lat,lon:center.lon});
+    updateRoute();
+  };
+  div.appendChild(btn);
+
+  div.querySelectorAll(".lat").forEach(inp=>inp.onchange=e=>{
+    const i=parseInt(e.target.dataset.i);
+    markers[i].lat=parseFloat(e.target.value);
+    updateRoute();
+  });
+
+  div.querySelectorAll(".lon").forEach(inp=>inp.onchange=e=>{
+    const i=parseInt(e.target.dataset.i);
+    markers[i].lon=parseFloat(e.target.value);
+    updateRoute();
+  });
+}
+
+// --- OSRM заявка (поправен формат)
+async function updateRoute(){
+  if(markers.length<2){
+    routeGeoJSON=null;
+    routeMessage="";
+    draw();
+    return;
+  }
+
+  // FIX: OSRM expects lon,lat
+  const coordsStr=markers.map(m=>`${m.lon},${m.lat}`).join(";");
+
+  try{
+    const res=await fetch(`/osrm/route/v1/driving/${coordsStr}?overview=full&geometries=geojson`);
+    const data=await res.json();
+
+    if(data.code!=="Ok"){
+      routeGeoJSON=null;
+      routeMessage=data.message||"No route";
+      draw();
+      return;
+    }
+
+    routeGeoJSON=data.routes[0].geometry;
+    routeMessage="✔";
+  }
+  catch(e){
+    routeGeoJSON=null;
+    routeMessage="Грешка";
+  }
+
+  draw();
+}
+
+// --- init
+window.addEventListener("load",()=>{
+  canvas.width=innerWidth;
+  canvas.height=innerHeight;
+  updateRoute();
+});
+window.addEventListener("resize",()=>{
+  canvas.width=innerWidth;
+  canvas.height=innerHeight;
+  draw();
+});
+
+document.getElementById("zoomIn").onclick=()=>setZoom(zoom+1);
+document.getElementById("zoomOut").onclick=()=>setZoom(zoom-1);
+
+</script>
+</body>
+</html>

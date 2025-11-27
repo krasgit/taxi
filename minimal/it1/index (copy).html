@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<title>OSM Canvas – Варна с Маркери</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;}
+#mapCanvas{width:100%;height:100%;display:block;cursor:grab;background:#ccc;}
+#controls{position:absolute;top:10px;left:10px;background:rgba(255,255,255,0.9);border-radius:6px;padding:6px;font-family:sans-serif;font-size:14px;}
+#controls button{border:none;background:#4a90e2;color:white;font-size:18px;width:32px;height:32px;margin:2px;border-radius:4px;cursor:pointer;}
+#controls button:hover{background:#357ab8;}
+</style>
+</head>
+<body>
+<canvas id="mapCanvas"></canvas>
+<div id="controls">
+  <button id="zoomIn">+</button>
+  <button id="zoomOut">−</button>
+  <span id="coords"></span>
+</div>
+
+<script>
+const canvas = document.getElementById("mapCanvas");
+const ctx = canvas.getContext("2d");
+const coordsDisplay = document.getElementById("coords");
+const tileSize = 256;
+const TILE_URL = "http://localhost:8080/tile/{z}/{x}/{y}.png";
+
+// Център Варна
+let zoom = 13;
+let center = {lat:43.2141, lon:27.9147};
+
+// --- Маркери
+let markers = [
+    {lat:43.2141, lon:27.9147, label:"Варна"} // пример
+];
+
+const tileCache = new Map();
+
+// --- Lat/Lon ↔ tile coordinates
+function lon2x(lon){return (lon+180)/360;}
+function lat2y(lat){const rad=lat*Math.PI/180; return (1 - Math.log(Math.tan(rad)+1/Math.cos(rad))/Math.PI)/2;}
+function x2lon(x){return x*360-180;}
+function y2lat(y){const n=Math.PI-2*Math.PI*y; return (180/Math.PI)*Math.atan(0.5*(Math.exp(n)-Math.exp(-n)));}
+
+// --- Load tile with redraw on load
+function getTile(z,x,y){
+    const key=`${z}/${x}/${y}`;
+    if(tileCache.has(key)) return tileCache.get(key);
+    const img=new Image();
+    img.onload = ()=>draw();
+    img.src=TILE_URL.replace("{z}",z).replace("{x}",x).replace("{y}",y);
+    tileCache.set(key,img);
+    return img;
+}
+
+// --- Draw map с tiles и маркери
+function draw(){
+    if(!canvas.width || !canvas.height) return;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const mapSize = Math.pow(2,zoom)*tileSize;
+    const centerX = lon2x(center.lon)*mapSize;
+    const centerY = lat2y(center.lat)*mapSize;
+
+    const startX = centerX - canvas.width/2;
+    const startY = centerY - canvas.height/2;
+
+    const firstTileX = Math.floor(startX/tileSize);
+    const firstTileY = Math.floor(startY/tileSize);
+    const lastTileX = Math.ceil((startX+canvas.width)/tileSize);
+    const lastTileY = Math.ceil((startY+canvas.height)/tileSize);
+    const maxTile = Math.pow(2,zoom);
+
+    // --- Tiles
+    for(let x=firstTileX;x<lastTileX;x++){
+        for(let y=firstTileY;y<lastTileY;y++){
+            if(y<0||y>=maxTile) continue;
+            const wrappedX = ((x%maxTile)+maxTile)%maxTile;
+            const img=getTile(zoom,wrappedX,y);
+            const dx=x*tileSize-startX;
+            const dy=y*tileSize-startY;
+            ctx.drawImage(img,dx,dy,tileSize,tileSize);
+        }
+    }
+
+    // --- Маркери
+    markers.forEach(m=>{
+        const mX = lon2x(m.lon)*mapSize - startX;
+        const mY = lat2y(m.lat)*mapSize - startY;
+        // Малка икона (кръг)
+        ctx.beginPath();
+        ctx.arc(mX, mY, 6, 0, Math.PI*2);
+        ctx.fillStyle = "red";
+        ctx.fill();
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    });
+
+    // --- Tooltip при hover
+    if(hoveredMarker){
+        const mX = lon2x(hoveredMarker.lon)*mapSize - startX;
+        const mY = lat2y(hoveredMarker.lat)*mapSize - startY;
+        ctx.font = "14px sans-serif";
+        ctx.fillStyle = "black";
+        ctx.fillText(hoveredMarker.label, mX + 10, mY - 10);
+    }
+
+    coordsDisplay.textContent=`Zoom:${zoom} | Lat:${center.lat.toFixed(5)} | Lon:${center.lon.toFixed(5)}`;
+}
+
+// --- Drag
+let isDragging=false, lastX, lastY;
+canvas.addEventListener("mousedown",e=>{isDragging=true; lastX=e.clientX; lastY=e.clientY; canvas.style.cursor="grabbing";});
+canvas.addEventListener("mouseup",()=>{isDragging=false; canvas.style.cursor="grab";});
+canvas.addEventListener("mouseleave",()=>{isDragging=false; canvas.style.cursor="grab";});
+canvas.addEventListener("mousemove",e=>{
+    if(!isDragging) return;
+    const dx=e.clientX-lastX;
+    const dy=e.clientY-lastY;
+    moveByPixels(dx,dy);
+    lastX=e.clientX; lastY=e.clientY;
+});
+
+// --- Move map by pixels
+function moveByPixels(dx,dy){
+    const mapSize=Math.pow(2,zoom)*tileSize;
+    const x=lon2x(center.lon)*mapSize-dx;
+    const y=lat2y(center.lat)*mapSize-dy;
+    center.lon=x2lon(x/mapSize);
+    center.lat=y2lat(y/mapSize);
+    draw();
+}
+
+// --- Zoom
+function setZoom(newZoom){
+    if(newZoom<1) newZoom=1;
+    if(newZoom>19) newZoom=19;
+    const oldMapSize = Math.pow(2,zoom) * tileSize;
+    const newMapSize = Math.pow(2,newZoom) * tileSize;
+    const scale = newMapSize / oldMapSize;
+
+    const centerX = lon2x(center.lon) * oldMapSize;
+    const centerY = lat2y(center.lat) * oldMapSize;
+    const newCenterX = centerX * scale;
+    const newCenterY = centerY * scale;
+
+    center.lon = x2lon(newCenterX / newMapSize);
+    center.lat = y2lat(newCenterY / newMapSize);
+
+    zoom = newZoom;
+    draw();
+}
+
+// --- Events
+window.addEventListener("load", ()=>{
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    draw();
+});
+window.addEventListener("resize", ()=>{
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    draw();
+});
+
+canvas.addEventListener("wheel", e=>{
+    e.preventDefault();
+    setZoom(zoom + (e.deltaY < 0 ? 1 : -1));
+});
+document.getElementById("zoomIn").onclick = ()=>setZoom(zoom+1);
+document.getElementById("zoomOut").onclick = ()=>setZoom(zoom-1);
+
+// --- Tooltip при hover
+let hoveredMarker = null;
+canvas.addEventListener("mousemove", e=>{
+    const mapSize = Math.pow(2,zoom)*tileSize;
+    const centerX = lon2x(center.lon)*mapSize;
+    const centerY = lat2y(center.lat)*mapSize;
+    const startX = centerX - canvas.width/2;
+    const startY = centerY - canvas.height/2;
+
+    hoveredMarker = null;
+    markers.forEach(m=>{
+        const mX = lon2x(m.lon)*mapSize - startX;
+        const mY = lat2y(m.lat)*mapSize - startY;
+        const dx = e.clientX - mX;
+        const dy = e.clientY - mY;
+        if(Math.sqrt(dx*dx + dy*dy) < 8){
+            hoveredMarker = m;
+        }
+    });
+    draw();
+});
+
+// --- Добавяне на маркер с double click
+canvas.addEventListener("dblclick", e=>{
+    const mapSize = Math.pow(2,zoom)*tileSize;
+    const centerX = lon2x(center.lon)*mapSize;
+    const centerY = lat2y(center.lat)*mapSize;
+    const startX = centerX - canvas.width/2;
+    const startY = centerY - canvas.height/2;
+
+    const clickX = e.clientX + startX;
+    const clickY = e.clientY + startY;
+    const lat = y2lat(clickY / mapSize);
+    const lon = x2lon(clickX / mapSize);
+    markers.push({lat, lon, label:`Point ${markers.length+1}`});
+    draw();
+});
+</script>
+</body>
+</html>
