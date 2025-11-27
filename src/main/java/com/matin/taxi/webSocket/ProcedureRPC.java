@@ -190,7 +190,8 @@ public class ProcedureRPC extends ProcedureCore {
 			calkOrderToTaxiDistanceAndSort(orderStartPosition, allActiveTaxi);
 			// ---------------
 
-		
+			if (allActiveTaxi.isEmpty())
+				throw new Exception("No Taxi in range");
 		
 
 			//

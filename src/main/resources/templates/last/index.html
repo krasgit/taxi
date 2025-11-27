@@ -577,7 +577,7 @@ li a {  display: block;  color: white;  text-align: center;  padding: 14px 16px;
     function simpleReverseGeocoding(lon, lat) {
 
 		var url = 'http'+getProtocolSuffix()+'://' + hostname + ':8443/reverse?format=json&lon=' + lon + '&lat=' + lat;
-		console.groupCollapsed(		"%c"+"ReverseGeocoding lon lat " + url,		"background-color: #e0005a ; color: #ffffff ; font-weight: bold ; padding: 4px ;"	);
+		console.groupCollapsed(		"%c"+"simpleReverseGeocoding lon lat " + url,		"background-color: #e0005a ; color: #ffffff ; font-weight: bold ; padding: 4px ;"	);
 		fetch(url).then(function (response) {
 			return response.json();
 		}).then(function (json) {
