@@ -1,3 +1,152 @@
+# --- Dockerfile ---
+FROM python:3.11-slim
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    maven \
+    openjdk-17-jdk \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -Ls https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:${PATH}"
+
+WORKDIR /workspace
+
+# MCP filesystem server already cloned
+RUN git clone https://github.com/dmatscheko/filesystem.git /opt/filesystem-mcp
+
+CMD ["bash"]
+
+# --- docker-compose.yml ---
+version: "3.9"
+
+services:
+  mcp-sandbox:
+    build: .
+    container_name: mcp-sandbox
+    stdin_open: true
+    tty: true
+    working_dir: /workspace
+    volumes:
+      - /home/YOUR_USER/ai-docker-workspace/my-enterprise-app:/workspace:rw
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1g
+
+# --- mcp.json for LM Studio ---
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "docker",
+      "args": [
+        "exec",
+        "-i",
+        "mcp-sandbox",
+        "uvx",
+        "/opt/filesystem-mcp",
+        "--root",
+        "/workspace"
+      ]
+    },
+    "shell": {
+      "command": "docker",
+      "args": [
+        "exec",
+        "-i",
+        "mcp-sandbox",
+        "uvx",
+        "mcp-shell"
+      ]
+    }
+  }
+}
+
+# --- Instructions ---
+1. Build & Start Container:
+
+cd ~/mcp-docker-compose
+docker-compose build
+docker-compose up -d
+docker exec -it mcp-sandbox bash
+cd /workspace
+
+2. LM Studio Configuration:
+- Settings → MCP → Open Config Folder
+- Copy mcp.json
+- Restart MCP Servers
+
+3. System Prompt (Settings → Model Settings → System Prompt):
+
+You are an Enterprise Java Architect AI working on a Maven multi-module project.
+
+You have access to filesystem and shell tools.
+
+GLOBAL RULES:
+- Always read files before editing.
+- Use edit_file for modifications.
+- Use write_file only for new files.
+- Never duplicate dependencies.
+- Never operate outside allowed root.
+- Group logical changes.
+- Preserve formatting.
+- Ensure project compiles after changes.
+
+MAVEN INTELLIGENCE:
+- Always check pom.xml before adding dependency
+- Avoid duplicates
+- Respect dependencyManagement
+- Compile with mvn after changes
+
+DDD + CLEAN ARCHITECTURE:
+- Domain: no infrastructure
+- Application: use cases
+- Infrastructure: db/rest/external
+- API: controllers only
+
+REFACTOR MODE:
+- Detect long methods/classes
+- Extract methods/classes
+- Reduce coupling
+- Compile after each batch
+
+SECURITY MODE:
+- SQL injection, Runtime.exec, secrets
+- Unsafe deserialization
+- Missing validation
+- Report in structured format
+
+GIT MODE:
+- Analyze last 20 commits
+- Detect risky changes, removed tests
+
+BUILD SYSTEM THINKING:
+- Detect broken modules
+- Keep build green
+- Be minimal, deterministic, correct
+
+4. Test AI in LM Studio:
+
+read pom.xml
+validate project
+add undertow web server
+deep security audit
+
+✅ AI uses MCP directly in container  
+✅ Project is sandboxed  
+✅ Only /workspace is writable  
+
+5. Security Summary:
+
+✔ Project-only access  
+✔ No SSH keys  
+✔ No /home access  
+✔ No root  
+✔ Limited CPU & RAM  
+✔ Optional network disabled
+
 # WebRTC Call with Background Music & Call Timeout
 
 Here's an enhanced version of the WebRTC call application that includes:
